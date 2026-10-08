@@ -63,13 +63,24 @@ export function World({
   playing = true,
   hero = false,
   onInspect,
+  greetingMode,
 }: {
   scene?: SceneId;
+  greetingMode?: 'hello' | 'name' | 'meet' | 'bye';
   step?: number;
   playing?: boolean;
   hero?: boolean;
   onInspect?: (item: string) => void;
 }) {
+  const greeting = greetingMode || (step > 1 ? 'meet' : 'hello');
+  const labels = {
+    hello: ['Hello!', 'Hi!'],
+    name: ["I'm Lin.", "I'm Alex."],
+    meet: ['Nice to meet you.', 'Nice to meet you, too.'],
+    bye: ['Goodbye!', 'See you later!'],
+  }[greeting];
+  const wideLeft = labels[0].length > 11;
+  const wideRight = labels[1].length > 11;
   return (
     <div className={`world ${scene} ${playing ? '' : 'paused'} ${hero ? 'hero-world' : ''}`}>
       <svg
@@ -102,24 +113,44 @@ export function World({
             <Person x={205} y={138} wave color="#d97756" />
             <Person x={318} y={144} flip wave={step > 0} color="#547364" />
             <g className="speech-bubble">
-              <rect x="125" y="40" width="122" height="48" rx="16" fill="#fffaf1" />
+              <rect
+                x={wideLeft ? 85 : 125}
+                y="40"
+                width={wideLeft ? 202 : 122}
+                height="48"
+                rx="16"
+                fill="#fffaf1"
+              />
               <path d="M190 85l14 16 3-16" fill="#fffaf1" />
               <text
                 x="186"
                 y="70"
                 textAnchor="middle"
-                fontSize="22"
+                fontSize={wideLeft ? 15 : 22}
                 fontWeight="600"
                 fill="#3e5347"
               >
-                {step > 1 ? "I'm Lin!" : 'Hello!'}
+                {labels[0]}
               </text>
             </g>
             <g className="speech-bubble second">
-              <rect x="302" y="61" width="90" height="41" rx="14" fill="#fffaf1" />
+              <rect
+                x="302"
+                y="61"
+                width={wideRight ? 190 : 90}
+                height="41"
+                rx="14"
+                fill="#fffaf1"
+              />
               <path d="M326 100l-5 12 19-12" fill="#fffaf1" />
-              <text x="347" y="88" textAnchor="middle" fontSize="20" fill="#3e5347">
-                Hi!
+              <text
+                x={wideRight ? 397 : 347}
+                y="88"
+                textAnchor="middle"
+                fontSize={wideRight ? 14 : 17}
+                fill="#3e5347"
+              >
+                {labels[1]}
               </text>
             </g>
             <path

@@ -37,4 +37,4 @@
 6. 经过认证、限流、隐私设计的 AI 后端，以及非敏感模型配置管理；不能在前端放密钥或冒充已上线 AI。
 7. 允许网络域名后复核 Council of Europe 与 British Council 正式资料；当前已实际读取 CEFR-J、FSRS 和官方工具材料，不假称受限资料已阅读。
 
-交付通过功能分支与 PR 待用户审核，远程检查和 PR 状态以 GitHub 为准。不得仅依据本文件宣称后续提交已推送或 PR 已合并。
+交付 [PR #1](https://github.com/chrisjack2380/english-learning-website/pull/1) 待用户审核；初次完整 GitHub Actions 检查通过。最终复核已修正问候气泡与当前步骤的对应，并补充断言；远程检查和 PR 状态以 GitHub 为准。不得仅依据本文件宣称后续提交已推送或 PR 已合并。

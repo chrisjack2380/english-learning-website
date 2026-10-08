@@ -70,6 +70,10 @@ test('first visit through a full lesson, corrected error, next lesson and reload
     'aria-pressed',
     'true',
   );
+  await page.getByRole('button', { name: '下一步演示' }).click();
+  await expect(
+    page.locator('.visual-lesson svg').getByText('Nice to meet you.', { exact: true }),
+  ).toBeVisible();
   await page.getByRole('button', { name: '重播动画' }).click();
   await page.getByRole('button', { name: '理解了，看看例句' }).click();
   await page.getByRole('button', { name: '隐藏中文', exact: true }).click();

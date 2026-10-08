@@ -80,6 +80,15 @@ export function ScenePlayer({
             <World
               scene={id}
               step={step}
+              greetingMode={
+                turn.line.includes('name')
+                  ? 'name'
+                  : turn.line.includes('Nice')
+                    ? 'meet'
+                    : turn.line.includes('See you')
+                      ? 'bye'
+                      : 'hello'
+              }
               playing={playing}
               onInspect={(item) => setInspect(inspection[item])}
             />
