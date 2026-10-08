@@ -3,7 +3,7 @@ import { lessons, scenes, sceneForLesson } from '../src/content';
 async function screenshot(page: Page, name: string) {
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.screenshot({
-    path: `output/playwright/${name}.png`,
+    path: `output/${process.env.SITE_URL ? 'online' : 'playwright'}/${name}.png`,
     fullPage: true,
     animations: 'disabled',
   });

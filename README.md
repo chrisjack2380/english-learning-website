@@ -19,6 +19,7 @@ npm run dev
 npm test                # 学习规则、回答判定和内容一致性
 npm run build           # 严格 TypeScript 检查和生产构建
 npm run test:e2e        # 启动真实浏览器执行完整用户流程
+npm run test:production # 构建 dist 后用真实浏览器验证生产版本
 npm run format:check
 npm run preview         # 预览 dist 生产构建
 ```
@@ -26,6 +27,8 @@ npm run preview         # 预览 dist 生产构建
 云环境 npm 缓存需放在可写目录，可使用 `npm ci --cache /tmp/english-npm-cache`。浏览器测试优先使用 `/usr/bin/chromium`，可通过 `CHROMIUM_PATH` 指定本机浏览器；没有系统 Chromium 时，运行 `npx playwright install chromium`，Playwright 会使用下载的浏览器。Linux 缺少系统库时，按照 Playwright 官方安装指南安装依赖。CI 已配置完整安装。
 
 静态发布 `dist/` 到站点根路径即可，无需后端、账号、模型或 API Key。语音识别需要 HTTPS（本机开发地址例外）以及浏览器支持和用户麦克风权限。
+
+在线交付采用 Vercel，仓库提供 `vercel.json`，无需公开源码或先合并 PR。发布步骤、凭据边界及在线验收见 [部署说明](docs/DEPLOYMENT.md)。当前状态以 [HANDOFF.md](HANDOFF.md) 为准；尚未部署时不把构建产物或测试截图当作在线网址。
 
 ## 已有功能
 

@@ -10,7 +10,8 @@
 | 规则与内容           | `npm test`：18 项全部通过                                                                       |
 | 构建                 | `npm run build`：严格 TypeScript（含未使用变量检查）与 Vite 生产构建通过                        |
 | 格式                 | `npm run format:check` 通过                                                                     |
-| 浏览器流程           | `npm run test:e2e`：16 项全部通过，无 skipped / disabled / expected-failure                     |
+| 开发版浏览器流程     | 初次 `npm run test:e2e`：16 项全部通过，无 skipped / disabled / expected-failure                |
+| 生产版完整浏览器验收 | 本次 `npm run test:production`：17 项全部通过，自动构建并测试 dist，含全部 48 个音频资源        |
 | 页面身份/非空/覆盖层 | 正确标题，关键内容和操作可见，无框架错误覆盖层                                                  |
 | 控制台/资源          | 关键流程未出现应用控制台 error/warning、未捕获异常或失败资源                                    |
 | 音频                 | 随站提供的 MP3 可用 FFprobe 解码；真实浏览器媒体播放时间前进，支持 0.7 倍速和停止               |
@@ -58,3 +59,10 @@
 - 未验证 Safari/Firefox、真实平板手机、账号同步、完整 A1/A2 或 AI 自由对话；这些没有报告为已实现。
 - 课程英文与讲解已逐项检查并用 CEFR-J 数据交叉核对；官方 CEFR 全文仍受网络策略限制，未宣称其全文调研已完成。
 - GitHub Actions 工作流已配置；远程运行状态以 PR 检查为准，本文件记录当前机器实际执行的结果。
+- 在线网站尚未部署，未执行实际 HTTPS 在线验收。新增 `npm run test:online` 已通过测试枚举（17 项）并验证缺少 SITE_URL 时会报错；仅用保留的 `.example` 域名做配置加载，未向它发出网络请求。枚举和本地生产验收不能证明公开站点已经上线。
+
+## 发布前补充验收
+
+2026-10-08 已用生产配置完整运行 17 项 Chromium 用例（28 秒）；与初次开发版相比，新增 48 个 MP3 的 HTTP 状态、audio MIME 和非空内容检查。严格构建包含新 Playwright 配置。CI 运行相同生产验收并生成可发布的 website-dist。
+
+新增音频资源用例初次在测试发现阶段因 Node.js 24 的 JSON import 属性要求而失败，已补上 `with { type: 'json' }` 并完整复跑 17/17 通过；未把零用例运行视作成功。发布权限与后续线上步骤见 [DEPLOYMENT.md](DEPLOYMENT.md)。

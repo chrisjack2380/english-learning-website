@@ -3,6 +3,8 @@ dist/
 *.tsbuildinfo
 test-results/
 playwright-report/
+.vercel/
+output/online/
 .env*
 !.env.example
 .DS_Store

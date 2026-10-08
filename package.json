@@ -9,6 +9,8 @@
     "preview": "vite preview --host 0.0.0.0",
     "test": "vitest run",
     "test:e2e": "playwright test",
+    "test:production": "npm run build && playwright test --config playwright.production.config.ts",
+    "test:online": "playwright test --config playwright.online.config.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "audio:generate": "node scripts/generate-audio.ts"

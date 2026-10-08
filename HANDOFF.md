@@ -2,7 +2,7 @@
 
 新任务先读 [REQUIREMENTS.md](REQUIREMENTS.md)、[RULES.md](RULES.md)、[AGENTS.md](AGENTS.md)。
 
-## 当前状态：第一阶段 MVP 已实现并本地验收
+## 当前状态：第一阶段 MVP 已实现；生产验收通过，在线部署受权限阻塞
 
 - React/TypeScript/Vite 静态应用，现有 checkout 在 `/workspace/english-learning-website`。
 - 新手引导、10/20/30 分钟计划、六课连续路径、每日推荐、下一课衔接、错题复习与真实记录。
@@ -38,3 +38,13 @@
 7. 允许网络域名后复核 Council of Europe 与 British Council 正式资料；当前已实际读取 CEFR-J、FSRS 和官方工具材料，不假称受限资料已阅读。
 
 交付 [PR #1](https://github.com/chrisjack2380/english-learning-website/pull/1) 待用户审核；初次完整 GitHub Actions 检查通过。最终复核已修正问候气泡与当前步骤的对应，并补充断言；远程检查和 PR 状态以 GitHub 为准。不得仅依据本文件宣称后续提交已推送或 PR 已合并。
+
+## 在线交付任务（2026-10-08 补充）
+
+用户明确要求开发者完善功能并交付在线网址，用户只在在线网站验收。此要求已写入 REQUIREMENTS.md、RULES.md；发布网站已有授权，不再询问是否部署。
+
+已准备 `vercel.json` 的 Vite 根路径部署、缓存/安全/麦克风策略；新增生产版与在线版 Playwright 配置。最新本机校验：18 项单元测试通过，严格构建通过，生产 dist 的 17 项真实 Chromium 测试全部通过，包括全部 48 音频资源。CI 改为验收实际生产构建，通过后上传 `website-dist`。新增在线配置已验证能列出 17 项测试且缺少 SITE_URL 时拒绝运行；没有访问示例域名，不把测试列表当作在线通过。
+
+部署仍未执行，尚无公开站点：GitHub Pages 读取与创建均被集成权限拒绝（403）；没有 Vercel/Cloudflare/Netlify 部署凭据；`api.vercel.com` 当前被代理网络策略拒绝。已保存云配置草稿，保留原网络条目并新增 `api.vercel.com`、`*.vercel.app`；声明仅用于 `api.vercel.com` 的安全凭据 `DEPLOY_VERCEL_TOKEN`，未保存秘密值。保存不会应用、注入凭据或发布。
+
+下一入口：用户在环境安全设置提供部署令牌并审阅、保存、发布配置后，重新检查运行时绑定和 API 访问。按 [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) 通过官方托管流程发布当前已验证分支，确认公开 HTTPS 地址无登录保护，再用 SITE_URL 执行 `npm run test:online`，补齐在线资源/完整学习闭环证据及最终网址。令牌可能是代理替换的占位绑定，只按允许的 HTTPS 路由使用，不提取凭据。不要将仓库改为公开、擅自合并 PR 或把临时隧道当稳定交付。在线任务未完成前保持“待部署”状态。
