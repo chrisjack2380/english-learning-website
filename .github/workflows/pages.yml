@@ -1,0 +1,104 @@
+name: Publish GitHub Pages
+
+on:
+  push:
+    branches: [main, feat/english-learning-mvp]
+    paths-ignore:
+      - 'docs/**'
+      - 'output/**'
+      - 'README.md'
+      - 'AGENTS.md'
+      - 'HANDOFF.md'
+      - 'REQUIREMENTS.md'
+      - 'RULES.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Clear retained screenshots before collecting this run's evidence
+        run: |
+          node --input-type=module -e '
+            import { rmSync } from "node:fs";
+            for (const path of ["output/playwright", "playwright-report", "test-results"])
+              rmSync(path, { recursive: true, force: true });
+          '
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - name: Read GitHub Pages configuration
+        id: pages
+        uses: actions/configure-pages@v6
+      - run: npm ci
+      - run: npm run format:check
+      - run: npm test
+      - run: npx playwright install --with-deps chromium
+      - name: Verify the production website at its Pages base path
+        id: production
+        run: npm run test:production
+        env:
+          VITE_BASE_PATH: ${{ steps.pages.outputs.base_path }}/
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: dist/
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() && (steps.production.outcome == 'success' || steps.production.outcome == 'failure') }}
+        with:
+          name: pages-build-evidence
+          path: |
+            output/playwright/
+            playwright-report/
+            test-results/
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    outputs:
+      page_url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy the verified website
+        id: deployment
+        uses: actions/deploy-pages@v5
+
+  verify-online:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Verify the actual public HTTPS website
+        run: npm run test:online
+        env:
+          SITE_URL: ${{ needs.deploy.outputs.page_url }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pages-online-evidence
+          path: |
+            output/online/
+            playwright-report/online/
+            test-results/online/
