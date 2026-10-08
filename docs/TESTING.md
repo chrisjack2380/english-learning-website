@@ -66,3 +66,9 @@
 2026-10-08 已用生产配置完整运行 17 项 Chromium 用例（28 秒）；与初次开发版相比，新增 48 个 MP3 的 HTTP 状态、audio MIME 和非空内容检查。严格构建包含新 Playwright 配置。CI 运行相同生产验收并生成可发布的 website-dist。
 
 新增音频资源用例初次在测试发现阶段因 Node.js 24 的 JSON import 属性要求而失败，已补上 `with { type: 'json' }` 并完整复跑 17/17 通过；未把零用例运行视作成功。发布权限与后续线上步骤见 [DEPLOYMENT.md](DEPLOYMENT.md)。
+
+## GitHub Pages 子路径验收
+
+用户选择 Pages 并将仓库公开后，设置 `VITE_BASE_PATH=/english-learning-website/` 实际构建生产版本，并在相同子路径的预览服务器完整复跑 17 项用例，全部通过（29.7 秒）；18 项单元测试和严格构建通过。产物中的 JS、CSS、favicon 均指向项目子路径，实际媒体对象可加载、播放、慢速与停止；48 个音频请求均返回正确资源。测试的导航和请求不再跳回站点根路径。
+
+此结果仅证明 Pages 路径适配正确；首次开通、官方 Actions 发布、实际 HTTPS 在线验收以远程工作流结果为准。具体权限证据和账号持有人一次性操作见部署文档。

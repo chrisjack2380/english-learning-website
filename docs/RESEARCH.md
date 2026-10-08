@@ -50,3 +50,9 @@ CEFR 用作能力描述参考，而非把六课或选择题分数映射成等级
 eSpeak 来源 [espeak-ng/espeak-ng](https://github.com/espeak-ng/espeak-ng)（读取 README、COPYING 与源码维护状态；2026-09-22 有提交）。实际生成使用 Debian trixie 签名索引中的官方包及其依赖，解包到可写临时目录运行，无 sudo、无全局环境改动。网站只提供原创句子的音频，未捆绑上述合成/转码工具。
 
 系统字体，不请求第三方字体/CDN/图片。SVG 角色、地图、咖啡店及教学图均为本项目原创。基础学习不调用任何付费 API，不含密钥。
+
+## GitHub Pages 发布补充
+
+按用户选择改用 Pages；用户已自行公开原仓库，以使用 GitHub Free。实际阅读 GitHub 官方 Pages 文档（通过 github/docs 的公开源码）、actions/configure-pages 的 action.yml 和 API 实现，以及 actions/deploy-pages 的 README/action.yml；核对官方 release 和仓库许可证。采用 configure-pages v6、upload-pages-artifact v5、deploy-pages v5，三者均为 GitHub 官方维护、MIT，Node 24 运行环境；不安装第三方部署脚本。
+
+官方 configure-pages 对自动开通的要求是：使用 GITHUB_TOKEN 以外的凭据，App 必须具备 administration:write 和 pages:write。当前 Codex App 安装元数据无这两项权限；因此采用账号持有人一次性选择 Pages → GitHub Actions，之后通过工作流的 pages:write/id-token:write 发布。不声称 YAML 可为 Codex App 提权，不要求复制 GitHub 令牌到聊天。

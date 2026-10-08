@@ -43,8 +43,12 @@
 
 用户明确要求开发者完善功能并交付在线网址，用户只在在线网站验收。此要求已写入 REQUIREMENTS.md、RULES.md；发布网站已有授权，不再询问是否部署。
 
-已准备 `vercel.json` 的 Vite 根路径部署、缓存/安全/麦克风策略；新增生产版与在线版 Playwright 配置。最新本机校验：18 项单元测试通过，严格构建通过，生产 dist 的 17 项真实 Chromium 测试全部通过，包括全部 48 音频资源。CI 改为验收实际生产构建，通过后上传 `website-dist`。新增在线配置已验证能列出 17 项测试且缺少 SITE_URL 时拒绝运行；没有访问示例域名，不把测试列表当作在线通过。
+用户后续选择 GitHub Pages，确认使用 GitHub Free，并自行将原仓库公开；API 已确认 `private: false`。已删除 Vercel 发布配置，改为 `.github/workflows/pages.yml`，使用官方 configure-pages v6、upload-pages-artifact v5、deploy-pages v5。工作流在 main/当前开发分支 push 后构建、发布，并用实际输出网址执行在线验收，不等待 PR 合并、不擅自合并。
 
-部署仍未执行，尚无公开站点：GitHub Pages 读取与创建均被集成权限拒绝（403）；没有 Vercel/Cloudflare/Netlify 部署凭据；`api.vercel.com` 当前被代理网络策略拒绝。已保存云配置草稿，保留原网络条目并新增 `api.vercel.com`、`*.vercel.app`；声明仅用于 `api.vercel.com` 的安全凭据 `DEPLOY_VERCEL_TOKEN`，未保存秘密值。保存不会应用、注入凭据或发布。
+Vite 使用 VITE_BASE_PATH，备用音频使用 import.meta.env.BASE_URL，测试导航/音频请求均保留基址；在线配置允许 HTTPS 项目子路径。最新本机校验：18 项单元测试通过，按 `/english-learning-website/` 构建的严格类型检查和 17 项真实 Chromium 生产用例全部通过（29.7 秒），包含全部 48 音频资源。常规 CI 也按项目子路径验收。新增在线配置此前已验证能列出 17 项测试且缺少 SITE_URL 时拒绝运行；枚举不能当作在线通过。
 
-下一入口：用户在环境安全设置提供部署令牌并审阅、保存、发布配置后，重新检查运行时绑定和 API 访问。按 [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) 通过官方托管流程发布当前已验证分支，确认公开 HTTPS 地址无登录保护，再用 SITE_URL 执行 `npm run test:online`，补齐在线资源/完整学习闭环证据及最终网址。令牌可能是代理替换的占位绑定，只按允许的 HTTPS 路由使用，不提取凭据。不要将仓库改为公开、擅自合并 PR 或把临时隧道当稳定交付。在线任务未完成前保持“待部署”状态。
+当前仍需首次启用 Pages。已查询当前 App 安装元数据：chatgpt-codex-connector 的 contents/actions 有 write，而 pages/administration 未授予；因此不能直接开通站点，也不能给自己扩展 App 权限。GitHub 官方明确 GITHUB_TOKEN 不负责首次启用，故发布工作流通过 pages:write/id-token:write 部署已启用的站点，不要求用户提供个人令牌。
+
+下一入口：账号持有人到 [Pages 设置](https://github.com/chrisjack2380/english-learning-website/settings/pages)，将 Build and deployment → Source 设为 GitHub Actions。开发者读取真实 Actions 状态，重跑已存在的 Publish GitHub Pages 推送任务（Actions 权限已具备）；默认分支尚无此文件时，不依赖 workflow_dispatch 触发。若实际日志显示 github-pages 环境分支限制，再按明确错误处理，不擅自关闭保护。部署后由工作流的 verify-online 任务在实际 HTTPS 地址执行全部 17 项浏览器验收，再补充实际网址与证据。未成功前保持“待部署”。
+
+云配置草稿新增 chrisjack2380.github.io，更新启动说明为 Pages；移除旧 \*.vercel.app 自定义网络条目，但旧可选 Vercel 凭据绑定使工具自动保留 api.vercel.com。用户无需填写旧 DEPLOY_VERCEL_TOKEN；当前工具无法删除已有凭据声明，若需要清理可在环境设置移除。草稿保存不应用、不发布环境。远程在线验收在 GitHub 托管机器执行，不依赖云环境放行；本云环境直接访问在线网站需相应网络规则生效。

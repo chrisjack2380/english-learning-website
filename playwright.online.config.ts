@@ -6,10 +6,10 @@ if (!address) throw new Error('请用 SITE_URL 指定已经部署的公开 HTTPS
 const url = new URL(address);
 if (url.protocol !== 'https:' || url.username || url.password || url.search || url.hash)
   throw new Error('SITE_URL 必须是无凭据、无查询参数的 HTTPS 网站地址。');
-if (url.pathname !== '/') throw new Error('当前版本须部署在站点根路径。');
+if (!url.pathname.endsWith('/')) url.pathname += '/';
 
 export default defineConfig(base, {
-  use: { ...base.use, baseURL: url.origin },
+  use: { ...base.use, baseURL: url.href },
   outputDir: 'test-results/online',
   reporter: [['list'], ['html', { outputFolder: 'playwright-report/online', open: 'never' }]],
   webServer: undefined,

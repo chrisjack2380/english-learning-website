@@ -17,6 +17,8 @@ jobs:
       - run: npm test
       - run: npx playwright install --with-deps chromium
       - run: npm run test:production
+        env:
+          VITE_BASE_PATH: /${{ github.event.repository.name }}/
       - uses: actions/upload-artifact@v4
         with:
           name: website-dist

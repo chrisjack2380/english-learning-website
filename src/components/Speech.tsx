@@ -50,7 +50,7 @@ export function Speak({ text, compact = false }: { text: string; compact?: boole
       return;
     }
     activeAudio?.pause();
-    const a = new Audio(`/audio/${file}`);
+    const a = new Audio(`${import.meta.env.BASE_URL}audio/${file}`);
     audioRef.current = a;
     activeAudio = a;
     a.playbackRate = slow ? 0.7 : 1;

@@ -9,7 +9,7 @@ async function screenshot(page: Page, name: string) {
   });
 }
 async function onboard(page: Page, level = '从零开始') {
-  await page.goto('/');
+  await page.goto('./');
   await page.getByText(level, { exact: true }).click();
   await page.getByRole('button', { name: '开启我的学习旅程' }).click();
   await expect(page.getByRole('heading', { name: /今天，也向前/ })).toBeVisible();
@@ -57,7 +57,7 @@ test('first visit through a full lesson, corrected error, next lesson and reload
   page.on('console', (msg) => {
     if (['error', 'warning'].includes(msg.type())) errors.push(msg.text());
   });
-  await page.goto('/');
+  await page.goto('./');
   await screenshot(page, 'desktop-onboarding');
   await page.getByRole('button', { name: '开启我的学习旅程' }).click();
   await screenshot(page, 'desktop-home');
@@ -369,7 +369,7 @@ test('corrupt and unavailable storage is reported without blocking learning', as
   await page.addInitScript(() => {
     localStorage.setItem('little-by-little:v1', '{broken');
   });
-  await page.goto('/');
+  await page.goto('./');
   await expect(page.getByRole('alert')).toContainText('本地记录无法读取');
   expect(await page.evaluate(() => localStorage.getItem('little-by-little:v1'))).toBe('{broken');
   await page.getByRole('button', { name: '开启我的学习旅程' }).click();

@@ -12,5 +12,6 @@
 - 保留用户更改。验证通过后分任务提交，推送新分支或创建 PR；不强推、不删除重要分支、不擅自合并。
 - 阶段完成更新维护文档。交付说明实际执行的测试、提交、远程同步和待合并状态。
 - 在线交付见 docs/DEPLOYMENT.md。发布前运行 npm run test:production 验证 dist；部署后用 SITE_URL 配合 npm run test:online 验证真实 HTTPS 网站，不能用本地通过替代在线验收。在线测试仅改动独立测试浏览器的数据。
+- 按用户选择使用 GitHub Pages，用户已自行公开仓库。Pages 项目构建/生产验收设置 VITE_BASE_PATH=/english-learning-website/；保留资源、音频和测试的子路径。不要再要求 Vercel 凭据，也不要声称 YAML 能给 Codex App 提权。合并后移除发布工作流中临时开发分支触发。
 
 - 播音文本扩充后，用已审核的本地 eSpeak/FFmpeg 生成工具更新备用音频映射，验证浏览器真实解码与播放；普通环境安装无需重新生成。不要为合成器关闭 TLS/签名/哈希校验。

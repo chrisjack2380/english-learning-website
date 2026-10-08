@@ -5,7 +5,7 @@ test('all bundled audio resources return real audio instead of an HTML fallback'
   request,
 }) => {
   for (const file of new Set(Object.values(clips))) {
-    const response = await request.get(`/audio/${file}`);
+    const response = await request.get(`audio/${file}`);
     expect(response.ok(), `Audio resource failed: ${file}`).toBe(true);
     expect(response.headers()['content-type'], file).toMatch(/^audio\//);
     expect((await response.body()).byteLength, file).toBeGreaterThan(32);
