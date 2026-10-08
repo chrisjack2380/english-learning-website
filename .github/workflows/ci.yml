@@ -8,6 +8,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Clear retained screenshots before collecting this run's evidence
+        run: |
+          node --input-type=module -e '
+            import { rmSync } from "node:fs";
+            for (const path of ["output/playwright", "playwright-report", "test-results"])
+              rmSync(path, { recursive: true, force: true });
+          '
       - uses: actions/setup-node@v4
         with:
           node-version-file: .node-version

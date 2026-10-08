@@ -71,4 +71,16 @@
 
 用户选择 Pages 并将仓库公开后，设置 `VITE_BASE_PATH=/english-learning-website/` 实际构建生产版本，并在相同子路径的预览服务器完整复跑 17 项用例，全部通过（29.7 秒）；18 项单元测试和严格构建通过。产物中的 JS、CSS、favicon 均指向项目子路径，实际媒体对象可加载、播放、慢速与停止；48 个音频请求均返回正确资源。测试的导航和请求不再跳回站点根路径。
 
-此结果仅证明 Pages 路径适配正确；首次开通、官方 Actions 发布、实际 HTTPS 在线验收以远程工作流结果为准。具体权限证据和账号持有人一次性操作见部署文档。
+此结果证明 Pages 路径适配正确；实际 HTTPS 在线验收结果见下一节。具体权限证据和账号持有人一次性操作见部署文档。
+
+## 已上线的 HTTPS 网站验收
+
+实际网址：[一步英语](https://chrisjack2380.github.io/english-learning-website/)。[发布与在线验收 run 37804509674](https://github.com/chrisjack2380/english-learning-website/actions/runs/37804509674) 的第三次尝试成功：build、deploy、verify-online 均成功。构建提交93d551b；环境部署6940501125的状态success，并返回上述environment_url。
+
+verify-online在GitHub托管机器启动真实Chromium，通过SITE_URL请求部署网址，没有启动本地服务器；完整执行17项既有学习/多端/语音/存储用例及资源检查。包含首次学习→纠错→复习→下一课→重载、全部六课和三场景、真实备用音频播放与48个音频HTTP地址。pages-online-evidence产物（artifact11562094113，约3.46MB）包含截图及HTML报告，可在运行页下载。仅在独立测试浏览器写数据，不修改使用者记录。
+
+账号持有人已完成必要设置：公开仓库以满足GitHub Free、Pages Source设为GitHub Actions，并允许当前开发分支发布。第一次配置读取因未启用失败，第二次因main-only环境规则拒绝部署；第三次重跑失败任务复用已通过的构建后上线成功。不把失败尝试或skipped在线任务当作通过。
+
+本云容器使用系统可信证书的curl另外取得HTTPS200及正确网站标题/JS/CSS子路径。额外容器Chromium页面复核因代理根证书信任报ERR_CERT_AUTHORITY_INVALID，未设置ignoreHTTPSErrors或关闭TLS；该次复核没有截图，不能报告为成功。正式在线验收和在线截图来自GitHub托管Chromium，网站部署与该环境的HTTPS浏览器测试均成功。
+
+证据隔离改进：CI先清除checkout保留的历史截图/报告；Pages仅在本次生产测试实际执行后上传构建证据，避免配置失败时把旧截图当作本次结果。文档和历史截图更新不重新发布网站；源代码与工作流变化仍正常验收和发布。

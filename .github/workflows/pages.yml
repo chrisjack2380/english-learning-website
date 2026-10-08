@@ -3,6 +3,14 @@ name: Publish GitHub Pages
 on:
   push:
     branches: [main, feat/english-learning-mvp]
+    paths-ignore:
+      - 'docs/**'
+      - 'output/**'
+      - 'README.md'
+      - 'AGENTS.md'
+      - 'HANDOFF.md'
+      - 'REQUIREMENTS.md'
+      - 'RULES.md'
   workflow_dispatch:
 
 permissions:
@@ -20,6 +28,13 @@ jobs:
       pages: read
     steps:
       - uses: actions/checkout@v4
+      - name: Clear retained screenshots before collecting this run's evidence
+        run: |
+          node --input-type=module -e '
+            import { rmSync } from "node:fs";
+            for (const path of ["output/playwright", "playwright-report", "test-results"])
+              rmSync(path, { recursive: true, force: true });
+          '
       - uses: actions/setup-node@v4
         with:
           node-version-file: .node-version
@@ -32,6 +47,7 @@ jobs:
       - run: npm test
       - run: npx playwright install --with-deps chromium
       - name: Verify the production website at its Pages base path
+        id: production
         run: npm run test:production
         env:
           VITE_BASE_PATH: ${{ steps.pages.outputs.base_path }}/
@@ -39,7 +55,7 @@ jobs:
         with:
           path: dist/
       - uses: actions/upload-artifact@v4
-        if: always()
+        if: ${{ always() && (steps.production.outcome == 'success' || steps.production.outcome == 'failure') }}
         with:
           name: pages-build-evidence
           path: |

@@ -2,6 +2,8 @@
 
 面向中文母语学习者的免费、免注册英语学习 MVP。每天打开网站即可知道下一步：先复习需要巩固的知识，再学习推荐课程，并在原创动画场景中完成真实的沟通任务。
 
+**在线使用：[打开一步英语](https://chrisjack2380.github.io/english-learning-website/)**。无需安装或注册，首次进入按引导开始学习。
+
 ![桌面学习首页](output/playwright/desktop-dashboard.png)
 
 ## 运行

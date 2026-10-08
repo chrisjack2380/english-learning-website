@@ -2,7 +2,9 @@
 
 新任务先读 [REQUIREMENTS.md](REQUIREMENTS.md)、[RULES.md](RULES.md)、[AGENTS.md](AGENTS.md)。
 
-## 当前状态：第一阶段 MVP 已实现；生产验收通过，在线部署受权限阻塞
+## 当前状态：第一阶段 MVP 已上线 GitHub Pages，生产及线上验收通过
+
+在线网站：https://chrisjack2380.github.io/english-learning-website/
 
 - React/TypeScript/Vite 静态应用，现有 checkout 在 `/workspace/english-learning-website`。
 - 新手引导、10/20/30 分钟计划、六课连续路径、每日推荐、下一课衔接、错题复习与真实记录。
@@ -14,7 +16,7 @@
 
 ## 验证及文档
 
-- 冻结安装、18 项单元/内容测试、16 项真实 Chromium 流程全部通过；严格类型构建、格式及 npm audit 通过。
+- 冻结安装、18 项单元/内容测试、17 项生产版及17项真实HTTPS线上Chromium用例通过；严格类型构建、格式及初次npm audit通过，具体运行和边界见测试报告。
 - 已实际走完首次打开 → 第一课 → 错题改正与复习 → 下一课 → 刷新恢复；另走完全部六课和三个自由场景。
 - 桌面/平板/手机截图在 `output/playwright`，验收细节与真实语音限制见 [docs/TESTING.md](docs/TESTING.md)。
 - 教学/Skills/许可证调研见 [docs/RESEARCH.md](docs/RESEARCH.md)，课程和安全服务扩展见 [docs/EXTENDING.md](docs/EXTENDING.md)。
@@ -47,8 +49,12 @@
 
 Vite 使用 VITE_BASE_PATH，备用音频使用 import.meta.env.BASE_URL，测试导航/音频请求均保留基址；在线配置允许 HTTPS 项目子路径。最新本机校验：18 项单元测试通过，按 `/english-learning-website/` 构建的严格类型检查和 17 项真实 Chromium 生产用例全部通过（29.7 秒），包含全部 48 音频资源。常规 CI 也按项目子路径验收。新增在线配置此前已验证能列出 17 项测试且缺少 SITE_URL 时拒绝运行；枚举不能当作在线通过。
 
-当前仍需首次启用 Pages。已查询当前 App 安装元数据：chatgpt-codex-connector 的 contents/actions 有 write，而 pages/administration 未授予；因此不能直接开通站点，也不能给自己扩展 App 权限。GitHub 官方明确 GITHUB_TOKEN 不负责首次启用，故发布工作流通过 pages:write/id-token:write 部署已启用的站点，不要求用户提供个人令牌。
+用户已将 Pages 的 Source 设为 GitHub Actions；公开 API 确认 build_type=workflow、https_enforced=true。已查询当前 App 安装元数据：chatgpt-codex-connector 的 contents/actions 有 write，而 pages/administration 未授予；因此不能直接开通站点或修改环境分支规则。GitHub 官方明确 GITHUB_TOKEN 不负责首次启用；日常发布通过工作流的 pages:write/id-token:write，不要求个人令牌。
 
-下一入口：账号持有人到 [Pages 设置](https://github.com/chrisjack2380/english-learning-website/settings/pages)，将 Build and deployment → Source 设为 GitHub Actions。开发者读取真实 Actions 状态，重跑已存在的 Publish GitHub Pages 推送任务（Actions 权限已具备）；默认分支尚无此文件时，不依赖 workflow_dispatch 触发。若实际日志显示 github-pages 环境分支限制，再按明确错误处理，不擅自关闭保护。部署后由工作流的 verify-online 任务在实际 HTTPS 地址执行全部 17 项浏览器验收，再补充实际网址与证据。未成功前保持“待部署”。
+发布工作流 37804509674 的第二次尝试通过 build，但 github-pages 环境当时仅允许 main，拒绝当前分支；新增规则 API 被 App 权限拒绝（403）。用户已保留 main 并新增 feat/english-learning-mvp，规则已重读确认。第三次尝试仅重跑失败任务，复用成功构建，deploy 与 verify-online 全部成功；18 项单元、17 项子路径生产用例和17项实际 HTTPS 线上用例通过。部署6940501125的状态 success、environment_url 为上述网址，部署源码提交93d551b。常规CI37804521593成功。
+
+默认分支尚无发布文件时，不依赖 workflow_dispatch 触发，采用重跑已存在的推送任务。在线证据保存在该 run 的 pages-online-evidence（artifact11562094113，约3.46MB）中，包含真实在线桌面/平板/手机截图和HTML报告。云容器的curl也确认HTTPS200、正确页面标题及项目资源路径。额外本容器Chromium视觉访问因代理根证书信任问题报ERR_CERT_AUTHORITY_INVALID，未忽略HTTPS校验；不能冒充该次复核成功。实际HTTPS浏览器验收由GitHub托管Chromium完成，步骤与产物均成功。
+
+CI 收集证据前清空 checkout 中保留的旧截图，Pages 在生产测试确实运行后才上传证据；文档/历史截图更新不触发重新发布，应用或工作流变动仍会验证及发布。新增这些证据隔离规则会触发一次正常验证发布，最终状态以最新Actions运行为准。后续合并仍等待用户，不擅自合并。
 
 云配置草稿新增 chrisjack2380.github.io，更新启动说明为 Pages；移除旧 \*.vercel.app 自定义网络条目，但旧可选 Vercel 凭据绑定使工具自动保留 api.vercel.com。用户无需填写旧 DEPLOY_VERCEL_TOKEN；当前工具无法删除已有凭据声明，若需要清理可在环境设置移除。草稿保存不应用、不发布环境。远程在线验收在 GitHub 托管机器执行，不依赖云环境放行；本云环境直接访问在线网站需相应网络规则生效。
