@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ArrowRight, Check, RotateCcw } from 'lucide-react';
 import { lessons } from '../content';
-import { dueLessons, type LearningState } from '../learning';
+import { trackLessons, dueLessons, type LearningState } from '../learning';
 import { Exercise } from '../components/Exercise';
 export function ReviewPanel({
   state,
@@ -67,7 +67,11 @@ export function ReviewPanel({
             <button
               className="button ghost"
               onClick={() => {
-                setQueue(lessons.filter((l) => state.skills[l.id]).map((l) => l.id));
+                setQueue(
+                  trackLessons(state)
+                    .filter((l) => state.skills[l.id])
+                    .map((l) => l.id),
+                );
                 setIndex(0);
                 setResults([]);
               }}

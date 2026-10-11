@@ -10,8 +10,16 @@ import {
   RotateCcw,
   Sprout,
 } from 'lucide-react';
-import { lessons, type SceneId } from '../content';
-import { dailyPlan, dueLessons, nextLesson, canOpen, type LearningState } from '../learning';
+import { type SceneId } from '../content';
+import {
+  activeTrack,
+  trackLessons,
+  dailyPlan,
+  dueLessons,
+  nextLesson,
+  canOpen,
+  type LearningState,
+} from '../learning';
 import type { Page } from '../types';
 import { World } from '../components/World';
 import { SceneCards } from '../components/SceneCards';
@@ -29,6 +37,8 @@ export function HomePage({
   startToday: () => void;
 }) {
   const profile = state.profile!;
+  const path = trackLessons(state);
+  const higher = activeTrack(state) !== 'beginner';
   const current = nextLesson(state);
   const plan = dailyPlan(state);
   const due = dueLessons(state);
@@ -50,7 +60,9 @@ export function HomePage({
             今天，也向前<em>一步。</em>
             <span className="little-sun">✳</span>
           </h1>
-          <p className="muted">不用想该学什么，我们已经为你准备好了。</p>
+          <p className="muted">
+            {higher ? '已有基础，就从更真实的交流开始。' : '不用想该学什么，我们已经为你准备好了。'}
+          </p>
         </div>
         <span className="daily-time">
           <Clock3 size={17} />
@@ -75,7 +87,7 @@ export function HomePage({
           <p>
             {due.length
               ? `${due.length} 个知识点需要复习，先用两分钟回忆一下。`
-              : current?.goal || '入门路径已完成，继续场景练习和间隔复习。'}
+              : current?.goal || '当前路径已完成，继续场景练习、挑战和间隔复习。'}
           </p>
           <button className="button primary" onClick={startToday}>
             开始今天的学习
@@ -89,7 +101,7 @@ export function HomePage({
           </div>
         </div>
         <div className="hero-art">
-          <World scene={current?.scene || 'greeting'} hero />
+          <World scene={current?.scene || (higher ? 'meeting' : 'greeting')} hero />
           <span className="floating-caption">
             <MessageCircle size={16} />A little English, a little closer.
           </span>
@@ -102,8 +114,8 @@ export function HomePage({
           </span>
           <div>
             <strong>
-              {state.completed.length}
-              <small> / {lessons.length} 课</small>
+              {path.filter((l) => state.completed.includes(l.id)).length}
+              <small> / {path.length} 课</small>
             </strong>
             <p>已完成课程</p>
           </div>
@@ -208,29 +220,23 @@ export function HomePage({
             </div>
             <Sprout size={22} />
           </div>
-          <p className="muted">从敢说 Hello，到完成一次真实交流。</p>
+          <p className="muted">
+            {higher
+              ? '用真实任务，练习表达、追问与沟通决策。'
+              : '从敢说 Hello，到完成一次真实交流。'}
+          </p>
           <div className="stage-road">
-            <div className="stage active">
-              <span>01</span>
-              <div>
-                <strong>开启第一段对话</strong>
-                <small>Pre-A1 · 问候、自我介绍</small>
+            {(higher ? path : [path[0], path[2], path[4]]).map((l, i) => (
+              <div key={l.id} className={`stage ${canOpen(state, l.id) ? 'active' : ''}`}>
+                <span>0{i + 1}</span>
+                <div>
+                  <strong>{l.title}</strong>
+                  <small>
+                    {l.level} · {l.goal}
+                  </small>
+                </div>
               </div>
-            </div>
-            <div className={`stage ${state.completed.length >= 2 ? 'active' : ''}`}>
-              <span>02</span>
-              <div>
-                <strong>走进生活场景</strong>
-                <small>Pre-A1 → A1 · 数量、点餐</small>
-              </div>
-            </div>
-            <div className={`stage ${state.completed.length >= 4 ? 'active' : ''}`}>
-              <span>03</span>
-              <div>
-                <strong>让英语带你出发</strong>
-                <small>A1 起步 · 位置、问路</small>
-              </div>
-            </div>
+            ))}
           </div>
           <button className="text-button" onClick={() => navigate('path')}>
             查看完整学习路径

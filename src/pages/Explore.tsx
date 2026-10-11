@@ -1,13 +1,17 @@
 import { BookOpen, Compass } from 'lucide-react';
 import type { SceneId } from '../content';
-import type { LearningState } from '../learning';
+import { LevelSelector } from '../components/LevelSelector';
+import { ExpressionCoach } from '../components/ExpressionCoach';
+import type { LearningState, Profile } from '../learning';
 import { SceneCards } from '../components/SceneCards';
 export function ExplorePage({
   state,
   setSceneId,
+  onLevel,
 }: {
   state: LearningState;
   setSceneId: (id: SceneId) => void;
+  onLevel: (level: Profile['level']) => void;
 }) {
   return (
     <>
@@ -21,7 +25,9 @@ export function ExplorePage({
           <Compass size={27} />
         </span>
       </div>
+      <LevelSelector value={state.profile!.level} onChange={onLevel} />
       <SceneCards onOpen={setSceneId} state={state} />
+      <ExpressionCoach />
       <div className="note exploration-note">
         <BookOpen size={20} />
         <p>自由探索可随时开始，练习记录与系统学习共享。场景完成不会跳过尚未完成的必修课。</p>

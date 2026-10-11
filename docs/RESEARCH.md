@@ -56,3 +56,11 @@ eSpeak 来源 [espeak-ng/espeak-ng](https://github.com/espeak-ng/espeak-ng)（�
 按用户选择改用 Pages；用户已自行公开原仓库，以使用 GitHub Free。实际阅读 GitHub 官方 Pages 文档（通过 github/docs 的公开源码）、actions/configure-pages 的 action.yml 和 API 实现，以及 actions/deploy-pages 的 README/action.yml；核对官方 release 和仓库许可证。采用 configure-pages v6、upload-pages-artifact v5、deploy-pages v5，三者均为 GitHub 官方维护、MIT，Node 24 运行环境；不安装第三方部署脚本。
 
 官方 configure-pages 对自动开通的要求是：使用 GITHUB_TOKEN 以外的凭据，App 必须具备 administration:write 和 pages:write。当前 Codex App 安装元数据无这两项权限；因此采用账号持有人一次性选择 Pages → GitHub Actions，之后通过工作流的 pages:write/id-token:write 发布。不声称 YAML 可为 Codex App 提权，不要求复制 GitHub 令牌到聊天。
+
+## 2026-10-11 中高级任务设计复核
+
+本次再次实际请求 Council of Europe level-descriptions、British Council B2 level explanation / challenging-someones-ideas；网络代理返回 403，未读取全文，不能声称完成官方资料验证。通过 GitHub 重新读取 openlanguageprofiles/olp-en-cefrj 目录确认数据来源；未复制 C1/C2 CC BY-SA 数据，不使用未经许可的例句或音频。
+
+设计依据已具备的 CEFR 能力导向及任务教学知识：B1–B2 支架下提出理由、延续互动、回应质疑和明确行动；C1 增加有保留的推断、因果/权衡、隐含意义与语域，而非要求堆砌长词。三场景为原创内容；本次没有新安装 Skills、依赖或外部素材，沿用 React/Vite/Playwright 和原创 SVG。规则反馈公开其词语检查限制，与真实 AI 分开。
+
+新增音频的 eSpeak NG 与依赖再次从 Debian trixie 官方签名索引取得，逐包核对 SHA256 后解包到 /tmp 运行；不执行远程安装脚本，不改全局依赖或证书信任。音频是原创文本的合成朗读，正常约 180 词/分钟不是“真人录音”，声音自然度需要后续改进。

@@ -83,7 +83,7 @@ export function Speak({ text, compact = false }: { text: string; compact?: boole
     }
     const u = new SpeechSynthesisUtterance(text);
     u.lang = 'en-US';
-    u.rate = slow ? 0.7 : 0.95;
+    u.rate = slow ? 0.7 : 1;
     u.voice = voice;
     u.onstart = () => {
       setPlaying(true);

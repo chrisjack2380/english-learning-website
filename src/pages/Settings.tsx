@@ -1,5 +1,6 @@
 import { useRef, type Dispatch, type SetStateAction } from 'react';
 import { ArrowDownToLine, Upload } from 'lucide-react';
+import { LevelSelector } from '../components/LevelSelector';
 import type { LearningState } from '../learning';
 export function SettingsPage({
   state,
@@ -24,6 +25,16 @@ export function SettingsPage({
           <p className="muted">轻松开始，稳定坚持。</p>
         </div>
       </div>
+      <section className="card settings-card">
+        <h2>学习等级与推荐起点</h2>
+        <p>已有基础默认进入 B1–B2。切换路径保留所有已完成课程和复习记录。</p>
+        <LevelSelector
+          value={state.profile!.level}
+          onChange={(level) =>
+            setState((s) => ({ ...s, profile: s.profile ? { ...s.profile, level } : null }))
+          }
+        />
+      </section>
       <section className="card settings-card">
         <h2>每日学习时长</h2>
         <p>调整后，首页会重新安排课程数量。已学进度不会改变。</p>
@@ -71,13 +82,14 @@ export function SettingsPage({
         </div>
       </section>
       <section className="card settings-card">
-        <h2>语音与未来 AI 教学</h2>
+        <h2>语音与 AI 接入状态</h2>
         <p>
           英文播放优先使用设备的系统语音，没有英文声音时播放网站自带的备用合成音频；语音输入仅在浏览器支持且允许麦克风时启用，也可能需要浏览器厂商的网络服务。你可以随时用文字完成全部学习。
         </p>
         <p className="note">
-          本阶段不对发音打分，不包含付费模型自由对话。已预留安全服务端接口；未来密钥由服务端保管，不在浏览器中收集或保存
-          API Key。
+          当前角色对话和表达反馈使用预设任务与本地规则，不是真实
+          AI。已预留同事、朋友、客户、服务人员、面试官的安全服务端接口；GitHub Pages 当前没有 AI
+          后端。未来密钥由服务端保管，不在浏览器中收集或保存 API Key。
         </p>
       </section>
       <section className="card settings-card reset-card">

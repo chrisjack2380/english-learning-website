@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Pause, Play, RotateCcw, SkipForward } from 'lucide-react';
+import { CommunicationWorld } from './CommunicationWorld';
 import type { Lesson, SceneId } from '../content';
 
-function Person({
+export function Person({
   x,
   y,
   color = '#476d60',
@@ -72,6 +73,16 @@ export function World({
   hero?: boolean;
   onInspect?: (item: string) => void;
 }) {
+  if (scene === 'meeting' || scene === 'smalltalk' || scene === 'pitch')
+    return (
+      <CommunicationWorld
+        scene={scene}
+        step={step}
+        playing={playing}
+        hero={hero}
+        onInspect={onInspect}
+      />
+    );
   const greeting = greetingMode || (step > 1 ? 'meet' : 'hello');
   const labels = {
     hello: ['Hello!', 'Hi!'],

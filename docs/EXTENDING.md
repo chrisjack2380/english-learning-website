@@ -40,3 +40,15 @@ npm run build
 - 账号/云同步是独立适配层，不将 localStorage 的数据误称跨设备同步。
 - `src/ai.ts` 的 `TutorGateway` 只定义未来接口。实际实现须由同源、安全服务端代理模型，管理认证、配额、隐私和注入风险；密钥不传给浏览器，不用 `VITE_*` 保存秘密。
 - 模型名称、角色、等级等非敏感配置可后续保存在客户端；用户密钥配置由服务端安全机制处理。当前不包含 AI 设置 UI。
+
+## 中高级任务扩展（2026-10-11）
+
+在 src/advanced-content.ts 的 communicationScenes 定义真实角色、已知事实、沟通目标、听力意图、表达语域、四轮任务、参考回应、明确 rubric 与 C1 extension。higherLessons 生成三条 B1–B2 以及对应 C1 挑战；扩展时更新 SceneId 与场景组件，不要让基础课成为中级先修。
+
+任务至少要求分享信息/给出理由/回应顾虑/追问/商定行动中的实际行为。Criterion 正则只给出透明可检查的词语证据，不能称为语义判断。新参考回答须同时通过常规与 C1 条件；测试不足、无关、已知语法错误与独立措辞的答案。要减少误拒绝，增加有教学价值的替代表达，不用宽泛 any-text 正则。
+
+表达升级规则在 src/communication.ts；整句建议只有经过审核且解释意义变化才能加入。未知文本如实说明不支持整句升级，不能把无错误匹配当作“语法正确”。AI 接入见 docs/AI.md。
+
+音频生成脚本用已有 Vite 将 TypeScript 内容安全打包为临时模块，已存在映射跳过，新 URL 由句子哈希生成。需审核的本地 eSpeak NG 和 ffmpeg；ESPEAK_BIN 可指定可写目录包装器。新场景约 180 词/分钟，原基础资源不重写。REGENERATE_AUDIO 仅在明确需要更新已存在录音时使用；普通 npm ci 不执行生成。
+
+LearningState.outputs 为可选字段兼容旧 v1，最多保留 100 组完整四轮输出、每条正文 1500 字符；升级不能清空旧记录。profile.basics 的推荐改为 intermediate，advanced 选择 C1。parseState 与 prerequisites 必须随路径扩展同步。

@@ -59,6 +59,7 @@ test('first visit through a full lesson, corrected error, next lesson and reload
   });
   await page.goto('./');
   await screenshot(page, 'desktop-onboarding');
+  await page.getByText('从零开始', { exact: true }).click();
   await page.getByRole('button', { name: '开启我的学习旅程' }).click();
   await screenshot(page, 'desktop-home');
   await page.getByRole('button', { name: '开始今天的学习' }).click();
@@ -111,7 +112,7 @@ test('first visit through a full lesson, corrected error, next lesson and reload
   await screenshot(page, 'desktop-progress');
   expect(errors).toEqual([]);
 });
-for (const scene of scenes) {
+for (const scene of scenes.filter((s) => ['greeting', 'cafe', 'directions'].includes(s.id))) {
   test(`complete ${scene.id} scene with wrong branch and typed responses, without skipping courses`, async ({
     page,
   }) => {
@@ -135,9 +136,9 @@ for (const scene of scenes) {
   });
 }
 test('all six sequential lessons execute their teaching and assessment flows', async ({ page }) => {
-  await onboard(page, '有一点基础');
+  await onboard(page, '从零开始');
   await page.getByRole('button', { name: '开始今天的学习' }).click();
-  for (const l of lessons) {
+  for (const l of lessons.filter((l) => !l.track)) {
     await expect(page.getByRole('heading', { name: l.title, exact: true })).toBeVisible();
     await page.getByRole('button', { name: '下一步演示' }).click();
     await page.getByRole('button', { name: '下一步演示' }).click();
@@ -151,7 +152,8 @@ test('all six sequential lessons execute their teaching and assessment flows', a
     }
     await practiceScene(page, l.scene, false, false, l.id);
     await expect(page.getByText('3 / 3', { exact: true })).toBeVisible();
-    const next = lessons[lessons.indexOf(l) + 1];
+    const path = lessons.filter((l) => !l.track);
+    const next = path[path.indexOf(l) + 1];
     if (next) await page.getByRole('button', { name: `继续：${next.title}` }).click();
     else await page.getByRole('button', { name: '返回首页，继续复习' }).click();
   }

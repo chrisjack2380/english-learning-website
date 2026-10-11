@@ -60,7 +60,9 @@ export function Exercise({
                     setFeedback(null);
                   }}
                 />
-                <span className="option-letter">{String.fromCharCode(65 + i)}</span>
+                <span className="option-letter" aria-hidden="true">
+                  {String.fromCharCode(65 + i)}
+                </span>
                 <span>{option}</span>
                 {answer === option && <Check size={18} />}
               </label>
@@ -90,14 +92,20 @@ export function Exercise({
               }}
             />
             <p className="muted small-text">
-              预设句型练习：支持本课的常用表达，暂不评价自由写作或真实发音。
+              {question.rubric
+                ? '按任务要素检查，不代表语义或全文语法评价。'
+                : '预设句型练习：支持本课的常用表达，暂不评价自由写作或真实发音。'}
             </p>
           </>
         )}
         {feedback && (
           <div role="status" className={`feedback ${feedback}`}>
             <strong>
-              {feedback === 'correct' ? '表达正确，做得好！' : '再想一想，可以改正后继续。'}
+              {feedback === 'correct'
+                ? question.rubric
+                  ? '已找到任务要素，请核对意思与语气。'
+                  : '表达正确，做得好！'
+                : '再想一想，可以改正后继续。'}
             </strong>
             <p>{question.explanation}</p>
             {feedback === 'wrong' && (

@@ -15,3 +15,11 @@
 - 按用户选择使用 GitHub Pages，用户已自行公开仓库。Pages 项目构建/生产验收设置 VITE_BASE_PATH=/english-learning-website/；保留资源、音频和测试的子路径。不要再要求 Vercel 凭据，也不要声称 YAML 能给 Codex App 提权。合并后移除发布工作流中临时开发分支触发。
 
 - 播音文本扩充后，用已审核的本地 eSpeak/FFmpeg 生成工具更新备用音频映射，验证浏览器真实解码与播放；普通环境安装无需重新生成。不要为合成器关闭 TLS/签名/哈希校验。
+
+## 2026-10-11 教学升级协作入口
+
+- 主定位已改为 B1–B2 真实交流；已有基础不能推荐 Hello。先看 REQUIREMENTS 的当前升级基准。
+- 新场景/表达数据在 src/advanced-content.ts，任务与语法规则在 src/communication.ts；主学习流程是 CommunicationPlayer，独立保留原 LessonPlayer。
+- C1 须有实际额外要求与隐含意义检查；不能仅改 level 字符串。每条路径分别验证先修，兼容 localStorage v1 和原备份。
+- 用户明确确认暂时没有 AI 后端。预设反馈必须标非 AI；未来契约见 src/ai.ts 与 docs/AI.md。不要创建假 AI 按钮或前端密钥配置。
+- 新表达同时补备用音频（增量生成，保留旧 URL）、内容与任务验证、完整四轮生产浏览器流程与三端截图。截图测试区分 local/online，线上只能用真实站点。

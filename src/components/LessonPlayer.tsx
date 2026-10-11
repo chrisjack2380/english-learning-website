@@ -21,7 +21,8 @@ export function LessonPlayer({
   const [correct, setCorrect] = useState(0);
   const [sceneMistakes, setSceneMistakes] = useState(0);
   const [zh, setZh] = useState(lessons.indexOf(lesson) < 3);
-  const next = lessons[lessons.indexOf(lesson) + 1];
+  const path = lessons.filter((l) => !l.track);
+  const next = path[path.indexOf(lesson) + 1];
   const steps = ['认识与动画', '示例与跟读', '引导练习', '情境应用', '反馈与复习'];
   return (
     <section className="lesson-player">

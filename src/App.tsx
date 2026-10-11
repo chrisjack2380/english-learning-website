@@ -11,6 +11,7 @@ import {
   TrendingUp,
   X,
 } from 'lucide-react';
+import { CommunicationPlayer, type OutputEvidence } from './components/CommunicationPlayer';
 import { lessons, type SceneId } from './content';
 import {
   addTime,
@@ -102,6 +103,14 @@ export default function App() {
     main.current?.focus({ preventScroll: true });
     window.speechSynthesis?.cancel();
   }, [page, lessonId, sceneId, Boolean(state.profile)]);
+  function saveOutputs(scene: SceneId, outputs: OutputEvidence[], courseId?: string) {
+    setState((s) => ({
+      ...s,
+      outputs: [...(s.outputs || []), { scene, courseId, at: Date.now(), turns: outputs }].slice(
+        -100,
+      ),
+    }));
+  }
   const current = nextLesson(state);
   const due = dueLessons(state);
   const lesson = lessons.find((l) => l.id === lessonId);
@@ -202,8 +211,12 @@ export default function App() {
           <div>
             英语学习者
             <small>
-              {state.profile.level === 'beginner' ? '零基础起步' : '基础巩固'} · 每日{' '}
-              {state.profile.minutes} 分钟
+              {state.profile.level === 'beginner'
+                ? 'Beginner'
+                : state.profile.level === 'advanced'
+                  ? 'C1 挑战'
+                  : 'B1–B2 主路径'}{' '}
+              · 每日 {state.profile.minutes} 分钟
             </small>
           </div>
         </div>
@@ -264,7 +277,19 @@ export default function App() {
           </div>
         )}
         <div className="page-content">
-          {lesson ? (
+          {lesson?.track ? (
+            <CommunicationPlayer
+              key={lesson.id}
+              id={lesson.scene as 'meeting' | 'smalltalk' | 'pitch'}
+              lesson={lesson}
+              onExit={() => navigate('home')}
+              onNext={openLesson}
+              onFinish={(correct, mistakes, outputs) => {
+                setState((s) => finishLesson(s, lesson.id, correct, mistakes));
+                saveOutputs(lesson.scene, outputs, lesson.id);
+              }}
+            />
+          ) : lesson ? (
             <LessonPlayer
               key={lesson.id}
               lesson={lesson}
@@ -273,6 +298,17 @@ export default function App() {
               onFinish={(correct, mistakes) =>
                 setState((s) => finishLesson(s, lesson.id, correct, mistakes))
               }
+            />
+          ) : sceneId === 'meeting' || sceneId === 'smalltalk' || sceneId === 'pitch' ? (
+            <CommunicationPlayer
+              key={sceneId}
+              id={sceneId}
+              challenge={state.profile.level === 'advanced'}
+              onExit={() => navigate('explore')}
+              onFinish={(_correct, mistakes, outputs) => {
+                setState((s) => finishScene(s, sceneId, mistakes));
+                saveOutputs(sceneId, outputs);
+              }}
             />
           ) : sceneId ? (
             <ScenePlayer
@@ -292,8 +328,24 @@ export default function App() {
                   startToday={startToday}
                 />
               )}
-              {page === 'path' && <PathPage state={state} openLesson={openLesson} />}
-              {page === 'explore' && <ExplorePage state={state} setSceneId={setSceneId} />}
+              {page === 'path' && (
+                <PathPage
+                  state={state}
+                  openLesson={openLesson}
+                  onLevel={(level) =>
+                    setState((s) => ({ ...s, profile: s.profile ? { ...s.profile, level } : null }))
+                  }
+                />
+              )}
+              {page === 'explore' && (
+                <ExplorePage
+                  state={state}
+                  setSceneId={setSceneId}
+                  onLevel={(level) =>
+                    setState((s) => ({ ...s, profile: s.profile ? { ...s.profile, level } : null }))
+                  }
+                />
+              )}
               {page === 'review' && (
                 <ReviewPanel
                   state={state}

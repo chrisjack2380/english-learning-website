@@ -1,5 +1,8 @@
-export type SceneId = 'greeting' | 'cafe' | 'directions';
+import { higherLessons, higherScenes, type Track } from './advanced-content';
+import { taskEvidence, type TaskSpec } from './communication';
+export type SceneId = 'greeting' | 'cafe' | 'directions' | 'meeting' | 'smalltalk' | 'pitch';
 export type Question = {
+  rubric?: TaskSpec;
   prompt: string;
   english?: string;
   listening?: boolean;
@@ -10,6 +13,7 @@ export type Question = {
   explanation: string;
 };
 export type Lesson = {
+  track?: Track;
   id: string;
   title: string;
   english: string;
@@ -47,7 +51,7 @@ export type Scene = {
   turns: Turn[];
 };
 
-export const lessons: Lesson[] = [
+const beginnerLessons: Lesson[] = [
   {
     id: 'hello',
     title: '从一句 Hello 开始',
@@ -352,7 +356,7 @@ export const lessons: Lesson[] = [
   },
 ];
 
-export const scenes: Scene[] = [
+const beginnerScenes: Scene[] = [
   {
     id: 'greeting',
     title: '遇见新朋友',
@@ -539,6 +543,8 @@ export const scenes: Scene[] = [
   },
 ];
 
+export const lessons: Lesson[] = [...beginnerLessons, ...higherLessons];
+export const scenes: Scene[] = [...higherScenes, ...beginnerScenes];
 export function normalize(value: string) {
   return value
     .trim()
@@ -547,8 +553,12 @@ export function normalize(value: string) {
     .replace(/[.,!?，。！？]/g, '')
     .replace(/\s+/g, ' ');
 }
-export function matches(value: string, question: { answer?: string; accept?: string }) {
+export function matches(
+  value: string,
+  question: { answer?: string; accept?: string; rubric?: TaskSpec },
+) {
   if (!value.trim()) return false;
+  if (question.rubric) return taskEvidence(value, question.rubric).passed;
   if (question.answer) return normalize(value) === normalize(question.answer);
   return question.accept
     ? new RegExp(`^(?:${question.accept})$`, 'i').test(normalize(value))
@@ -668,3 +678,7 @@ export function sceneForLesson(lessonId: string): Scene {
     };
   return base;
 }
+
+// Build-time audio tooling consumes the same reviewed scenario phrases.
+export { communicationScenes } from './advanced-content';
+export { upgradeExpression } from './communication';

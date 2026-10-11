@@ -1,3 +1,5 @@
+import { communicationScenes } from './advanced-content';
+import { upgradeExpression } from './communication';
 import { describe, expect, it } from 'vitest';
 import { existsSync } from 'node:fs';
 import clips from './audio-manifest.json';
@@ -30,6 +32,20 @@ describe('teaching content and responses', () => {
         spoken.add(t.line);
         spoken.add(t.sample);
       });
+    }
+    for (const scene of communicationScenes) scene.turns.forEach((t) => spoken.add(t.followUp));
+    for (const input of [
+      'I really like this product.',
+      "I don't agree.",
+      'What do you do?',
+      'We need more time.',
+      'Our product is good.',
+    ]) {
+      const suggestion = upgradeExpression(input).suggestion;
+      if (suggestion) {
+        spoken.add(suggestion.natural);
+        spoken.add(suggestion.advanced);
+      }
     }
     for (const phrase of spoken) {
       const resource = (clips as Record<string, string>)[phrase];

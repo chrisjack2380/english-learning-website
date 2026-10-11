@@ -3017,3 +3017,200 @@ input:not([type='radio']):not([type='file']) {
 .onboarding footer {
   color: #69745f;
 }
+
+/* Communication courses share the original warm, readable design system. */
+textarea {
+  width: 100%;
+  min-height: 116px;
+  resize: vertical;
+  border: 1px solid var(--border, #d7ded5);
+  border-radius: 12px;
+  padding: 14px;
+  font: inherit;
+  line-height: 1.65;
+  background: #fffdf8;
+  color: inherit;
+}
+textarea:focus-visible {
+  outline: 3px solid #8caa9a;
+  outline-offset: 2px;
+}
+.level-selector {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 20px 0;
+}
+.level-selector button {
+  text-align: left;
+  background: #fffdf8;
+  color: #34473d;
+  border: 1px solid #dddcd2;
+  border-radius: 14px;
+  padding: 16px;
+}
+.level-selector button.selected {
+  background: #e8efe6;
+  border: 2px solid #527967;
+  padding: 15px;
+}
+.level-selector small {
+  display: block;
+  margin-top: 8px;
+  line-height: 1.6;
+  color: #67756a;
+}
+.communication-stage {
+  max-width: 680px;
+  margin: 0 auto 24px;
+}
+.communication-world .world-hotspots {
+  position: static;
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  background: #e8ede5;
+}
+.communication-world .world-hotspots button {
+  background: #fffaf0;
+  border: 1px solid #b5c6b8;
+  color: #385849;
+  border-radius: 20px;
+  padding: 8px 13px;
+  font: inherit;
+  font-size: 12px;
+}
+.task-signal {
+  animation: task-pulse 2s ease-in-out infinite;
+}
+.paused .task-signal {
+  animation-play-state: paused;
+}
+@keyframes task-pulse {
+  50% {
+    opacity: 0.35;
+  }
+}
+.communication-player .card {
+  margin-bottom: 24px;
+}
+.task-brief {
+  max-width: 860px;
+  margin-inline: auto;
+}
+.expression-family {
+  border-top: 1px solid #e3e4da;
+  padding-top: 22px;
+  margin-top: 24px;
+}
+.expression-registers {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+.expression-registers > div {
+  background: #f6f7ef;
+  padding: 16px;
+  border-radius: 12px;
+}
+.expression-registers p {
+  font-size: 16px;
+  line-height: 1.65;
+  color: #2c4436;
+}
+.communication-practice-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  gap: 22px;
+  align-items: start;
+}
+.communication-practice-grid > * {
+  min-width: 0;
+}
+.task-checklist {
+  list-style: none;
+  padding: 14px;
+  background: #f1f4eb;
+  border-radius: 12px;
+  line-height: 1.8;
+}
+.communication-player details,
+.output-history details {
+  border-top: 1px solid #e1e4d9;
+  margin-top: 20px;
+  padding: 16px 0;
+  text-align: left;
+}
+summary {
+  cursor: pointer;
+  color: #476e59;
+  font-weight: 600;
+  line-height: 1.7;
+}
+.output-history p,
+.expression-coach p,
+.communication-player p {
+  overflow-wrap: anywhere;
+}
+.output-history > div {
+  border-top: 1px solid #e1e4d9;
+  padding-top: 16px;
+  margin-top: 16px;
+}
+.expression-coach .row {
+  margin-top: 16px;
+}
+.expression-coach h3 {
+  margin-top: 22px;
+}
+.upgrade-result {
+  border-top: 1px solid #ddd;
+  margin-top: 20px;
+}
+@media (max-width: 1100px) {
+  .communication-practice-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 640px) {
+  .level-selector,
+  .expression-registers {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .communication-player .lesson-steps {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .communication-stage .animation-controls {
+    flex-wrap: wrap;
+  }
+  .communication-world .world-hotspots {
+    flex-wrap: wrap;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .task-signal {
+    animation: none;
+  }
+}
+.expression-coach,
+.output-history,
+.expression-analysis,
+.task-brief {
+  padding: 28px;
+}
+.communication-player .role-response {
+  margin-top: 20px;
+}
+.communication-player .role-response > span {
+  display: block;
+  margin-bottom: 10px;
+}
+@media (max-width: 640px) {
+  .expression-coach,
+  .output-history,
+  .expression-analysis,
+  .task-brief {
+    padding: 20px;
+  }
+}

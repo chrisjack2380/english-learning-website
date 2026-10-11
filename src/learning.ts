@@ -1,6 +1,10 @@
-import { lessons, type SceneId } from './content';
+import { lessons, scenes, type SceneId } from './content';
 export const STORAGE_KEY = 'little-by-little:v1';
-export type Profile = { level: 'beginner' | 'basics'; minutes: 10 | 20 | 30; createdAt: number };
+export type Profile = {
+  level: 'beginner' | 'basics' | 'advanced';
+  minutes: 10 | 20 | 30;
+  createdAt: number;
+};
 export type SkillRecord = {
   status: 'review' | 'learned';
   due: number;
@@ -16,6 +20,12 @@ export type LearningState = {
   attempts: Attempt[];
   sceneResults: { scene: SceneId; mistakes: number; at: number }[];
   activity: Record<string, number>;
+  outputs?: {
+    scene: SceneId;
+    courseId?: string;
+    at: number;
+    turns: { role: string; prompt: string; text: string; revised: boolean }[];
+  }[];
 };
 export const freshState = (): LearningState => ({
   version: 1,
@@ -53,7 +63,7 @@ export function parseState(raw: string): LearningState {
   if (
     s.profile !== null &&
     (!s.profile ||
-      !['beginner', 'basics'].includes(s.profile.level) ||
+      !['beginner', 'basics', 'advanced'].includes(s.profile.level) ||
       ![10, 20, 30].includes(s.profile.minutes) ||
       !finite(s.profile.createdAt))
   )
@@ -85,7 +95,7 @@ export function parseState(raw: string): LearningState {
     !s.sceneResults.every(
       (a) =>
         a &&
-        ['greeting', 'cafe', 'directions'].includes(a.scene) &&
+        scenes.some((scene) => scene.id === a.scene) &&
         finite(a.mistakes) &&
         Number.isInteger(a.mistakes) &&
         finite(a.at),
@@ -94,29 +104,65 @@ export function parseState(raw: string): LearningState {
     throw new Error('场景记录格式错误');
   if (!Object.entries(s.activity).every(([d, n]) => /^\d{4}-\d{2}-\d{2}$/.test(d) && finite(n)))
     throw new Error('时间记录格式错误');
-  // Preserve a sequential path. A backup cannot grant a later lesson without its prerequisites.
   if (
-    s.completed.some((id) =>
-      lessons
-        .slice(
-          0,
-          lessons.findIndex((l) => l.id === id),
-        )
-        .some((l) => !s.completed.includes(l.id)),
-    )
+    s.outputs !== undefined &&
+    (!Array.isArray(s.outputs) ||
+      s.outputs.length > 100 ||
+      !s.outputs.every(
+        (o) =>
+          o &&
+          scenes.some((scene) => scene.id === o.scene) &&
+          finite(o.at) &&
+          (!o.courseId || known(o.courseId)) &&
+          Array.isArray(o.turns) &&
+          o.turns.length === 4 &&
+          o.turns.every(
+            (t) =>
+              t &&
+              typeof t.text === 'string' &&
+              t.text.length <= 1500 &&
+              typeof t.prompt === 'string' &&
+              t.prompt.length <= 1500 &&
+              typeof t.role === 'string' &&
+              t.role.length <= 100 &&
+              typeof t.revised === 'boolean',
+          ),
+      ))
   )
+    throw new Error('自主表达记录格式错误');
+  // Preserve a sequential path. A backup cannot grant a later lesson without its prerequisites.
+  if (s.completed.some((id) => prerequisites(id).some((l) => !s.completed.includes(l.id))))
     throw new Error('课程先修记录不完整');
   return s;
 }
+export function activeTrack(s: LearningState) {
+  return s.profile?.level === 'advanced'
+    ? 'advanced'
+    : s.profile?.level === 'basics'
+      ? 'intermediate'
+      : 'beginner';
+}
+export function trackLessons(s: LearningState) {
+  return lessons.filter((l) => (l.track || 'beginner') === activeTrack(s));
+}
+export function prerequisites(id: string) {
+  const l = lessons.find((l) => l.id === id);
+  if (!l) return [];
+  const path = lessons.filter(
+    (candidate) => (candidate.track || 'beginner') === (l.track || 'beginner'),
+  );
+  return path.slice(0, path.indexOf(l));
+}
 export function nextLesson(s: LearningState) {
-  return lessons.find((l) => !s.completed.includes(l.id));
+  return trackLessons(s).find((l) => !s.completed.includes(l.id));
 }
 export function dueLessons(s: LearningState, now = Date.now()) {
-  return lessons.filter((l) => s.skills[l.id]?.due <= now);
+  return trackLessons(s).filter((l) => s.skills[l.id]?.due <= now);
 }
 export function canOpen(s: LearningState, id: string) {
-  const i = lessons.findIndex((l) => l.id === id);
-  return i >= 0 && lessons.slice(0, i).every((l) => s.completed.includes(l.id));
+  return (
+    lessons.some((l) => l.id === id) && prerequisites(id).every((l) => s.completed.includes(l.id))
+  );
 }
 export function finishLesson(
   s: LearningState,
@@ -211,14 +257,15 @@ export function dailyPlan(s: LearningState, now = Date.now()) {
   const due = dueLessons(s, now);
   const next = nextLesson(s);
   const allowance = (s.profile?.minutes || 20) - Math.min(due.length, 3) * 2;
+  const path = trackLessons(s);
   const upcoming = next
-    ? lessons
-        .slice(lessons.indexOf(next))
+    ? path
+        .slice(path.indexOf(next))
         .filter(
           (_, i) =>
             i === 0 ||
-            lessons
-              .slice(lessons.indexOf(next), lessons.indexOf(next) + i + 1)
+            path
+              .slice(path.indexOf(next), path.indexOf(next) + i + 1)
               .reduce((n, l) => n + l.minutes, 0) <= allowance,
         )
     : [];

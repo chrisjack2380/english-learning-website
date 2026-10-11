@@ -1,77 +1,75 @@
 # 一步英语 · Little by Little
 
-面向中文母语学习者的免费、免注册英语学习 MVP。每天打开网站即可知道下一步：先复习需要巩固的知识，再学习推荐课程，并在原创动画场景中完成真实的沟通任务。
+面向中文母语学习者，通过直观教学提升真实交流能力。**B1–B2 是主学习区**，保留 Beginner 入门课程，提供 C1 沟通挑战。等级标签是课程设计参考，三个场景不等于完整等级课程或能力认证。
 
-**在线使用：[打开一步英语](https://chrisjack2380.github.io/english-learning-website/)**。无需安装或注册，首次进入按引导开始学习。
+**在线网站：[打开一步英语](https://chrisjack2380.github.io/english-learning-website/)**。无需注册；已有英语基础默认从美国职场会议开始。升级发布和测试的实际状态见 [HANDOFF.md](HANDOFF.md)。
 
-![桌面学习首页](output/playwright/desktop-dashboard.png)
+![B1–B2 学习首页](output/playwright/communication-home.png)
 
-## 运行
+## 使用
 
-需要 Node.js 24+（本项目验证版本 24.19.0）。
+首次选择「已有英语基础」进入 B1–B2，「挑战高级表达」进入 C1，或「从零开始」进入基础路径。学习路径/设置可切换等级，保留已有进度。点击「开始今天的学习」，先巩固到期知识，再进入下一任务。
+
+三个主场景：
+
+- 美国职场会议：提出顾虑 → 建议试点 → 回应销售质疑 → 明确负责人和检查节点。
+- 社交聊天与 Small Talk：分享与反问 → 接住市集话题 → 协商咖啡邀请 → 尊重收尾信号。
+- 商务产品介绍：发现痛点 → 解释功能与收益 → 回应工具负担 → 商定演示与评估。
+
+每个场景包括原创可暂停动画、分步角色示范、正常速度/慢速听力、意图理解、三层表达分析、语气与文化差异、四轮自主文本/语音输出、透明任务反馈、输出历史及复习。C1 在同一场景增加因果、权衡、限定承诺和隐含意义检查，单独记录先修与进度。
+
+「表达升级工作台」位于场景探索和自主沟通页面。输入 `I very like this product.` 可查看语法修正、自然与更丰富的表达、使用情境及差异解释。任意自由文本只有当前支持的规则检查；超出示例库时会说明限制，不凭空生成建议。
+
+**AI 状态：**用户确认暂时没有后端，先完成课程并预留安全接入。当前角色为预设对话，反馈为本地规则与人工编写示例，页面明确标注非 AI。`src/ai.ts` 提供同源服务端网关契约，无模型密钥、付费依赖或虚假 AI 配置按钮。
+
+## 运行和验证
+
+Node.js 24+。
 
 ```bash
 npm ci
 npm run dev
+npm test
+npm run build
+npm run test:e2e
+VITE_BASE_PATH=/english-learning-website/ npm run test:production
+npm run format:check
+npm run preview
 ```
 
-在终端提示的地址访问网站。首次选择基础与每日 10/20/30 分钟时长，再点击「开始今天的学习」。完成课程的练习及情境任务后，首页和完成页都会推荐下一课。浏览器刷新后恢复已完成进度；未提交的单节课状态会重新开始。
+本云环境缓存可用 `/tmp/english-npm-cache`；浏览器优先 `/usr/bin/chromium`，可设置 `CHROMIUM_PATH`。没有系统浏览器时，按 Playwright 官方指南安装 Chromium。生产/在线测试复用同一实际用户流程。
 
 ```bash
-npm test                # 学习规则、回答判定和内容一致性
-npm run build           # 严格 TypeScript 检查和生产构建
-npm run test:e2e        # 启动真实浏览器执行完整用户流程
-npm run test:production # 构建 dist 后用真实浏览器验证生产版本
-npm run format:check
-npm run preview         # 预览 dist 生产构建
+SITE_URL=https://chrisjack2380.github.io/english-learning-website/ npm run test:online
 ```
 
-云环境 npm 缓存需放在可写目录，可使用 `npm ci --cache /tmp/english-npm-cache`。浏览器测试优先使用 `/usr/bin/chromium`，可通过 `CHROMIUM_PATH` 指定本机浏览器；没有系统 Chromium 时，运行 `npx playwright install chromium`，Playwright 会使用下载的浏览器。Linux 缺少系统库时，按照 Playwright 官方安装指南安装依赖。CI 已配置完整安装。
+在线发布使用 GitHub 官方 Pages Actions，验证生产子路径后发布，再在实际 HTTPS 地址运行浏览器验收。不需要 Vercel 凭据或个人 GitHub 令牌。PR 保留用户审核，发布不代表合并。详见 [部署说明](docs/DEPLOYMENT.md)。
 
-静态发布 `dist/`，无需后端、账号、模型或 API Key。根路径部署默认直接构建；GitHub Pages 项目路径构建设置 `VITE_BASE_PATH=/english-learning-website/`。语音识别需要 HTTPS（本机开发地址例外）以及浏览器支持和用户麦克风权限。
-
-在线交付采用 GitHub Pages。用户已将仓库公开，工作流会验证生产版本、发布并针对真实 HTTPS 地址验收；无需提供 Vercel 凭据或个人 GitHub 令牌。首次需在仓库 Settings → Pages 将 Source 设为 GitHub Actions。当前开发分支可在 PR 合并前发布，正式合并后采用 main。操作及权限边界见 [部署说明](docs/DEPLOYMENT.md)，实际状态以 [HANDOFF.md](HANDOFF.md) 为准；尚未部署时不把构建产物或测试截图当作在线网址。
-
-## 已有功能
-
-- 新手水平与学习时长选择；连续学习路径、每日推荐和自动衔接。
-- 六课：问候 → 自我介绍 → 数量与复数 → 礼貌点餐 → 位置 → 问路。前期任务只用已教表达，不越过先修内容。
-- 每课包含中文讲解、可暂停/重播/分步操作的 SVG 动画、例句、听力理解、选择与文字表达、情境应用及结果反馈；后半程默认收起中译。
-- 三个完整自由场景：问候与自我介绍、咖啡店点餐、问路。每个场景有四步对话示范、口袋表达、场景词语交互、回答分支和完成反馈。
-- 语音：优先系统英文 TTS；设备缺少英文声音时播放随站提供的 48 段备用合成音频。支持重复、慢速、停止，以及可编辑的语音识别结果和文字回退。
-- 真实练习结果、本地进度、知识状态、间隔复习、学习页停留时长、数据导出/导入及存储异常提示。
-- 响应式桌面、平板、手机布局，键盘操作、语义表单、状态播报、跳到主内容和减少动画偏好。
-
-课程只有练习全部改正并完成应用任务后才算完成。首次错误不会被改正后的答案覆盖：需复习的知识立即安排巩固；一次正确的课程次日复习。复习正确逐步延长到 1/3/7/14 天，答错 10 分钟后再练。自由场景不解锁课程，但已学相关知识的场景错误会触发复习。
-
-## 目录与维护入口
+## 架构与扩展
 
 ```text
-src/
-  content.ts                 # 课程、场景、先修顺序和句型判定
-  learning.ts                # 记录校验、每日计划、复习和进度规则
-  App.tsx                    # 状态、持久化与导航外壳
-  pages/                     # 首页、引导、路径、探索、复习、记录、设置
-  components/                # 课程、练习、对话、原创 SVG 场景和语音
-  ai.ts                      # 未来安全服务端 AI 接入契约
-  audio-manifest.json        # 教学句子与备用音频的映射
-  learning.test.ts           # 规则与课程测试
-public/audio/                # 网站自带音频，无运行时付费 API
-scripts/generate-audio.ts    # 可选的开发期音频生成工具
-tests/learning.e2e.ts       # 浏览器验收
-docs/                      # 课程扩展、调研、测试结果
-output/playwright/         # 已实际生成的验收截图
+src/advanced-content.ts                # 三个真实场景、表达语域、任务与 C1 条件
+src/content.ts                         # 保留入门课程、统一内容入口
+src/communication.ts                   # 透明任务证据与表达升级规则
+src/learning.ts                        # 分路径先修、校验、计划、复习、旧记录兼容
+src/components/CommunicationPlayer.tsx # 场景 → 听力 → 分析 → 四轮输出 → 反馈
+src/components/CommunicationWorld.tsx  # 原创会议室、聚会与产品演示动画
+src/components/ExpressionCoach.tsx     # 本地表达升级
+src/ai.ts                              # 未来安全服务端的角色与反馈契约
+src/pages/                             # 首页、引导、路径、探索、记录、复习、设置
+public/audio/                          # 已提交的备用合成音频
+scripts/generate-audio.ts              # 增量生成，不改已有音频 URL
+src/*.test.ts                          # 内容与规则验证
+tests/*.e2e.ts                         # 开发、生产及真实在线浏览器验收
+output/playwright/                     # 实际本机截图
 ```
 
-新对话先读 [AGENTS.md](AGENTS.md)、[REQUIREMENTS.md](REQUIREMENTS.md)、[RULES.md](RULES.md)、[HANDOFF.md](HANDOFF.md)。新增课程与场景见 [扩展说明](docs/EXTENDING.md)。工具、Skills 调研与依赖许可证见 [调研记录](docs/RESEARCH.md)。验收证据见 [测试报告](docs/TESTING.md)。
+维护入口：[AGENTS.md](AGENTS.md)、[REQUIREMENTS.md](REQUIREMENTS.md)、[RULES.md](RULES.md)、[HANDOFF.md](HANDOFF.md)。课程扩展见 [docs/EXTENDING.md](docs/EXTENDING.md)，AI 服务端要求见 [docs/AI.md](docs/AI.md)，教学研究、Skills 与许可证见 [docs/RESEARCH.md](docs/RESEARCH.md)，验证证据见 [docs/TESTING.md](docs/TESTING.md)。使用既有 React/TypeScript/Vite、原创 SVG、Playwright；没有新增框架、远程安装脚本或付费 API。
 
-## 当前限制
+## 记录与限制
 
-- 六课是 Pre-A1 到 A1 的入门片段，不是完整 A1/A2 课程或能力认证。采用基础选择而非正式测评；不自动跳过未验证先修课。
-- 本地记录不自动跨设备同步；浏览器清理/无痕模式可能丢失记录。建议定期导出。当前只恢复已提交的课程与场景结果，不恢复未完成课中的步骤。
-- 文字回答按公开的预设句型判定，不能替代开放式作文或自由对话评估。AI 仅预留接口，没有未实现的配置按钮，也不收集密钥。
-- 备用语音为 eSpeak NG 合成，音色较机械；系统有英文语音时优先使用系统声音。真实麦克风与浏览器厂商识别服务需要在使用者设备上验证，不把识别文本当作发音分数。
-- 学习时长是可见学习页面的停留时间，不等于注意力或口语练习时长；后台暂停，每 15 秒保存，直接关闭时最后不足 15 秒可能未保存。
-- 浏览器自动化目前验证 Chromium，尚未验证 Safari/Firefox 或真实触屏设备。官方 CEFR 和 British Council 站点在当前网络中返回代理 403；已用可访问的 CEFR-J 数据交叉检查基础词汇与语法，完整官方描述仍待复核。
+记录保存在当前浏览器，不跨设备同步；设置支持 JSON 备份导出/导入。保留旧版 `little-by-little:v1` 数据，已有基础用户直接推荐 B1–B2，但不删除旧课程。每条路径单独检查先修，自由场景不完成必修课程。初次错误/提示使用安排立即复习；一次通过次日复习，后续正确按 1/3/7/14 天延长，复习错误 10 分钟后再练。
 
-后续优先加入正式的小型起点测评、更多生产性表达、完整 A1/A2 课程、专业录音和跨浏览器验收；账号同步及安全 AI 服务端作为独立阶段。
+本地输出检查依据词语、长度与有限语法规则，不能完整判断语义、事实、语法或真实口语能力。表达升级只有有限的人工示例库。AI 全文反馈、开放角色追问需要未来真实服务端。高级区不是完整 C1 学术/商务课程；Beginner 当前为六节 Pre-A1 → A1 片段，完整 A2 待扩充。
+
+播放优先系统英文 TTS，新场景备用 eSpeak 音频约 180 词/分钟，支持 0.7×；音色机械，尚非真人自然对话录音。语音识别依赖支持的浏览器、HTTPS、权限及厂商服务，可编辑后提交，不是发音评分。尚未验收真人麦克风、Safari/Firefox。未完成的单课步骤刷新后重来；已提交进度和四轮输出会恢复。学习时长是可见页面停留时间，不代表注意力。

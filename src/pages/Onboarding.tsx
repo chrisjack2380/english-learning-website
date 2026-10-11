@@ -4,7 +4,7 @@ import type { Profile } from '../learning';
 import { Brand } from '../components/Brand';
 import { World } from '../components/World';
 export function Onboarding({ onStart }: { onStart: (profile: Profile) => void }) {
-  const [level, setLevel] = useState<Profile['level']>('beginner');
+  const [level, setLevel] = useState<Profile['level']>('basics');
   const [minutes, setMinutes] = useState<Profile['minutes']>(20);
   return (
     <div className="onboarding">
@@ -13,16 +13,16 @@ export function Onboarding({ onStart }: { onStart: (profile: Profile) => void })
         <div className="onboard-art">
           <span className="eyebrow">A SMALL STEP. A BIG WORLD.</span>
           <h1>
-            英语，从今天的
+            让英语走进
             <br />
-            <em>一小步</em>开始。
+            <em>真实交流</em>。
           </h1>
           <p>
             不必先知道学什么。
             <br />
             我们会为你安排一条清晰的路。
           </p>
-          <World scene="greeting" hero />
+          <World scene="meeting" hero />
           <div className="onboard-promise">
             <Leaf size={19} />
             免费课程 · 无需注册 · 每天一点
@@ -61,8 +61,24 @@ export function Onboarding({ onStart }: { onStart: (profile: Profile) => void })
                 <BookOpen size={22} />
               </span>
               <span>
-                <strong>有一点基础</strong>
-                <small>认识一些英语，希望巩固并开口交流</small>
+                <strong>已有英语基础</strong>
+                <small>B1–B2 · 希望更自然地表达观点和真实交流</small>
+              </span>
+              <Check size={18} />
+            </label>
+            <label className={`level-choice ${level === 'advanced' ? 'selected' : ''}`}>
+              <input
+                type="radio"
+                name="level"
+                checked={level === 'advanced'}
+                onChange={() => setLevel('advanced')}
+              />
+              <span className="round-icon blue">
+                <Target size={22} />
+              </span>
+              <span>
+                <strong>挑战高级表达</strong>
+                <small>C1 · 论证、隐含意义与语域</small>
               </span>
               <Check size={18} />
             </label>
@@ -88,7 +104,9 @@ export function Onboarding({ onStart }: { onStart: (profile: Profile) => void })
             <p>
               {level === 'beginner'
                 ? '从 Pre-A1「从一句 Hello 开始」学习问候，逐步走向生活交流。'
-                : '先用第一课快速巩固，凭真实练习解锁下一课；也可直接探索生活场景。水平选择只是起点参考，不是能力认证。'}
+                : level === 'advanced'
+                  ? '从 C1「美国职场会议交流 · C1 挑战」开始，训练论证、限定观点和隐含意义。选择不是能力认证。'
+                  : '从 B1–B2「美国职场会议交流」开始，练习观点、听力与自然表达。选择仅为学习起点参考，不是能力认证。'}
             </p>
           </div>
           <button

@@ -307,7 +307,9 @@ export function ScenePlayer({
                             setResult(null);
                           }}
                         />
-                        <span className="option-letter">{String.fromCharCode(65 + i)}</span>
+                        <span className="option-letter" aria-hidden="true">
+                          {String.fromCharCode(65 + i)}
+                        </span>
                         <span lang="en">{o}</span>
                       </label>
                     ))}
