@@ -49,6 +49,26 @@ const rules = [
     replacement: 'explain to me',
     why: 'explain something to someone；当问题是 explain me this 时，建议改成 explain this to me。',
   },
+  {
+    pattern: /\bdespite of\b/gi,
+    replacement: 'despite',
+    why: 'despite 直接接名词或动名词；也可使用 in spite of。',
+  },
+  {
+    pattern: /\binformations\b/gi,
+    replacement: 'information',
+    why: '日常英语中的 information 是不可数名词；多条信息可说 pieces of information。',
+  },
+  {
+    pattern: /\bequipments\b/gi,
+    replacement: 'equipment',
+    why: '通常用不可数名词 equipment；单件设备可说 a piece of equipment。',
+  },
+  {
+    pattern: /\bdid not went\b/gi,
+    replacement: 'did not go',
+    why: 'did 已表示过去时，后接动词原形 go。',
+  },
 ];
 export function grammarIssues(text: string): GrammarIssue[] {
   return rules.flatMap((r) => {
@@ -56,7 +76,16 @@ export function grammarIssues(text: string): GrammarIssue[] {
     return found.map((m) => ({ before: m[0], after: r.replacement, why: r.why }));
   });
 }
-export function upgradeExpression(text: string) {
+export function upgradeExpression(
+  text: string,
+  expressions: {
+    basic: string;
+    natural: string;
+    fluent: string;
+    usage: string;
+    explanation: string;
+  }[] = [],
+) {
   const issues = grammarIssues(text);
   let corrected = text.trim();
   for (const r of rules) corrected = corrected.replace(new RegExp(r.pattern), r.replacement);
@@ -102,6 +131,55 @@ export function upgradeExpression(text: string) {
       why: '示例假设产品用于团队协作；不能给其他产品添加未经证实的功能或效果。',
     },
   ];
-  const suggestion = catalog.find((entry) => entry.pattern.test(corrected));
+  const sceneMatch = expressions.find(
+    (e) =>
+      e.basic.replace(/[.!?]/g, '').toLowerCase() === corrected.replace(/[.!?]/g, '').toLowerCase(),
+  );
+  const known = catalog.find((entry) => entry.pattern.test(corrected));
+  let composed: { natural: string; advanced: string; context: string; why: string } | undefined;
+  const opinion = corrected.match(/^I think (?:that )?(.+?)[.!]?$/i);
+  const suggestionTask = corrected.match(/^We should (.+?)[.!]?$/i);
+  const responsibility = corrected.match(/^I am responsible for (.+?)[.!]?$/i);
+  const capability = corrected.match(/^Our product can (.+?)[.!]?$/i);
+  if (opinion)
+    composed = {
+      natural: `My view is that ${opinion[1]}.`,
+      advanced: `I would argue that ${opinion[1]}.`,
+      context:
+        '讨论观点。I think 很自然；My view 标记个人立场，I would argue 更适合需要论证的讨论。',
+      why: '复用你原句的命题，不补证据。高级版语气更有论证意味，仍需要实际理由支持。',
+    };
+  else if (suggestionTask)
+    composed = {
+      natural: `One option would be to ${suggestionTask[1]}.`,
+      advanced: `One approach we could consider is to ${suggestionTask[1]}.`,
+      context: '团队协商。should 建议较直接；option / could 留出其他方案的讨论空间。',
+      why: '仅改变提案框架，保留动作。缓和语气不代表更合适；紧急行动可能需要直接表达。',
+    };
+  else if (responsibility)
+    composed = {
+      natural: `I handle ${responsibility[1]}.`,
+      advanced: `My role involves ${responsibility[1]}.`,
+      context: '介绍工作职责。handle 简洁口语化，role involves 适合面试或正式介绍。',
+      why: '保留职责，不添加成就或数字。若原句对象不是工作活动，请核对 handle / involves 的搭配。',
+    };
+  else if (capability)
+    composed = {
+      natural: `Our product is designed to ${capability[1]}.`,
+      advanced: `The purpose of our solution is to ${capability[1]}.`,
+      context:
+        '产品介绍。can 表能力，designed to / purpose 表设计目的，两者不是已验证性能的同义表达。',
+      why: '只复用你提供的主张，尚未核验事实。不能据此推断分子级原理、百分比、认证或实际效果。',
+    };
+  const suggestion =
+    known ||
+    (sceneMatch
+      ? {
+          natural: sceneMatch.natural,
+          advanced: sceneMatch.fluent,
+          context: sceneMatch.usage,
+          why: sceneMatch.explanation,
+        }
+      : composed);
   return { issues, corrected, suggestion };
 }

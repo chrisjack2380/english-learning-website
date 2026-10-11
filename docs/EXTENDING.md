@@ -1,54 +1,42 @@
-# 扩展课程、场景与服务
+# 扩展场景、课程与动画
 
-开发前对照 REQUIREMENTS.md，保留系统学习、互动教学、情境应用和记录复习的闭环。
+先核对 REQUIREMENTS 的当前阶段。稳定 ID 关系到已有进度，标题可以改，ID 不随意变。
 
-## 新增课程
+## 数据驱动场景库
 
-1. 在 `src/content.ts` 的 `lessons` 按先修顺序添加 `Lesson`。稳定 id 不得随标题变化；保存记录以 id 关联。当前 `canOpen` 以数组顺序作为连续先修关系，课程体系扩展为分支前需明确迁移方案。
-2. 填写能力目标、概念解释、使用限制、中英例句、动画类型、三题（概念/听力/生产性表达）与独立回忆复习题。例句里的语言应足够完成应用任务。
-3. 对 `sceneForLesson` 添加只使用本课及先修知识的情境任务。自由探索里的完整场景可以保留更丰富的表达，不能强迫第一课应用未知高级句型。
-4. `accept` 是经过 `normalize` 后的整句正则，`matches` 自动加完整边界。加入常见自然替代，不用宽泛的关键词匹配。必须验证否定、语义矛盾、缺少核心词等不会误通过。
-5. 扩充 `VisualLesson` 概念组件：动画要有具体语言含义与用户操作，尊重暂停和减少动画偏好。不要仅更换装饰图片。
-6. 运行现有规则和完整课程浏览器测试；增加实际不同的表达边界或新交互验收，避免复制实现写无价值测试。
-7. 若加入新播音句子，先生成/提供相应音频，确保 `src/audio-manifest.json` 和 `public/audio` 一致。
+src/scene-schema.ts 定义 CommunicationScene。原 meeting/smalltalk/pitch 在 advanced-content.ts 与 scene-metadata.ts；其余记录在 scene-catalog.ts。communicationScenes 合并为统一数据库。
 
-## 新增场景
+新增中高级场景只在 scene-catalog.ts 添加一条完整记录，不改页面、路由、SceneId union、播放器或 SVG 条件。填写：
 
-`Scene` 提供介绍、核心表达、顺序任务。每个 `Turn` 有角色台词、中译、任务、至少一个错误选项、正确回答、可接受的文字表达和有解释的纠错反馈。`ScenePlayer` 只有正确回复才前进，示范不授予完成。增加分支图时保留明确任务终点及结果证据。
+- id、标题、类型、B2/C1 等级、地点、角色（姓名/工作/关系）、brief、沟通目标与事实限制。
+- 词汇、语法、文化、B2/C1 难度、练习方式、具体评价标准。
+- environment 的 kind、name、heading、objects、stages。现有 office/lounge/demo/service 四种环境共用原创 SVG。三件屏幕物品保持短标签，stage 与 turn 对齐。
+- 听力台词、意图选择题、表达分析题，以及不同的 C1 隐含意义/证据题。
+- 三组基本/自然/流畅表达，解释实际差异和适用条件。
+- 2–8 轮对话，每轮台词/中文/沟通任务/参考/追问/已审核 rubric/C1 额外条件。当前 11 个场景均四轮；参考必须能通过 B2 与 C1 规则。
 
-自由场景结果由 `finishScene` 记录，不能调用 `finishLesson`。场景出现错误时，保守地将已学相关课程知识列为待复习；没有学过的知识不会凭自由探索授予“掌握”。系统课中的小任务作为课程证据，不计作一个完整自由场景。
+createCommunicationLesson 自动生成 B2 和 C1 系统课、输出题、复习题；学习路径按数据库顺序分别先修。SceneCards、CommunicationPlayer、World 通过注册表渲染，新增记录自动出现。追加保持原顺序；重排或移除先修会影响旧备份，需要迁移方案。
 
-## 备用音频生成（可选开发工具）
+本地 taskEvidence 是词语/长度与有限语法规则证据，不是语义真值；测试参考、独立措辞、缺项、无关输入。参考/AI 使用须标记 revised。探索只调用 finishScene，不能调用 finishLesson。
 
-现有音频已纳入仓库，运行网站和普通安装不需要合成器。
+## 模板生成与用户场景
 
-在安装了 eSpeak NG 1.52 与 FFmpeg 的开发机：
+scene-generator.ts 的 intents 匹配中文/英文需求，或让用户选明确模板。生成器复制审核内容并附用户背景。pitch 的参数化采购模板生成需求、证据、比较和评估；产品名称及用户资料不会变成已验证技术效果。
 
-```bash
-npm run audio:generate
-npm test
-npm run build
-```
+新增模板可加审核的参数化策略和匹配词，保持表达、听力、任务及事实一致。未知需求明确不支持，不随机编写假教学。SavedScene 只保存输入与可选白名单 AI 文本，最多 12 个，本地不跨设备同步；练习证据按基础模板保存，不跳过必修。
 
-可用 `ESPEAK_BIN` 指向已验证的 eSpeak 可执行文件或本地包装器。脚本使用参数化 `execFileSync`，不会执行句子中的 shell 内容；临时 WAV 在独立临时目录生成，输出 MP3 和教学映射。生成后通过 FFprobe 和真实浏览器检查资源、解码、播放、慢速和停止，并人工检查听感。
+AI 改写只能返回 title/brief/context、三组 expressions、与原任务同数的文本 turns。applyAIProse 重用可信 ID、环境、任务和 rubric，拒绝模型 regex、未知字段或不覆盖任务的参考句。模型输出不是课程事实，用户须核对。
 
-本次使用 Debian 官方签名的包索引及经过哈希校验的 `.deb` 解包到 `/tmp`，没有关闭 TLS/包签名校验，没有安装未知远程脚本，也未把 eSpeak 二进制带入网站。当前音频来自原创教学文本。eSpeak NG 作为 GPL-3.0-or-later 的开发期工具，来源与版本见 RESEARCH.md。
+## 表达与 AI
 
-## 记录、账号与 AI
+communication.ts 保留已知语法规则、审核整句示例、四种组合框架（观点/建议/职责/产品目的）。ExpressionCoach 还读取全部场景的基本表达。新增规则需要明确适用范围及误改风险；未知句不声称全文正确。AI 配置/协议/安全扩展见 docs/AI.md。
 
-- `LearningState.version` 目前为 1。新增 schema 应写迁移函数和错误分支，不静默清空旧记录。备份导入必须在验证后替换；未知课程、缺失先修、非法日期和分数须拒绝。
-- 账号/云同步是独立适配层，不将 localStorage 的数据误称跨设备同步。
-- `src/ai.ts` 的 `TutorGateway` 只定义未来接口。实际实现须由同源、安全服务端代理模型，管理认证、配额、隐私和注入风险；密钥不传给浏览器，不用 `VITE_*` 保存秘密。
-- 模型名称、角色、等级等非敏感配置可后续保存在客户端；用户密钥配置由服务端安全机制处理。当前不包含 AI 设置 UI。
+## 基础课程
 
-## 中高级任务扩展（2026-10-11）
+六节入门在 content.ts，LessonPlayer/ScenePlayer 独立保留。新增基础课需目标、解释、先修、互动概念、三题及复习；sceneForLesson 只能使用已教表达。不要让有基础用户先完成 Beginner。
 
-在 src/advanced-content.ts 的 communicationScenes 定义真实角色、已知事实、沟通目标、听力意图、表达语域、四轮任务、参考回应、明确 rubric 与 C1 extension。higherLessons 生成三条 B1–B2 以及对应 C1 挑战；扩展时更新 SceneId 与场景组件，不要让基础课成为中级先修。
+## 音频、测试和发布
 
-任务至少要求分享信息/给出理由/回应顾虑/追问/商定行动中的实际行为。Criterion 正则只给出透明可检查的词语证据，不能称为语义判断。新参考回答须同时通过常规与 C1 条件；测试不足、无关、已知语法错误与独立措辞的答案。要减少误拒绝，增加有教学价值的替代表达，不用宽泛 any-text 正则。
+新增固定播音句运行 npm run audio:generate（需要经过验证的 eSpeak NG/FFmpeg，可用 ESPEAK_BIN），增量保留旧 URL。网站运行不需要合成器。默认采购生成模板的固定台词也有备用 MP3；任意产品名及 AI 动态台词依赖设备 TTS，设备无声音时明确提示并用文本继续。
 
-表达升级规则在 src/communication.ts；整句建议只有经过审核且解释意义变化才能加入。未知文本如实说明不支持整句升级，不能把无错误匹配当作“语法正确”。AI 接入见 docs/AI.md。
-
-音频生成脚本用已有 Vite 将 TypeScript 内容安全打包为临时模块，已存在映射跳过，新 URL 由句子哈希生成。需审核的本地 eSpeak NG 和 ffmpeg；ESPEAK_BIN 可指定可写目录包装器。新场景约 180 词/分钟，原基础资源不重写。REGENERATE_AUDIO 仅在明确需要更新已存在录音时使用；普通 npm ci 不执行生成。
-
-LearningState.outputs 为可选字段兼容旧 v1，最多保留 100 组完整四轮输出、每条正文 1500 字符；升级不能清空旧记录。profile.basics 的推荐改为 intermediate，advanced 选择 C1。parseState 与 prerequisites 必须随路径扩展同步。
+运行 npm test、npm run format:check、VITE_BASE_PATH=/english-learning-website/ npm run test:production。真正走完新场景/生成输出、保存重载、下一课、错误/支架反馈及多端截图；生产 CSP、隐私配置与资源亦需验证。推送后用现有 Pages 工作流上线，再在真实 HTTPS 运行同一浏览器套件。阶段结束更新四份维护文档，不用静态截图代替学习闭环。

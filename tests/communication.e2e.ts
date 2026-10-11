@@ -110,24 +110,26 @@ for (const s of communicationScenes)
 test('all C1 task extensions execute with independent prerequisites and saved progress', async ({
   page,
 }) => {
-  test.setTimeout(90000);
+  test.setTimeout(240000);
   await onboard(page, true);
   await page.getByRole('button', { name: '开始今天的学习' }).click();
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < communicationScenes.length; i++) {
     await execute(page, communicationScenes[i].id, false, true);
-    if (i < 2)
+    if (i < communicationScenes.length - 1)
       await page
         .getByRole('button', { name: `继续：${communicationScenes[i + 1].title} · C1 挑战` })
         .click();
   }
   await page.reload();
   const saved = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)!), STORAGE_KEY);
-  expect(saved.completed).toEqual(['meeting-c1', 'smalltalk-c1', 'pitch-c1']);
+  expect(saved.completed).toEqual(communicationScenes.map((s) => s.id + '-c1'));
   await page.getByRole('button', { name: '学习路径', exact: true }).click();
   await page.getByRole('button', { name: /Beginner · A1–A2/ }).click();
   await expect(page.getByRole('button', { name: '待解锁' })).toHaveCount(5);
   await page.getByRole('button', { name: /Intermediate · B1–B2/ }).click();
-  await expect(page.getByRole('button', { name: '待解锁' })).toHaveCount(2);
+  await expect(page.getByRole('button', { name: '待解锁' })).toHaveCount(
+    communicationScenes.length - 1,
+  );
 });
 test('expression upgrades explain grammar, register and unsupported free-text limits', async ({
   page,

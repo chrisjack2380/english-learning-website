@@ -12,6 +12,8 @@ import {
   X,
 } from 'lucide-react';
 import { CommunicationPlayer, type OutputEvidence } from './components/CommunicationPlayer';
+import { findCommunicationScene } from './advanced-content';
+import type { CommunicationScene } from './scene-schema';
 import { lessons, type SceneId } from './content';
 import {
   addTime,
@@ -63,6 +65,15 @@ export default function App() {
   const [page, setPage] = useState<Page>('home');
   const [lessonId, setLessonId] = useState<string | null>(null);
   const [sceneId, setSceneId] = useState<SceneId | null>(null);
+  const [customScene, setCustomScene] = useState<CommunicationScene | undefined>();
+  function selectScene(id: SceneId) {
+    setCustomScene(undefined);
+    setSceneId(id);
+  }
+  function openCustom(scene: CommunicationScene) {
+    setCustomScene(scene);
+    setSceneId(scene.id);
+  }
   const [notice, setNotice] = useState('');
   const [showHelp, setShowHelp] = useState(false);
   const main = useRef<HTMLElement>(null);
@@ -280,7 +291,7 @@ export default function App() {
           {lesson?.track ? (
             <CommunicationPlayer
               key={lesson.id}
-              id={lesson.scene as 'meeting' | 'smalltalk' | 'pitch'}
+              id={lesson.scene}
               lesson={lesson}
               onExit={() => navigate('home')}
               onNext={openLesson}
@@ -299,11 +310,16 @@ export default function App() {
                 setState((s) => finishLesson(s, lesson.id, correct, mistakes))
               }
             />
-          ) : sceneId === 'meeting' || sceneId === 'smalltalk' || sceneId === 'pitch' ? (
+          ) : sceneId && findCommunicationScene(sceneId) ? (
             <CommunicationPlayer
               key={sceneId}
               id={sceneId}
-              challenge={state.profile.level === 'advanced'}
+              definition={customScene}
+              challenge={
+                customScene
+                  ? customScene.customization?.level === 'C1'
+                  : state.profile.level === 'advanced'
+              }
               onExit={() => navigate('explore')}
               onFinish={(_correct, mistakes, outputs) => {
                 setState((s) => finishScene(s, sceneId, mistakes));
@@ -324,7 +340,7 @@ export default function App() {
                   state={state}
                   navigate={navigate}
                   openLesson={openLesson}
-                  setSceneId={setSceneId}
+                  setSceneId={selectScene}
                   startToday={startToday}
                 />
               )}
@@ -339,8 +355,9 @@ export default function App() {
               )}
               {page === 'explore' && (
                 <ExplorePage
+                  onCustom={openCustom}
                   state={state}
-                  setSceneId={setSceneId}
+                  setSceneId={selectScene}
                   onLevel={(level) =>
                     setState((s) => ({ ...s, profile: s.profile ? { ...s.profile, level } : null }))
                   }

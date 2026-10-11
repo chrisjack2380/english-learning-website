@@ -115,7 +115,8 @@ export function parseState(raw: string): LearningState {
           finite(o.at) &&
           (!o.courseId || known(o.courseId)) &&
           Array.isArray(o.turns) &&
-          o.turns.length === 4 &&
+          o.turns.length >= 2 &&
+          o.turns.length <= 8 &&
           o.turns.every(
             (t) =>
               t &&
@@ -133,7 +134,43 @@ export function parseState(raw: string): LearningState {
   // Preserve a sequential path. A backup cannot grant a later lesson without its prerequisites.
   if (s.completed.some((id) => prerequisites(id).some((l) => !s.completed.includes(l.id))))
     throw new Error('课程先修记录不完整');
-  return s;
+  // Reconstruct the documented schema. Untrusted backup extras (including model keys/config) never survive import/export.
+  return {
+    version: 1,
+    profile: s.profile
+      ? { level: s.profile.level, minutes: s.profile.minutes, createdAt: s.profile.createdAt }
+      : null,
+    completed: [...s.completed],
+    skills: Object.fromEntries(
+      Object.entries(s.skills).map(([id, v]) => [
+        id,
+        { status: v.status, due: v.due, interval: v.interval, correctReviews: v.correctReviews },
+      ]),
+    ),
+    attempts: s.attempts.map((a) => ({
+      lessonId: a.lessonId,
+      correct: a.correct,
+      total: a.total,
+      at: a.at,
+    })),
+    sceneResults: s.sceneResults.map((a) => ({ scene: a.scene, mistakes: a.mistakes, at: a.at })),
+    activity: { ...s.activity },
+    ...(s.outputs
+      ? {
+          outputs: s.outputs.map((o) => ({
+            scene: o.scene,
+            ...(o.courseId ? { courseId: o.courseId } : {}),
+            at: o.at,
+            turns: o.turns.map((t) => ({
+              role: t.role,
+              prompt: t.prompt,
+              text: t.text,
+              revised: t.revised,
+            })),
+          })),
+        }
+      : {}),
+  };
 }
 export function activeTrack(s: LearningState) {
   return s.profile?.level === 'advanced'

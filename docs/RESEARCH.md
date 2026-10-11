@@ -64,3 +64,11 @@ eSpeak 来源 [espeak-ng/espeak-ng](https://github.com/espeak-ng/espeak-ng)（�
 设计依据已具备的 CEFR 能力导向及任务教学知识：B1–B2 支架下提出理由、延续互动、回应质疑和明确行动；C1 增加有保留的推断、因果/权衡、隐含意义与语域，而非要求堆砌长词。三场景为原创内容；本次没有新安装 Skills、依赖或外部素材，沿用 React/Vite/Playwright 和原创 SVG。规则反馈公开其词语检查限制，与真实 AI 分开。
 
 新增音频的 eSpeak NG 与依赖再次从 Debian trixie 官方签名索引取得，逐包核对 SHA256 后解包到 /tmp 运行；不执行远程安装脚本，不改全局依赖或证书信任。音频是原创文本的合成朗读，正常约 180 词/分钟不是“真人录音”，声音自然度需要后续改进。
+
+## 2026-10-11 第二阶段架构与模型安全研究
+
+本次实际读取 OpenAI/openai-node、anthropics/anthropic-sdk-typescript、googleapis/js-genai 的官方 GitHub README：OpenAI/Claude 默认禁用浏览器，要求显式浏览器风险选择；Google 建议生产服务端保存运营者 Key。未执行远程安装或新增 SDK。用户要求网页配置个人 Key、本地或安全后端保存，因此实现个人主动 BYOK、默认会话内存、可选 Web Crypto 保险箱、固定官方协议及明确第三方数据流；不是公开网站内置个人权限。
+
+AES-GCM/PBKDF2 使用浏览器原生 Web Crypto，无新加密依赖。浏览器直连和密文并不能消除扩展/XSS/已解锁设备风险，更高要求采用可信后端，见 docs/AI.md。协议 mock 不证明供应商可达或教学质量。
+
+场景任务采用事实—目的—行动—反馈逻辑：面试区分个人/团队贡献；汇报明确 decision ask；技术解释区分响应延迟与完成、重试与唯一投递；谈判区分 consider 与 approval；投诉承诺可控行动；跨文化不按国籍刻板推断；租房仅练沟通不提供法律结论。CEFR 标签是任务设计参考，11场景不冒充完整等级课程。沿用原工具和许可证，无新增框架或 Skills。

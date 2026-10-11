@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Pause, Play, RotateCcw, SkipForward } from 'lucide-react';
 import { CommunicationWorld } from './CommunicationWorld';
+import { findCommunicationScene } from '../advanced-content';
 import type { Lesson, SceneId } from '../content';
 
 export function Person({
@@ -73,7 +74,7 @@ export function World({
   hero?: boolean;
   onInspect?: (item: string) => void;
 }) {
-  if (scene === 'meeting' || scene === 'smalltalk' || scene === 'pitch')
+  if (findCommunicationScene(scene))
     return (
       <CommunicationWorld
         scene={scene}

@@ -3,7 +3,7 @@ import { upgradeExpression } from './communication';
 import { describe, expect, it } from 'vitest';
 import { existsSync } from 'node:fs';
 import clips from './audio-manifest.json';
-import { lessons, matches, normalize, scenes, sceneForLesson } from './content';
+import { lessons, matches, normalize, scenes, sceneForLesson, generateScene } from './content';
 import {
   addTime,
   canOpen,
@@ -20,6 +20,15 @@ const now = 1791460800000;
 describe('teaching content and responses', () => {
   it('all spoken teaching phrases have a committed fallback audio resource', () => {
     const spoken = new Set<string>();
+    const generated = generateScene({
+      request: '向美国客户介绍环保设备',
+      template: 'pitch',
+      level: 'B2',
+      product: '',
+      facts: '',
+    });
+    spoken.add(generated.listening.line);
+    for (const t of generated.turns) [t.line, t.sample, t.followUp].forEach((p) => spoken.add(p));
     for (const l of lessons) {
       l.examples.forEach((e) => spoken.add(e.en));
       l.questions.forEach((q) => {

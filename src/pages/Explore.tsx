@@ -1,3 +1,6 @@
+import { useState } from 'react';
+import { SceneGenerator } from '../components/SceneGenerator';
+import { categoryLabels, type SceneCategory, type CommunicationScene } from '../scene-schema';
 import { BookOpen, Compass } from 'lucide-react';
 import type { SceneId } from '../content';
 import { LevelSelector } from '../components/LevelSelector';
@@ -8,11 +11,15 @@ export function ExplorePage({
   state,
   setSceneId,
   onLevel,
+  onCustom,
 }: {
   state: LearningState;
+  onCustom: (scene: CommunicationScene) => void;
   setSceneId: (id: SceneId) => void;
   onLevel: (level: Profile['level']) => void;
 }) {
+  const [category, setCategory] = useState<SceneCategory | undefined>();
+  const [search, setSearch] = useState('');
   return (
     <>
       <div className="section-heading">
@@ -26,7 +33,47 @@ export function ExplorePage({
         </span>
       </div>
       <LevelSelector value={state.profile!.level} onChange={onLevel} />
-      <SceneCards onOpen={setSceneId} state={state} />
+      {state.profile!.level !== 'beginner' && (
+        <>
+          <SceneGenerator
+            key={state.profile!.level}
+            onOpen={onCustom}
+            advanced={state.profile!.level === 'advanced'}
+          />
+          <div className="scene-filters">
+            <label>
+              搜索场景
+              <input
+                type="search"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="面试、技术、租房…"
+              />
+            </label>
+            <label>
+              场景类型
+              <select
+                aria-label="场景类型"
+                value={category || ''}
+                onChange={(e) => setCategory((e.target.value as SceneCategory) || undefined)}
+              >
+                <option value="">全部 11 个场景</option>
+                {Object.entries(categoryLabels).map(([id, label]) => (
+                  <option value={id} key={id}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+        </>
+      )}
+      <SceneCards
+        onOpen={setSceneId}
+        state={state}
+        category={state.profile!.level === 'beginner' ? undefined : category}
+        search={state.profile!.level === 'beginner' ? '' : search}
+      />
       <ExpressionCoach />
       <div className="note exploration-note">
         <BookOpen size={20} />

@@ -3,7 +3,7 @@ export type TutorConfig = {
   modelLabel: string;
   role: 'colleague' | 'friend' | 'customer' | 'service' | 'interviewer';
   level: 'B1' | 'B2' | 'C1';
-  scene: 'meeting' | 'smalltalk' | 'pitch';
+  scene: string;
   task: string;
 };
 export type TutorReply = {

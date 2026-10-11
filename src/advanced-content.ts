@@ -1,45 +1,10 @@
 import type { Lesson, Scene, SceneId } from './content';
-import type { TaskSpec } from './communication';
 export type Track = 'beginner' | 'intermediate' | 'advanced';
-export type Expression = {
-  basic: string;
-  natural: string;
-  fluent: string;
-  explanation: string;
-  usage: string;
-};
-export type CommunicationTurn = {
-  role: string;
-  line: string;
-  zh: string;
-  task: string;
-  sample: string;
-  rubric: TaskSpec;
-  followUp: string;
-  advanced: CriterionExtension;
-};
-type CriterionExtension = { label: string; pattern: string; hint: string };
-export type CommunicationScene = {
-  id: 'meeting' | 'smalltalk' | 'pitch';
-  title: string;
-  english: string;
-  role: 'colleague' | 'friend' | 'customer';
-  brief: string;
-  goal: string;
-  context: string;
-  nuance: string;
-  listening: {
-    line: string;
-    question: string;
-    options: string[];
-    answer: string;
-    explanation: string;
-  };
-  analysisQuestion: { prompt: string; options: string[]; answer: string; explanation: string };
-  expressions: Expression[];
-  turns: CommunicationTurn[];
-};
-export const communicationScenes: CommunicationScene[] = [
+export type { CommunicationScene, CommunicationTurn, Expression } from './scene-schema';
+import type { CommunicationScene, SceneCore } from './scene-schema';
+import { originalMetadata } from './scene-metadata';
+import { additionalScenes } from './scene-catalog';
+const originalScenes: SceneCore[] = [
   {
     id: 'meeting',
     title: '美国职场会议交流',
@@ -286,10 +251,11 @@ export const communicationScenes: CommunicationScene[] = [
       },
       {
         role: 'Jordan · 新朋友',
-        line: "I tried the farmers' market on Saturday. It was great. Have you been?",
-        zh: '周六我去了农夫市集，很不错，你去过吗？',
-        task: '回应市集话题，分享一点经历或兴趣，再问他喜欢什么。至少 12 词。',
-        sample: 'I enjoy the food at that market. What did you like most about it?',
+        line: 'The market felt welcoming. I like places where people can connect. What do you think makes a neighborhood feel that way?',
+        zh: '市集让人觉得亲切，我喜欢能让人联系起来的地方。你觉得什么让社区有这种感觉？',
+        task: '接住市集话题，表达你对社区或共享空间的看法，并用相关问题延续聊天。至少 12 词。',
+        sample:
+          'I enjoy the food at that market because it brings neighbors together. What makes a place feel welcoming to you?',
         rubric: {
           minWords: 12,
           criteria: [
@@ -297,7 +263,8 @@ export const communicationScenes: CommunicationScene[] = [
             { label: '提出相关追问', pattern: '\\b(what|which|did you|have you)\\b[^?]*\\?' },
           ],
         },
-        followUp: 'The food stalls were my favorite. I also want to explore some trails.',
+        followUp:
+          'For me, relaxed spaces make it easier to connect. People differ, though. I also want to explore some trails.',
         advanced: {
           label: '提供个人细节而不只提问',
           pattern: '\\b(I|my|we)\\b',
@@ -513,6 +480,12 @@ export const communicationScenes: CommunicationScene[] = [
     ],
   },
 ];
+export const communicationScenes: CommunicationScene[] = [
+  ...originalScenes.map((s) => ({ ...s, ...originalMetadata[s.id] })),
+  ...additionalScenes,
+];
+export const findCommunicationScene = (id: string) => communicationScenes.find((s) => s.id === id);
+
 export const trackInfo = {
   beginner: {
     name: 'Beginner',
@@ -533,13 +506,16 @@ export const trackInfo = {
 const escapePattern = (s: string) =>
   s
     .toLowerCase()
-    .replace(/[.!?,;:]/g, '')
+    .replace(/[.,!?，。！？]/g, '')
+    .replace(/[‘’]/g, "'")
+    .replace(/\s+/g, ' ')
+    .trim()
     .replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 export const higherScenes: Scene[] = communicationScenes.map((s) => ({
   id: s.id,
   title: s.title,
   english: s.english,
-  level: 'B1–B2 · C1 挑战',
+  level: (s.levels.includes('B1') ? 'B1–B2' : 'B2') + ' · C1 挑战',
   description: s.brief,
   color: s.id === 'meeting' ? 'blue' : s.id === 'smalltalk' ? 'sage' : 'peach',
   expressions: s.expressions.flatMap((e) => [
@@ -558,91 +534,58 @@ export const higherScenes: Scene[] = communicationScenes.map((s) => ({
     feedback: t.task,
   })),
 }));
-export const higherLessons: Lesson[] = (['intermediate', 'advanced'] as const).flatMap((track) =>
-  communicationScenes.map((s) => {
-    const output = s.turns[0];
-    const rubric =
-      track === 'advanced'
-        ? { ...output.rubric, criteria: [...output.rubric.criteria, output.advanced] }
-        : output.rubric;
-    return {
-      id: s.id + (track === 'advanced' ? '-c1' : ''),
-      track,
-      title: s.title + (track === 'advanced' ? ' · C1 挑战' : ''),
-      english: s.english,
-      level: track === 'advanced' ? 'C1' : 'B1–B2',
-      minutes: 20,
-      goal: s.goal,
-      skill: track === 'advanced' ? `${s.title}：论证与语域` : s.goal,
-      scene: s.id as SceneId,
-      visual: 'greeting' as const,
-      intro: s.brief,
-      tip: s.nuance,
-      examples: s.expressions.flatMap((e) => [
-        { en: e.basic, zh: e.explanation },
-        { en: e.natural, zh: e.usage },
-        { en: e.fluent, zh: e.explanation },
-      ]),
-      questions: [
-        {
-          prompt: s.listening.question,
-          english: s.listening.line,
-          listening: true,
-          options: s.listening.options,
-          answer: s.listening.answer,
-          sample: s.listening.answer,
-          explanation: s.listening.explanation,
-        },
-        track === 'advanced'
-          ? {
-              prompt:
-                s.id === 'meeting'
-                  ? '同事说 Friday might be a bit ambitious. 此处更可能是什么意图？'
-                  : s.id === 'smalltalk'
-                    ? '对方说 We should grab coffee sometime. 你能可靠判断什么？'
-                    : '客户说 Interesting, but how would it fit our workflow? 你该如何回应？',
-              options:
-                s.id === 'meeting'
-                  ? [
-                      '委婉质疑时间表，应核对未完成的验证工作',
-                      '已经保证周五上线',
-                      '只在夸奖你有雄心',
-                    ]
-                  : s.id === 'smalltalk'
-                    ? ['表达友好意向，仍需协商具体时间', '已经定好周六见面', '一定不想与你见面']
-                    : [
-                        '了解具体流程与适配要求，避免虚构集成承诺',
-                        '视为已成交，直接发账单',
-                        '保证支持所有工具',
-                      ],
-              answer:
-                s.id === 'meeting'
-                  ? '委婉质疑时间表，应核对未完成的验证工作'
-                  : s.id === 'smalltalk'
-                    ? '表达友好意向，仍需协商具体时间'
-                    : '了解具体流程与适配要求，避免虚构集成承诺',
-              sample:
-                s.id === 'meeting'
-                  ? '委婉质疑时间表，应核对未完成的验证工作'
-                  : s.id === 'smalltalk'
-                    ? '表达友好意向，仍需协商具体时间'
-                    : '了解具体流程与适配要求，避免虚构集成承诺',
-              explanation: s.nuance,
-            }
-          : { ...s.analysisQuestion, sample: s.analysisQuestion.answer },
-        {
-          prompt: output.task,
-          sample: output.sample,
-          rubric,
-          explanation: '按明确任务要素检查；不代表语法、语义或等级的完整评价。',
-        },
-      ],
-      review: {
-        prompt: `重新输出：${output.task}${track === 'advanced' ? ' ' + output.advanced.hint : ''}`,
+export function createCommunicationLesson(s: CommunicationScene, advanced = false): Lesson {
+  const output = s.turns[0];
+  const rubric = advanced
+    ? { ...output.rubric, criteria: [...output.rubric.criteria, output.advanced] }
+    : output.rubric;
+  return {
+    id: s.id + (advanced ? '-c1' : ''),
+    track: advanced ? 'advanced' : 'intermediate',
+    title: s.title + (advanced ? ' · C1 挑战' : ''),
+    english: s.english,
+    level: advanced ? 'C1' : s.levels.includes('B1') ? 'B1–B2' : 'B2',
+    minutes: 20,
+    goal: s.goal,
+    skill: advanced ? `${s.title}：论证与语域` : s.goal,
+    scene: s.id as SceneId,
+    visual: 'greeting',
+    intro: s.brief,
+    tip: s.nuance,
+    examples: s.expressions.flatMap((e) => [
+      { en: e.basic, zh: e.explanation },
+      { en: e.natural, zh: e.usage },
+      { en: e.fluent, zh: e.explanation },
+    ]),
+    questions: [
+      {
+        prompt: s.listening.question,
+        english: s.listening.line,
+        listening: true,
+        options: s.listening.options,
+        answer: s.listening.answer,
+        sample: s.listening.answer,
+        explanation: s.listening.explanation,
+      },
+      {
+        ...(advanced ? s.c1Question : s.analysisQuestion),
+        sample: (advanced ? s.c1Question : s.analysisQuestion).answer,
+      },
+      {
+        prompt: output.task,
         sample: output.sample,
         rubric,
-        explanation: '尝试换一个具体理由；检查任务要素，结合表达分析自行核对意思和语气。',
+        explanation: '按明确任务要素检查；不代表语法、语义或等级的完整评价。',
       },
-    };
-  }),
+    ],
+    review: {
+      prompt: `重新输出：${output.task}${advanced ? ' ' + output.advanced.hint : ''}`,
+      sample: output.sample,
+      rubric,
+      explanation: '尝试换一个具体理由；检查任务要素，结合表达分析自行核对意思和语气。',
+    },
+  };
+}
+export const higherLessons: Lesson[] = [false, true].flatMap((advanced) =>
+  communicationScenes.map((s) => createCommunicationLesson(s, advanced)),
 );

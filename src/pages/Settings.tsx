@@ -1,5 +1,6 @@
 import { useRef, type Dispatch, type SetStateAction } from 'react';
 import { ArrowDownToLine, Upload } from 'lucide-react';
+import { ModelSettings } from '../components/ModelSettings';
 import { LevelSelector } from '../components/LevelSelector';
 import type { LearningState } from '../learning';
 export function SettingsPage({
@@ -87,11 +88,11 @@ export function SettingsPage({
           英文播放优先使用设备的系统语音，没有英文声音时播放网站自带的备用合成音频；语音输入仅在浏览器支持且允许麦克风时启用，也可能需要浏览器厂商的网络服务。你可以随时用文字完成全部学习。
         </p>
         <p className="note">
-          当前角色对话和表达反馈使用预设任务与本地规则，不是真实
-          AI。已预留同事、朋友、客户、服务人员、面试官的安全服务端接口；GitHub Pages 当前没有 AI
-          后端。未来密钥由服务端保管，不在浏览器中收集或保存 API Key。
+          默认使用预设角色与本地反馈。可在下方选择自己的模型，主动开启真实 AI
+          追问、表达分析和场景改写；反馈会明确标记来源。
         </p>
       </section>
+      <ModelSettings />
       <section className="card settings-card reset-card">
         <h2>重新开始</h2>
         <p>清空当前浏览器学习记录并重新选择起点。建议先导出备份。</p>

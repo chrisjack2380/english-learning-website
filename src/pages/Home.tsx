@@ -226,7 +226,7 @@ export function HomePage({
               : '从敢说 Hello，到完成一次真实交流。'}
           </p>
           <div className="stage-road">
-            {(higher ? path : [path[0], path[2], path[4]]).map((l, i) => (
+            {(higher ? path.slice(0, 3) : [path[0], path[2], path[4]]).map((l, i) => (
               <div key={l.id} className={`stage ${canOpen(state, l.id) ? 'active' : ''}`}>
                 <span>0{i + 1}</span>
                 <div>
@@ -255,7 +255,7 @@ export function HomePage({
             <ArrowRight size={16} />
           </button>
         </div>
-        <SceneCards onOpen={setSceneId} state={state} />
+        <SceneCards onOpen={setSceneId} state={state} limit={3} />
       </section>
     </>
   );

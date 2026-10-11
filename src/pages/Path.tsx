@@ -34,7 +34,7 @@ export function PathPage({
             {info.name} · {info.level}
           </strong>
           <p>
-            {info.description}。标签是教学设计参考；三个场景不是完整 CEFR 等级课程，也不是认证。
+            {info.description}。标签是教学设计参考；场景训练不是完整 CEFR 等级课程，也不是认证。
           </p>
         </div>
       </div>

@@ -1,25 +1,25 @@
 import { Person } from './World';
 import type { CommunicationScene } from '../advanced-content';
+import { findCommunicationScene } from '../advanced-content';
 export function CommunicationWorld({
   scene,
   step = 0,
   playing = true,
   hero = false,
   onInspect,
+  definition,
 }: {
   scene: CommunicationScene['id'];
   step?: number;
   playing?: boolean;
   hero?: boolean;
   onInspect?: (item: string) => void;
+  definition?: CommunicationScene;
 }) {
-  const social = scene === 'smalltalk';
-  const pitch = scene === 'pitch';
-  const stages = social
-    ? ['Connect', 'Follow up', 'Make plans', 'Wrap up']
-    : pitch
-      ? ['Discover', 'Explain value', 'Address concerns', 'Agree next steps']
-      : ['Raise a concern', 'Suggest a pilot', 'Handle pushback', 'Confirm ownership'];
+  const data = definition || findCommunicationScene(scene)!;
+  const social = data.environment.kind === 'lounge';
+  const service = data.environment.kind === 'service';
+  const stages = data.environment.stages;
   return (
     <div
       className={`world communication-world ${playing ? '' : 'paused'} ${hero ? 'hero-world' : ''}`}
@@ -27,7 +27,7 @@ export function CommunicationWorld({
       <svg
         viewBox="0 0 540 310"
         role="img"
-        aria-label={`${social ? '屋顶聚会' : pitch ? '产品演示室' : '职场会议室'}：角色互动与任务进展`}
+        aria-label={`${data.environment.name}：角色互动与任务进展`}
       >
         <rect width="540" height="310" fill={social ? '#e9eee5' : '#e5eaee'} />
         <rect x="22" y="25" width="175" height="134" rx="6" fill="#f6f3e9" />
@@ -38,21 +38,12 @@ export function CommunicationWorld({
         <path d="M0 264h540M95 211v99M295 211v99M495 211v99" stroke="#c2beaf" strokeWidth="2" />
         <rect x="221" y="25" width="294" height="141" rx="10" fill="#304d49" />
         <text x="242" y="49" fill="#c7ddd2" fontSize="11" letterSpacing="2">
-          {social
-            ? 'WEEKEND AT THE ROOFTOP'
-            : pitch
-              ? 'FLOWBOARD · TEAM WORKSPACE'
-              : 'TUESDAY · LAUNCH PLANNING'}
+          {data.environment.heading.slice(0, 38)}
         </text>
         <text x="242" y="75" fill="white" fontSize="15">
-          {stages[Math.min(step, 3)]}
+          {stages[Math.min(step, stages.length - 1)]}
         </text>
-        {(pitch
-          ? ['Tasks', 'In progress', 'Review']
-          : social
-            ? ['Market', 'Trails', 'Coffee']
-            : ['Validation', 'Pilot', 'Checkpoint']
-        ).map((label, i) => (
+        {data.environment.objects.slice(0, 3).map((label, i) => (
           <g key={label}>
             <rect
               x={241 + i * 87}
@@ -70,7 +61,7 @@ export function CommunicationWorld({
         ))}
         <Person x={social ? 163 : 126} y={173} color="#587b72" wave={step % 2 === 0} />
         <Person x={social ? 373 : 419} y={173} color="#c98061" wave={step % 2 === 1} flip />
-        <ellipse cx="276" cy="230" rx={social ? 60 : 154} ry="20" fill="#a48262" />
+        <ellipse cx="276" cy="230" rx={social ? 60 : service ? 120 : 154} ry="20" fill="#a48262" />
         <path d="M163 235v63M389 235v63" stroke="#776450" strokeWidth="7" />
         {!social && (
           <>

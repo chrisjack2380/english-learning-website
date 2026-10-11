@@ -33,7 +33,7 @@ describe('communication path and legacy records', () => {
     const s = freshState();
     s.profile = { level: 'advanced', minutes: 20, createdAt: 1000 };
     expect(nextLesson(s)?.id).toBe('meeting-c1');
-    expect(trackLessons(s)).toHaveLength(3);
+    expect(trackLessons(s)).toHaveLength(communicationScenes.length);
     expect(canOpen(s, 'smalltalk-c1')).toBe(false);
     const explored = finishScene(s, 'meeting', 0, 1000);
     expect(explored.completed).toEqual([]);

@@ -1,46 +1,35 @@
 # 项目交接状态
 
-更新：2026-10-11。先读 REQUIREMENTS 当前升级基准、RULES、AGENTS；简单的是教学方法，B1–B2 真实交流是主定位。
+更新：2026-10-11。入口：REQUIREMENTS 的第二阶段基准 → RULES → AGENTS。成人中高级真实沟通为主，简单的是教学方式。
 
-## 当前升级
+## 当前第二阶段实现
 
-已提交、推送并发布，生产与真实 HTTPS 验收通过：
+- 数据驱动场景数据库与通用课程工厂。11 个不同中高级场景，22 个 B2/C1 路径任务：会议、深度 Small Talk、产品介绍、面试、汇报、技术讨论、谈判、客户需求、投诉、跨文化、租房维修。另保留六节入门和三个基础场景。C1 变体不是新的独立场景。
+- 所有记录含类型、等级、地点、角色、目标、任务、表达、词汇、语法、文化、对话、难度、练法、评价标准。播放器/动画/卡片按注册表渲染，新增只加数据。
+- 本地需求匹配及模板生成、B2/C1、产品/事实参数；采购评估不会杜撰设备效果。最多 12 个独立本地用户场景，保存、继续及删除；未知主题须明确选择模板。
+- Make My English Natural 支持场景表达库、已知语法和观点/建议/职责/产品目的组合框架。超出覆盖如实提示，无假 AI 全文判断。
+- 可选 OpenAI/Claude/Gemini/兼容模型配置、真实连接测试代码、默认切换、重新配置、删除和锁定；默认内存 Key，可选 PBKDF2/AES-GCM 本地保险箱。独立于学习 schema/备份，网页不调用 GitHub 或开发者后台收集 Key。
+- 主动 AI 场景改写、表达分析、六轮角色追问；白名单/长度/任务样例校验，不让 AI 定义 regex/评分/ID。请求失败保留本地；使用 AI 支架标 revised，仍依赖核心流程完成必修。
+- 原 localStorage v1/稳定 ID/先修/输出/复习兼容；备份导入重建已知 schema。326 段备用音频，旧 URL 保留；动态句依赖设备 TTS。生产 CSP、HTTPS/无 URL Key/无 Cookie/拒绝跳转/超时/错误脱敏和提交扫描。
 
-- Beginner / Intermediate / Advanced 独立分区；新用户默认已有基础 B1–B2，从美国职场会议起步。C1 独立先修和实际的推理/隐含意义要求；保留六节 Pre-A1 → A1 入门课和原三个生活场景。
-- 会议、Small Talk、产品介绍三场景：原创环境与分步角色示范，听力意图、三层表达与差异、语域/文化含义，四轮自主输入/可用条件下语音、透明任务要素反馈、参考支架、输出历史、下一课及间隔复习。
-- 表达升级：有限本地语法规则、五类人工整句示例、自然/更丰富表达、场合和意思变化解释；未知文本如实标记限制。
-- 保留旧 localStorage v1、旧备份和基础弱项；切到已有基础后推荐与复习使用当前路径，不继续要求 Hello。自主输出可选字段，最多 100 组四轮结果，随备份恢复。
-- 125 段备用合成音频，新增场景约 180 词/分钟，原 48 URL 不变。系统 TTS 正常速度 1×、慢速 0.7×；音色自然度有限。
-- 用户确认：“暂时没有，先完成课程并预留安全 AI 接入”。目前预设角色和规则反馈明确非 AI；未来同事/朋友/客户等安全同源接口在 src/ai.ts，服务端要求见 docs/AI.md。没有后端/模型密钥/真实 AI 对话。
+## 当前验证与发布
 
-## 验证状态
+39 项单元检查与安全扫描通过；最终生产子路径 45 项真实 Chromium 流程全部通过（约 1.2 分钟），类型与格式检查通过。68 张实际截图已复查，修复下拉框标签、复选框/隐藏输入框溢出及切换输入保留旧 AI 建议的问题。真实供应商仅协议 mock，未用私人 Key 验收。
 
-25 项单元测试通过；开发浏览器 26 项通过（48.4 秒），最终生产子路径 28 项全部通过（43.6 秒），真实 HTTPS 的同一 28 项流程全部通过，类型构建与格式检查通过。
+本次功能与测试即将提交，提交/推送结果由后续实际操作补记。原网站依然是先前验证的三个中高级场景版本： https://chrisjack2380.github.io/english-learning-website/ 。本次发布后会替换该网址。
 
-测试范围、截图和边界见 [docs/TESTING.md](docs/TESTING.md)。本云 `/usr/bin/chromium`，Node24；`npm ci --cache /tmp/english-npm-cache`。备用音频生成需要本地 eSpeak NG/FFmpeg，普通安装不要生成。已审核工具解包在 `/tmp/english-voice`，临时目录可能随环境重置丢失。
+GitHub API 当前认证返回 HTTP401/Bad credentials，原生 Git 只读 HEAD 已成功；两者权限分别验证，提交后测试原生 Git 推送，不因 CLI 登录失败就认定全部访问丢失。
 
-## 发布与 Git
+分支 feat/english-learning-mvp；PR #1 https://github.com/chrisjack2380/english-learning-website/pull/1 仍待用户合并。远程授权允许提交/推送/发布，不能擅自合并或强推。
 
-网站：[一步英语](https://chrisjack2380.github.io/english-learning-website/)。本次 B1–B2/C1 升级已在该地址上线。无需清空旧记录；旧用户可在学习路径/设置切换 Intermediate。
+用户已经将仓库公开、Pages Source 为 GitHub Actions，并允许 main/feat/english-learning-mvp 在 github-pages 环境部署。Codex App contents/actions 可写，pages/administration 不具备；已解决的首次设置无需重问。官方 Actions 最小权限发布，不需要 Vercel 或个人令牌。合并后移除临时开发分支触发。
 
-分支 `feat/english-learning-mvp`，现有 [PR #1](https://github.com/chrisjack2380/english-learning-website/pull/1) OPEN，等待用户审核，不擅自合并。
+## 操作与后续入口
 
-用户已把仓库公开、Pages Source 设为 GitHub Actions，并允许 github-pages 环境的 main 与 feat/english-learning-mvp 部署。当前 App contents/actions 可写，pages/administration 不具备；自动发布使用 Actions GITHUB_TOKEN 最小权限。无需 Vercel 或个人令牌；合并后移除临时开发分支触发。
+Node24；npm ci --cache /tmp/english-npm-cache；本云 Chromium /usr/bin/chromium。npm test、npm run format:check、VITE_BASE_PATH=/english-learning-website/ npm run test:production。上线后 SITE_URL=实际HTTPS npm run test:online，由 GitHub 托管 Chromium 完成同一套真实流程。云浏览器曾缺代理 CA；不关闭 TLS 或修改持久信任。日志/Artifact ZIP 下载域名可能受限，状态及元数据仍可读。
 
-基线已发布提交 4ded787（2026-10-08），Pages run 37806879992 的 build/deploy/verify-online 全成功、常规 CI37806891139成功，原18单元/17生产/17真实线上测试通过。历史权限拒绝已由用户设置解决，与本次升级无关。
+音频生成仅开发需要经审核 eSpeak/FFmpeg，ESPEAK_BIN=/tmp/english-voice/run-espeak npm run audio:generate；临时工具可能随环境重置消失，普通安装无需生成。
 
-本次上线源码提交 `58cb8b84755289225a773da8fa3f064fdb8e976b` 已推送。Pages [run 38107449994](https://github.com/chrisjack2380/english-learning-website/actions/runs/38107449994) 的 build/deploy/verify-online 全成功；常规 CI [38107452064](https://github.com/chrisjack2380/english-learning-website/actions/runs/38107452064) 成功。部署 `6990259934` 状态 success，环境网址为上述 Pages 地址。实际 HTTPS 页面 200，JS 文件 `index-D76EuYXM.js` 与本机已验收构建一致，新会议音频 HTTP200 / audio/mp3 / 60120 字节。
+架构扩展见 docs/EXTENDING.md，模型安全见 docs/AI.md。用户的新 BYOK 要求覆盖旧“仅预留 AI”边界；不能回退为假 AI 或内置共享 Key。真实个人服务商连接/模型质量尚未用真实 Key 验收；自动化协议 mock 与真实连接务必区分。
 
-线上验收步骤 2026-10-11 03:11:48–03:13:05 UTC 成功。在线截图/报告为 `pages-online-evidence` artifact `11689834665`（约 8.75MB）；生产证据 `11690094172`，发布产物 `11689914316`。线上 Playwright 配置不启动本地服务，直接访问真实 GitHub Pages。交付记录后续文档提交不重新部署；站点运行上述已验证源码。
-
-本云 Chrome 访问外部 HTTPS 曾因代理 CA 信任报 ERR_CERT_AUTHORITY_INVALID；没有忽略 TLS，也没有获准修改持久 NSS。线上浏览器验收使用 GitHub 托管 Chromium。此环境可能限制日志/Artifact ZIP 下载，但 Actions 状态、检查与产物元数据可读取；不要把未下载 ZIP 当本机截图。
-
-## 后续入口
-
-1. 完整 B1/B2/C1 体系，面试/技术/冲突/学术场景；基础区完整 A2。现有三场景与 C1 挑战是能力训练片段，非完整等级课程。
-2. 真实 AI 服务端部署、鉴权/限流/预算、隐私和反馈质量；非敏感配置切换。遵循 docs/AI.md，不能在 GitHub Pages 前端存密钥。
-3. 更自然语音/真人录音、多口音与真实设备麦克风；Safari/Firefox/触屏与无障碍扩大验收。
-4. 更深入语义评价、未完成步骤恢复、账号同步。词语检查的限制须保留可见，不以标签暗示已掌握完整能力。
-5. 允许网络域名后复核 CoE/British Council 官方资料；本次请求被代理403，未假称阅读全文。
-
-内容扩展见 docs/EXTENDING；框架与许可证见 docs/RESEARCH。没有新增 Skills 或依赖；之前 onboarding setup 技能用于环境。环境配置草稿需用户审阅/保存/发布才生效，不能把保存草稿当环境已发布。
+下一阶段：完整 C1 学术论证/长观点输出、更复杂生活事务、更多录音和口音、真人麦克风与跨浏览器；可信后端鉴权/预算/隐私；长期规划/能力模型/账号同步/未完成步骤恢复。

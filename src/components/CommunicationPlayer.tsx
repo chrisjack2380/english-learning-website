@@ -1,12 +1,18 @@
 import { useEffect, useState } from 'react';
 import { ArrowRight, Check, ChevronLeft, Pause, Play, RotateCcw } from 'lucide-react';
-import { communicationScenes, higherLessons, type CommunicationScene } from '../advanced-content';
+import {
+  communicationScenes,
+  higherLessons,
+  createCommunicationLesson,
+  type CommunicationScene,
+} from '../advanced-content';
 import type { Lesson } from '../content';
 import { taskEvidence } from '../communication';
 import { CommunicationWorld } from './CommunicationWorld';
 import { Exercise } from './Exercise';
 import { ExpressionCoach } from './ExpressionCoach';
 import { Speak, VoiceInput } from './Speech';
+import { AIRolePractice } from './AIRolePractice';
 export type OutputEvidence = { role: string; prompt: string; text: string; revised: boolean };
 export function CommunicationPlayer({
   id,
@@ -15,16 +21,18 @@ export function CommunicationPlayer({
   onExit,
   onNext,
   onFinish,
+  definition,
 }: {
   id: CommunicationScene['id'];
+  definition?: CommunicationScene;
   lesson?: Lesson;
   challenge?: boolean;
   onExit: () => void;
   onNext?: (id: string) => void;
   onFinish: (correct: number, mistakes: number, outputs: OutputEvidence[]) => void;
 }) {
-  const scene = communicationScenes.find((s) => s.id === id)!;
-  const course = lesson || higherLessons.find((l) => l.id === id + (challenge ? '-c1' : ''))!;
+  const scene = definition || communicationScenes.find((s) => s.id === id)!;
+  const course = lesson || createCommunicationLesson(scene, challenge);
   const advanced = course.track === 'advanced';
   const [phase, setPhase] = useState(0);
   const [demo, setDemo] = useState(0);
@@ -78,6 +86,7 @@ export function CommunicationPlayer({
         <div className="communication-stage">
           <CommunicationWorld
             scene={id}
+            definition={scene}
             step={phase === 0 ? demo : step}
             playing={playing}
             onInspect={(item) => setInspect(item === 'context' ? scene.context : scene.goal)}
@@ -115,8 +124,39 @@ export function CommunicationPlayer({
           <h2>先解决一个真实问题。</h2>
           <p>{scene.brief}</p>
           <p className="note">{scene.context}</p>
+          <details className="scene-notes">
+            <summary>查看场景学习档案与评价标准</summary>
+            <p>地点：{scene.location}</p>
+            {scene.roles.map((r) => (
+              <p key={r.name}>
+                {r.name} · {r.job} · {r.relationship}
+              </p>
+            ))}
+            <h3>词汇与语法</h3>
+            <p>{scene.vocabulary.map((v) => `${v.en}（${v.zh}）`).join(' · ')}</p>
+            <ul>
+              {scene.grammar.map((g) => (
+                <li key={g}>{g}</li>
+              ))}
+            </ul>
+            <h3>文化与沟通</h3>
+            <ul>
+              {scene.culture.map((g) => (
+                <li key={g}>{g}</li>
+              ))}
+            </ul>
+            <h3>本次任务的评价标准</h3>
+            <ul>
+              {scene.evaluation.map((g) => (
+                <li key={g}>{g}</li>
+              ))}
+            </ul>
+            <p>{advanced ? scene.difficulty.c1 : scene.difficulty.b2}</p>
+          </details>
           <div className="row spread">
-            <h3>角色示范 · {demo + 1} / 4</h3>
+            <h3>
+              角色示范 · {demo + 1} / {scene.turns.length}
+            </h3>
             <button className="text-button" aria-pressed={zh} onClick={() => setZh(!zh)}>
               {zh ? '隐藏中文' : '显示中文'}
             </button>
@@ -142,7 +182,7 @@ export function CommunicationPlayer({
             </button>
             <button
               className="button ghost"
-              disabled={demo === 3}
+              disabled={demo === scene.turns.length - 1}
               onClick={() => setDemo(demo + 1)}
             >
               下一步示范
@@ -214,7 +254,9 @@ export function CommunicationPlayer({
         <div className="communication-practice-grid">
           <section className="card scene-dialogue">
             <div className="row spread">
-              <p className="eyebrow">YOUR TURN · {step + 1} / 4</p>
+              <p className="eyebrow">
+                YOUR TURN · {step + 1} / {scene.turns.length}
+              </p>
               <button className="text-button" aria-pressed={zh} onClick={() => setZh(!zh)}>
                 {zh ? '隐藏中文' : '显示中文'}
               </button>
@@ -312,7 +354,7 @@ export function CommunicationPlayer({
                         { role: turn.role, prompt: turn.line, text: answer.trim(), revised },
                       ];
                       setOutputs(updated);
-                      if (step === 3) {
+                      if (step === scene.turns.length - 1) {
                         const finalScore =
                           score + (mistakes === 0 && !updated.some((o) => o.revised) ? 1 : 0);
                         setScore(finalScore);
@@ -326,7 +368,7 @@ export function CommunicationPlayer({
                       }
                     }}
                   >
-                    {step === 3 ? '完成沟通任务' : '回应追问'}
+                    {step === scene.turns.length - 1 ? '完成沟通任务' : '回应追问'}
                     <ArrowRight size={17} />
                   </button>
                 </>
@@ -351,6 +393,14 @@ export function CommunicationPlayer({
             </details>
           </section>
           <div>
+            <AIRolePractice
+              key={step}
+              scene={scene}
+              level={advanced ? 'C1' : 'B2'}
+              answer={answer}
+              task={turn.task}
+              onAdvice={() => setRevised(true)}
+            />
             <section className="card output-history">
               <h3>已经说过的话</h3>
               {outputs.length ? (
@@ -382,7 +432,7 @@ export function CommunicationPlayer({
               <span>首次任务检查通过</span>
             </div>
             <div>
-              <strong>4 轮</strong>
+              <strong>{scene.turns.length} 轮</strong>
               <span>自主英文输出</span>
             </div>
             <div>

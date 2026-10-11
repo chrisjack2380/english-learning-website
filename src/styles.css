@@ -1241,7 +1241,7 @@ legend {
   display: block;
   margin-bottom: 10px;
 }
-input:not([type='radio']):not([type='file']) {
+input:not([type='radio']):not([type='file']):not([type='checkbox']) {
   border: 1px solid #ced8c2;
   background: #fffdf8;
   border-radius: 8px;
@@ -3205,6 +3205,136 @@ summary {
 .communication-player .role-response > span {
   display: block;
   margin-bottom: 10px;
+}
+.scene-generator,
+.ai-role-practice {
+  padding: 28px;
+  margin: 24px 0;
+}
+.scene-generator {
+  background: linear-gradient(120deg, #fffdf7, #edf2e9);
+}
+.config-fields,
+.scene-filters {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin: 20px 0;
+  min-width: 0;
+}
+.config-fields {
+  border: 0;
+  padding: 0;
+}
+.config-fields label,
+.scene-filters label,
+.vault-unlock label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  min-width: 0;
+}
+input:not([type='checkbox']):not([type='radio']):not([type='file']),
+select {
+  width: 100%;
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid #d7ddcf;
+  border-radius: 10px;
+  color: #273d34;
+  background: #fffdf8;
+  font: inherit;
+}
+.full-field {
+  grid-column: 1 / -1;
+}
+.config-fields .check-field {
+  flex-direction: row;
+  align-items: flex-start;
+  line-height: 1.7;
+}
+.check-field input {
+  margin-top: 6px;
+  accent-color: #476e59;
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  min-height: 18px;
+  padding: 0;
+}
+.config-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 28px;
+  padding-left: 20px;
+  color: #476e59;
+  font-size: 14px;
+}
+.model-settings h2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.model-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 0;
+  border-top: 1px solid #dde3d6;
+  overflow-wrap: anywhere;
+}
+.model-row > div {
+  min-width: 0;
+}
+.vault-unlock {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 12px;
+}
+.generated-preview {
+  border-top: 1px solid #d7ddcf;
+  margin-top: 24px;
+  padding-top: 20px;
+}
+.generated-preview ol,
+.scene-notes ul {
+  line-height: 1.9;
+}
+.ai-feedback {
+  border-left: 3px solid #7d9984;
+  padding-left: 16px;
+  margin-top: 20px;
+  overflow-wrap: anywhere;
+}
+.ai-role-practice p,
+.model-settings p {
+  overflow-wrap: anywhere;
+}
+.scene-filters {
+  background: #eff2e9;
+  padding: 18px;
+  border-radius: 12px;
+}
+@media (max-width: 640px) {
+  .config-fields,
+  .scene-filters {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .scene-generator,
+  .ai-role-practice {
+    padding: 20px;
+  }
+  .config-steps {
+    gap: 12px 28px;
+  }
+  .model-row .row {
+    gap: 12px;
+  }
 }
 @media (max-width: 640px) {
   .expression-coach,

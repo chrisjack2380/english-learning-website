@@ -18,15 +18,15 @@ await build({
     rollupOptions: { output: { entryFileNames: 'content.mjs' } },
   },
 });
-const { lessons, scenes, sceneForLesson, communicationScenes, upgradeExpression } = (await import(
-  pathToFileURL(join(bundleTemp, 'content.mjs')).href
-)) as {
-  lessons: Lesson[];
-  scenes: Scene[];
-  sceneForLesson: (id: string) => Scene;
-  communicationScenes: import('../src/advanced-content').CommunicationScene[];
-  upgradeExpression: typeof import('../src/communication').upgradeExpression;
-};
+const { lessons, scenes, sceneForLesson, communicationScenes, upgradeExpression, generateScene } =
+  (await import(pathToFileURL(join(bundleTemp, 'content.mjs')).href)) as {
+    lessons: Lesson[];
+    scenes: Scene[];
+    sceneForLesson: (id: string) => Scene;
+    communicationScenes: import('../src/advanced-content').CommunicationScene[];
+    upgradeExpression: typeof import('../src/communication').upgradeExpression;
+    generateScene: typeof import('../src/scene-generator').generateScene;
+  };
 const phrases = new Set<string>();
 for (const l of lessons) {
   l.examples.forEach((e) => phrases.add(e.en));
@@ -42,6 +42,17 @@ for (const s of [...scenes, ...lessons.map((l) => sceneForLesson(l.id))]) {
   });
 }
 for (const s of communicationScenes) s.turns.forEach((t) => phrases.add(t.followUp));
+const generated = generateScene({
+  request: '向美国客户介绍环保设备',
+  template: 'pitch',
+  level: 'B2',
+  product: '',
+  facts: '',
+});
+phrases.add(generated.listening.line);
+for (const e of generated.expressions)
+  [e.basic, e.natural, e.fluent].forEach((p) => phrases.add(p));
+for (const t of generated.turns) [t.line, t.sample, t.followUp].forEach((p) => phrases.add(p));
 for (const input of [
   'I really like this product.',
   "I don't agree.",
