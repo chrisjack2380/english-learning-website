@@ -34,7 +34,9 @@
 
 ## 线上验收
 
-在线地址保持 `https://chrisjack2380.github.io/english-learning-website/`。升级尚未发布前，不能把旧版站点成功当作新内容验收。发布后在 GitHub 托管 Chromium 运行同一完整套件，具体 run/commit/结果写入 HANDOFF。本云容器曾缺代理 CA 的浏览器信任；不关闭 TLS 或修改持久信任以冒充测试。
+在线地址为 `https://chrisjack2380.github.io/english-learning-website/`，本次升级已发布。源码 `58cb8b8`，[Pages run 38107449994](https://github.com/chrisjack2380/english-learning-website/actions/runs/38107449994) 的 build/deploy/verify-online 全部成功；在 GitHub 托管 Chromium 上针对真实 HTTPS 执行全部 28 项流程，线上验收步骤 03:11:48–03:13:05 UTC 成功。在线配置未启动本地服务。
+
+真实线上截图与报告为该 run 的 `pages-online-evidence`，artifact `11689834665`（约 8.75MB）；本机截图不是线上截图的替代。额外实际 HTTPS 请求确认页面200、JS文件与已验收 dist 一致、新会议音频200且为 audio/mp3（60120字节）。常规 CI38107452064也成功。本云容器曾缺代理 CA 的浏览器信任；不关闭 TLS 或修改持久信任以冒充测试。
 
 ## 已知验证边界
 
