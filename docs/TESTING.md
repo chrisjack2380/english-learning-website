@@ -1,6 +1,6 @@
 # 验证与截图
 
-2026-10-11 第二阶段升级。所有本机测试打开实际运行的 Vite 生产构建，使用 /english-learning-website/ 子路径。在线版尚未发布此次升级，原因见下方，不将旧版本测试当成本次线上验收。
+2026-10-11 第二阶段升级。所有本机测试打开实际运行的 Vite 生产构建，使用 /english-learning-website/ 子路径。新版已发布，且针对真实公开 HTTPS 的同一45项套件验收成功，记录见下方。
 
 ## 本机验证
 
@@ -40,11 +40,11 @@ AI 截图的 mocked 文件名表示协议测试响应，不是私人模型或真
 
 ## 本次线上状态
 
-当前云会话的 GitHub 认证 GET /user 返回 HTTP401 / Bad credentials；匿名读取确认仓库仍公开、远程 feat/english-learning-mvp 为 f0f767f、PR #1 OPEN。是当前凭据失效，不是 Pages Source 或 deployment branch 再次缺权限。原生 Git HEAD 只读已成功，Git 与 API 权限分别验证；提交后测试原生 Git 推送，不能仅据 CLI401推断全部写入权限。当前不能声称本次部署或线上45项已通过。
+本次已部署源码 `847fc2748b0bcf48b2a88442ff682e2a6d4f6b6d`：[Pages run 38110841350](https://github.com/chrisjack2380/english-learning-website/actions/runs/38110841350) 的 build/deploy/verify-online 全部成功。生产子路径步骤2026-10-11 04:13:10–04:15:06 UTC；实际公开 HTTPS 45项套件步骤04:16:22–04:18:21 UTC成功，在线配置没有启动本地服务。常规CI38110843075也成功。
 
-原网址 https://chrisjack2380.github.io/english-learning-website/ 仍为此前三场景版本；以前 Pages run 38107449994 的28项真实HTTPS测试不是此次45项验收证据。
+线上截图和HTML报告为该run的 `pages-online-evidence`（artifact11690888877，21645426字节）；生产证据11692030160。没有将本机PNG冒充线上文件。额外真实HTTPS请求确认页面及新JS200、生产CSP存在；`index-CZvrUfje.js` 与本机生产资产一致，默认生成采购任务听力MP3为200 / audio/mp3 / 72087字节。
 
-授权刷新后先推送本地提交，更新现有 PR，再读取 Pages build/deploy/verify-online 结果；真实 HTTPS 用相同45项流程，截图/报告在 pages-online-evidence。当前云浏览器代理 CA 曾影响外部 HTTPS，不关闭 TLS，不改持久信任；用 GitHub 托管浏览器验收。
+认证排查：CLI显式GH_TOKEN请求曾401；原生Git和受支持HTTPS的平台注入身份正常，已推送、更新现有PR并触发部署。没有要求私人Token或重复Pages设置。当前云浏览器代理CA曾影响外部HTTPS，不关闭TLS或改持久信任，线上套件使用GitHub托管Chromium。
 
 ## 未验证及产品边界
 

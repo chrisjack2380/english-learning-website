@@ -16,11 +16,15 @@
 
 39 项单元检查与安全扫描通过；最终生产子路径 45 项真实 Chromium 流程全部通过（约 1.2 分钟），类型与格式检查通过。68 张实际截图已复查，修复下拉框标签、复选框/隐藏输入框溢出及切换输入保留旧 AI 建议的问题。真实供应商仅协议 mock，未用私人 Key 验收。
 
-本次功能与测试即将提交，提交/推送结果由后续实际操作补记。原网站依然是先前验证的三个中高级场景版本： https://chrisjack2380.github.io/english-learning-website/ 。本次发布后会替换该网址。
+本次已提交、推送并上线：源代码提交 `847fc2748b0bcf48b2a88442ff682e2a6d4f6b6d`，远程分支一致。网站 https://chrisjack2380.github.io/english-learning-website/ 提供当前11场景/生成/可选AI版本。
 
-GitHub API 当前认证返回 HTTP401/Bad credentials，原生 Git 只读 HEAD 已成功；两者权限分别验证，提交后测试原生 Git 推送，不因 CLI 登录失败就认定全部访问丢失。
+[Pages run 38110841350](https://github.com/chrisjack2380/english-learning-website/actions/runs/38110841350) 的 build/deploy/verify-online 全成功；生产服务器步骤04:13:10–04:15:06 UTC，真实HTTPS同一45项套件步骤04:16:22–04:18:21 UTC成功。部署 `6990793189`；常规CI [38110843075](https://github.com/chrisjack2380/english-learning-website/actions/runs/38110843075) 成功。页面/新JS均200，资源 `index-CZvrUfje.js` 与本机已验收dist一致；生成场景听力MP3为200 / audio/mp3 / 72087字节。
 
-分支 feat/english-learning-mvp；PR #1 https://github.com/chrisjack2380/english-learning-website/pull/1 仍待用户合并。远程授权允许提交/推送/发布，不能擅自合并或强推。
+线上截图及报告为 `pages-online-evidence` artifact `11690888877`（约21.65MB），生产证据 `11692030160`，发布产物 `11691830372`。本机68张截图保留在output/playwright，不能混称线上截图。后续交接文档提交不重复发布应用。
+
+GitHub认证排查已解决：旧CLI的显式GH_TOKEN认证返回401，不能据此判定平台权限丢失。原生Git及不加显式Authorization的受支持HTTPS请求使用平台注入身份，已成功推送和更新PR标题/说明。没有提取平台密钥或要求用户提供Token，不需要再操作Pages/授权。
+
+分支 feat/english-learning-mvp；PR #1 https://github.com/chrisjack2380/english-learning-website/pull/1 OPEN，代码、标题和说明已更新，等待用户合并。远程授权允许提交/推送/发布，不能擅自合并或强推。
 
 用户已经将仓库公开、Pages Source 为 GitHub Actions，并允许 main/feat/english-learning-mvp 在 github-pages 环境部署。Codex App contents/actions 可写，pages/administration 不具备；已解决的首次设置无需重问。官方 Actions 最小权限发布，不需要 Vercel 或个人令牌。合并后移除临时开发分支触发。
 

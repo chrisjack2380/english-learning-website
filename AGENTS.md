@@ -13,3 +13,5 @@
 - 测试实际网站，截图覆盖桌面/平板/手机、状态和控制台。模型协议 mock 不等于真实连接或质量；真实麦克风、跨浏览器和真人发音未验收须注明。
 - 用户已选择公开 GitHub Pages，并允许 main 与 feat/english-learning-mvp 部署。发布后用 SITE_URL 与 npm run test:online 验收实际 HTTPS，不用本机通过代替线上证据。不要要求 Vercel 凭据或声称 YAML 提升 Codex App 权限。
 - 每个明确任务验证后 commit/push，更新 PR 等用户合并；阶段结束同步需求、规则、交接、扩展、测试文档。合并后移除 Pages 临时开发分支触发。
+
+- GitHub 认证按通道和操作检查：原生 Git 与不设置显式 Authorization 的受支持 HTTPS 可用平台注入身份；旧 CLI 显式凭据的 401 不代表全部权限丢失。不要提取代理凭据、打印 Token 或盲目要求新授权，先测试实际操作。
