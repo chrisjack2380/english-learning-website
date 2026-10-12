@@ -1,6 +1,6 @@
 # GitHub Pages 在线交付
 
-当前第三阶段发布正在最终验收，实际源提交、Pages run及HTTPS结果在成功后更新。网址保持不变，记录见HANDOFF.md、TESTING.md；无需重新配置Pages或私人Token。
+第三阶段源码fb9eaae已成功部署，52项实际HTTPS通过；全量音频遇到CDN临时503，正完成有限重试后的最终验收。网址保持不变，最终run/证据见HANDOFF.md、TESTING.md；无需重新配置Pages或私人Token。
 
 关联 REQUIREMENTS.md、RULES.md、HANDOFF.md。用户要求开发者完成发布与在线验收，并选择 GitHub Pages；用户只在在线网站测试。
 

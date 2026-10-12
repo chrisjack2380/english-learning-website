@@ -285,8 +285,8 @@ export function KnowledgePage({
       <section className="card knowledge-sources">
         <h2>来源与版权</h2>
         <p>
-          当前内置32个原创知识单元、1154个有明确许可证的英文词典词条。参考体系用于组织学习方向，不复制受保护教材、真题或官方释义。Cambridge/IELTS/TOEFL
-          官网本环境访问受限，未冒称核读全文或获得官方授权。
+          当前内置32个原创知识单元、1154个合法授权的英文词典词条。官方资源链接供学习参考；本站课程为原创选编，非
+          Cambridge/IELTS/TOEFL 官方授权教材，不转载受保护的书籍、真题或官方释义。
         </p>
         {knowledgeSources.map((s) => (
           <div key={s.id}>
