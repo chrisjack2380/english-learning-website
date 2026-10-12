@@ -109,9 +109,14 @@ test('private reading remains in page memory and target selection changes the ac
   await onboard(page, 'toefl');
   await expect(page.getByLabel('我的学习目标')).toHaveValue('toefl');
   await expect(page.locator('.knowledge-unit h2')).toHaveText('assess');
-  await page
-    .getByLabel('私人学习资料')
-    .fill('PRIVATE SAMPLE: We need to allocate resources and assess evidence.');
+  await page.getByLabel('导入个人文本').setInputFiles({
+    name: 'my-private-academic-notes-with-a-long-file-name.txt',
+    mimeType: 'text/plain',
+    buffer: Buffer.from('PRIVATE SAMPLE: We need to allocate resources and assess evidence.'),
+  });
+  await expect(page.getByLabel('私人学习资料')).toHaveValue(
+    'PRIVATE SAMPLE: We need to allocate resources and assess evidence.',
+  );
   await expect(page.getByRole('button', { name: '学习 allocate', exact: true })).toBeVisible();
   expect(await page.evaluate(() => Object.values(localStorage).join(' '))).not.toContain(
     'PRIVATE SAMPLE',
@@ -181,8 +186,13 @@ for (const viewport of [
     });
     await onboard(page);
     await shot(page, `${viewport.name}-library`);
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
-      true,
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
+      viewport.width,
+    );
+    const fileBounds = await page.getByLabel('导入个人文本').boundingBox();
+    const readingBounds = await page.locator('.private-reading').boundingBox();
+    expect(fileBounds!.x + fileBounds!.width).toBeLessThanOrEqual(
+      readingBounds!.x + readingBounds!.width - 20,
     );
     await page.getByRole('button', { name: '把 allocate 用到场景里', exact: true }).click();
     await shot(page, `${viewport.name}-scene`);
