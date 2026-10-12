@@ -33,6 +33,15 @@ describe('knowledge understanding, application and learning route', () => {
     expect(knowledgePlan(s, false, 2000).next?.id).toBe('allocate');
   });
   it('understanding does not grant practice; application schedules review and records independent output', () => {
+    const applied = recordKnowledge(
+      freshKnowledge(),
+      'allocate',
+      'practice',
+      'I would review the resources.',
+      1000,
+    );
+    expect(applied.records.allocate.understood).toBe(true);
+    expect(knowledgePlan(applied, false, 2000).next?.id).not.toBe('allocate');
     let s = recordKnowledge(freshKnowledge(), 'allocate', 'understand', '', 1000);
     expect(s.records.allocate.practices).toBe(0);
     s = recordKnowledge(s, 'allocate', 'practice', 'Our proposal needs additional support.', 2000);

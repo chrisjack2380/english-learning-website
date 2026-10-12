@@ -96,6 +96,8 @@ export function recordKnowledge(
     next.due = now;
   }
   if (action === 'practice') {
+    // A completed application includes the scenario's meaning/listening checks.
+    next.understood = true;
     next.practices++;
     next.lastOutput = output.slice(0, 1500);
     next.interval = r.interval === 0 ? 1 : r.interval === 1 ? 3 : r.interval === 3 ? 7 : 14;

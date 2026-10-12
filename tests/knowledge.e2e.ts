@@ -102,6 +102,15 @@ test('supplementary licensed dictionary and arbitrary personal vocabulary work w
   await expect(
     page.getByRole('button', { name: 'What 疑问词，用来询问内容 · 我的摘词' }),
   ).toBeVisible();
+  await page.getByLabel('只看个人词库').uncheck();
+  await application(page, 'allocate');
+  await page
+    .locator('.completion')
+    .getByRole('button', { name: '返回知识路线', exact: true })
+    .click();
+  await expect(page.locator('.knowledge-unit h2')).not.toHaveText('allocate');
+  const data = await page.evaluate((k) => JSON.parse(localStorage.getItem(k)!), STORAGE_KEY);
+  expect(data.knowledge.records.allocate.understood).toBe(true);
 });
 test('private reading remains in page memory and target selection changes the actual knowledge route', async ({
   page,
