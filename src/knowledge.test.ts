@@ -62,6 +62,9 @@ describe('knowledge understanding, application and learning route', () => {
       expect(scene.turns[0].rubric.criteria[0].label).toBe('表达具体建议或解读');
     }
     expect(knowledgeToScene('allocate').context).toContain('预算');
+    expect(knowledgeToScene('allocate').context).toContain('Maya');
+    expect(knowledgeToScene('allocate').roles[0].name).toBe('Maya');
+    expect(knowledgeToScene('allocate').turns[0].role).toContain('Maya');
     expect(knowledgeToScene('get-into').context).not.toContain('预算');
     expect(knowledgeToScene('get-into').turns[2].sample).toContain('interests');
     expect(knowledgeToScene('written-confirmation').turns[2].sample).toContain('lease');

@@ -135,6 +135,7 @@ export function knowledgeToScene(id: string, advanced = false): CommunicationSce
     facts: '',
   });
   const role = academic ? '研究项目导师' : base.roles[0].job;
+  const name = academic ? 'Alex' : base.roles[0].name;
   const context = academic
     ? '你在讨论模拟研究。现有样本有限，未证实因果关系；需区分假设、证据与结论。'
     : `${base.context} 本轮围绕 ${e.term} 展开。${daily ? '个人经历与安排按实际情况表达。' : '资源、效果和后续安排尚待核验；不能宣布预算已批准或效果已实现。'}`;
@@ -172,7 +173,7 @@ export function knowledgeToScene(id: string, advanced = false): CommunicationSce
     vocabulary: [{ en: e.term, zh: e.zh }, ...e.collocations.map((en) => ({ en, zh: e.usage }))],
     grammar: [e.usage, e.contrast, '用理由支持观点，保持事实与不确定性'],
     culture: [e.contrast, '先核对对方理解，不用复杂措辞掩盖信息不足。'],
-    roles: [{ name: 'Alex', job: role, relationship: '共同讨论，提出追问并核对含义' }],
+    roles: [{ name, job: role, relationship: '共同讨论，提出追问并核对含义' }],
     listening: {
       line: e.example,
       question: e.question.prompt,
@@ -222,7 +223,7 @@ export function knowledgeToScene(id: string, advanced = false): CommunicationSce
     ],
     turns: base.turns.map((t, i) => ({
       ...t,
-      role: `Alex · ${role}`,
+      role: `${name} · ${role}`,
       line: lines[i],
       zh: [
         daily ? '在这个情境中，你想分享或询问什么？' : '你的建议或解读是什么？',
