@@ -96,6 +96,9 @@ export function KnowledgeProvider({
             <Speak text={selected.text} compact />
             {entry ? (
               <>
+                {entry.term.toLowerCase() !== selected.text.toLowerCase() && (
+                  <p className="muted">原形：{entry.term}。以下释义、音标和搭配对应原形。</p>
+                )}
                 <p className="english">{entry.zh}</p>
                 <p>{entry.en}</p>
                 <p className="muted">{entry.ipa}</p>

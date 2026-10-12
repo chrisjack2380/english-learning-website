@@ -497,9 +497,9 @@ export const knowledgeEntries: KnowledgeEntry[] = seeds.map(
     term,
     aliases:
       term === 'allocate'
-        ? ['allocated', 'allocating', 'allocation']
+        ? ['allocated', 'allocating']
         : term === 'assess'
-          ? ['assessed', 'assessment']
+          ? ['assessed', 'assessing']
           : [],
     kind:
       term === 'present perfect continuous' || term === 'hedging'

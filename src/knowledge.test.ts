@@ -23,6 +23,8 @@ describe('knowledge understanding, application and learning route', () => {
       expect(e.example).not.toContain('undefined');
     }
     expect(lookupKnowledge('allocated')?.term).toBe('allocate');
+    expect(lookupKnowledge('allocation')).toBeUndefined();
+    expect(lookupKnowledge('assessment')).toBeUndefined();
   });
   it('all goals recommend units without erasing previous progress', () => {
     for (const goal of Object.keys(goalLabels) as (keyof typeof goalLabels)[]) {
