@@ -1,6 +1,6 @@
 # 验证与截图
 
-2026-10-13（Asia/Shanghai）第三阶段知识驱动升级。实际运行生产构建，使用 /english-learning-website/ 子路径；47项单元及最终53项真实浏览器流程全部通过（约1.8分钟）；类型构建、格式及diff检查通过。新版已部署，52项实际HTTPS流程通过；全量音频CDN临时503正在做最终复验。
+2026-10-13（Asia/Shanghai）第三阶段知识驱动升级。实际运行生产构建，使用 /english-learning-website/ 子路径；47项单元及最终GitHub生产/实际HTTPS各53项真实浏览器流程全部通过；类型构建、格式及diff检查通过。最终GitHub生产53项与实际公开HTTPS同一53项全部通过。
 
 ## 验收覆盖
 
@@ -19,7 +19,7 @@ npm test还执行已知凭据与私密文件扫描，类型构建、Prettier、g
 
 ## 实际截图
 
-本机75张PNG在output/playwright，保留原流程并加入知识/词典/照片风格三端。模型截图mocked文件名明确表示模拟响应。线上截图单独在Actions产物，不用本机图冒充线上证据。
+本机保留75张PNG（包含历史证据）在output/playwright；当前实际线上完整收集73张，保留原流程并加入知识/词典/照片风格三端。模型截图mocked文件名明确表示模拟响应。线上截图单独在Actions产物，不用本机图冒充线上证据。
 
 - [桌面知识库](../output/playwright/knowledge-desktop-library.png)
 - [手机知识库](../output/playwright/knowledge-mobile-library.png)
@@ -32,11 +32,13 @@ npm test还执行已知凭据与私密文件扫描，类型构建、Prettier、g
 
 ## 当前线上状态
 
-源码fb9eaaed604d63c86d40cca1ae19c9363d8abf9b的[Pages run38269749151](https://github.com/chrisjack2380/english-learning-website/actions/runs/38269749151)构建53项与部署成功，CI38269755859成功。实际HTTPS52项通过，全量音频请求之一失败：原trace明确记录HTTP503、Server=Varnish、Retry-After=0。该文件和前一run另一个失败音频现在均200、audio/mp3，字节与仓库一致，说明CDN临时服务不可用；不能用缺失文件诊断或删除资源检查来解决。
+最终源提交93ea6ab62c12ae49d8550fe6a82ee6148b5986b0：[Pages run38315384715](https://github.com/chrisjack2380/english-learning-website/actions/runs/38315384715)的构建、部署、verify-online全部成功；常规CI38315391237成功。原始日志分别记录生产53 passed (2.3m)、真实HTTPS53 passed (2.2m)。生产步骤2026-10-12 22:15:50–22:18:14 UTC；线上步骤22:19:13–22:21:27 UTC（北京时间10月13日06:19–06:21）。线上配置没有启动本地服务器。
 
-增加对429/500/502/503/504最多2次延迟重试（1/2秒），公开批次100ms节流，超限/404/错误类型/空文件仍失败，全部604段保留检查。修改后本机资源定向验收与47项单元通过，正在重新发布及全套HTTPS验收。之前1d3294d首发的手机溢出已修复（原生文件框按容器宽度缩放、fieldset最小宽度），8项知识定向含真实TXT上传与直接应用的下一单元衔接通过。
+实际线上73张截图/HTML报告：pages-online-evidence artifact11776790691，44680916字节；生产证据11776598301，发布产物11776543511。页面、index-Y2N-MzLM.js、index-DR5_7zpz.css均200，JS/CSS字节与验收dist一致。字典JSON、图片和先前失败过的两段音频亦200、与public字节一致。
 
-本次失败但有效的线上证据artifact11757276357（pages-online-evidence，54732304字节）；52项功能证据与失败trace不冒称53项全通过。最终成功记录随后补充。
+修复记录：手机文件选择框固有宽度依赖系统字体，现按容器收缩；fieldset最小宽度约束，实际TXT上传/长文件名和边界验证通过。直接进入场景完成理解题与应用后会记录理解，下一知识正确衔接。角色姓名与原情境一致；allocated明确显示原形，allocation/assessment不错误使用动词释义和音标。
+
+前次在线52通过/1失败的trace确认音频HTTP503、Server=Varnish、Retry-After=0，文件本身完整。全量检查对429/500/502/503/504最多重试2次（1/2秒）、批次100ms节流；持续错误/404/错误类型/空数据仍失败，所有604段保持检查。最终成功run没有记录临时重试。没有删除检查或把失败描述为成功。
 
 云浏览器可能缺代理CA，不关闭TLS或修改持久信任。实际HTTPS套件由GitHub托管Chromium执行，在线配置不启动本地服务器。平台原生Git/HTTPS身份可用，不必索取用户Token。
 

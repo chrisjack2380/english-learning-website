@@ -1,6 +1,6 @@
 # GitHub Pages 在线交付
 
-第三阶段源码fb9eaae已成功部署，52项实际HTTPS通过；全量音频遇到CDN临时503，正完成有限重试后的最终验收。网址保持不变，最终run/证据见HANDOFF.md、TESTING.md；无需重新配置Pages或私人Token。
+当前发布：第三阶段源码93ea6ab，Pages run[38315384715](https://github.com/chrisjack2380/english-learning-website/actions/runs/38315384715)构建/部署/实际HTTPS53项全部成功，常规CI通过。网址保持不变，具体时间与截图证据见HANDOFF.md、TESTING.md；无需重新配置Pages或私人Token。
 
 关联 REQUIREMENTS.md、RULES.md、HANDOFF.md。用户要求开发者完成发布与在线验收，并选择 GitHub Pages；用户只在在线网站测试。
 
