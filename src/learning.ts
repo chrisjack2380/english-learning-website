@@ -1,9 +1,12 @@
+import { parseKnowledge, type KnowledgeState } from './knowledge-learning';
+import type { LearningGoal } from './knowledge';
 import { lessons, scenes, type SceneId } from './content';
 export const STORAGE_KEY = 'little-by-little:v1';
 export type Profile = {
   level: 'beginner' | 'basics' | 'advanced';
   minutes: 10 | 20 | 30;
   createdAt: number;
+  goal?: LearningGoal;
 };
 export type SkillRecord = {
   status: 'review' | 'learned';
@@ -14,6 +17,7 @@ export type SkillRecord = {
 export type Attempt = { lessonId: string; correct: number; total: number; at: number };
 export type LearningState = {
   version: 1;
+  knowledge?: KnowledgeState;
   profile: Profile | null;
   completed: string[];
   skills: Record<string, SkillRecord>;
@@ -131,14 +135,23 @@ export function parseState(raw: string): LearningState {
       ))
   )
     throw new Error('自主表达记录格式错误');
+  if (s.knowledge !== undefined) s.knowledge = parseKnowledge(s.knowledge);
+  if (s.profile?.goal && !['ielts', 'toefl', 'business', 'work', 'daily'].includes(s.profile.goal))
+    throw new Error('学习目标无效');
   // Preserve a sequential path. A backup cannot grant a later lesson without its prerequisites.
   if (s.completed.some((id) => prerequisites(id).some((l) => !s.completed.includes(l.id))))
     throw new Error('课程先修记录不完整');
   // Reconstruct the documented schema. Untrusted backup extras (including model keys/config) never survive import/export.
   return {
     version: 1,
+    ...(s.knowledge ? { knowledge: s.knowledge } : {}),
     profile: s.profile
-      ? { level: s.profile.level, minutes: s.profile.minutes, createdAt: s.profile.createdAt }
+      ? {
+          level: s.profile.level,
+          minutes: s.profile.minutes,
+          createdAt: s.profile.createdAt,
+          ...(s.profile.goal ? { goal: s.profile.goal } : {}),
+        }
       : null,
     completed: [...s.completed],
     skills: Object.fromEntries(

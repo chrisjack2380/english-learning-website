@@ -7,7 +7,9 @@ import {
   type CommunicationScene,
 } from '../advanced-content';
 import type { Lesson } from '../content';
-import { taskEvidence } from '../communication';
+import { communicationFeedback } from '../feedback';
+import { LearningText } from './KnowledgeContext';
+import { AutoDialogue } from './AutoDialogue';
 import { CommunicationWorld } from './CommunicationWorld';
 import { Exercise } from './Exercise';
 import { ExpressionCoach } from './ExpressionCoach';
@@ -41,14 +43,17 @@ export function CommunicationPlayer({
   const [zh, setZh] = useState(false);
   const [inspect, setInspect] = useState('');
   const [answer, setAnswer] = useState('');
-  const [feedback, setFeedback] = useState<ReturnType<typeof taskEvidence> | null>(null);
+  const [feedback, setFeedback] = useState<ReturnType<typeof communicationFeedback> | null>(null);
+  const [aiAuto, setAIAuto] = useState(false);
+  const [submitted, setSubmitted] = useState(0);
+  const [confirmed, setConfirmed] = useState(false);
+  const passed = Boolean(feedback?.canReflect && feedback.issues.length === 0 && confirmed);
   const [mistakes, setMistakes] = useState(0);
   const [revised, setRevised] = useState(false);
   const [score, setScore] = useState(0);
   const [outputs, setOutputs] = useState<OutputEvidence[]>([]);
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' });
-    window.speechSynthesis?.cancel();
   }, [phase, step]);
   const turn = scene.turns[step];
   const task = advanced
@@ -62,7 +67,7 @@ export function CommunicationPlayer({
     <section className="communication-player">
       <button className="text-button back" onClick={onExit}>
         <ChevronLeft size={17} />
-        {lesson ? '返回学习首页' : '返回场景探索'}
+        {lesson ? '返回学习首页' : scene.knowledgeIds ? '返回知识路线' : '返回场景探索'}
       </button>
       <div className="section-heading">
         <div>
@@ -163,13 +168,17 @@ export function CommunicationPlayer({
           </div>
           <div className="dialogue-line">
             <span>{scene.turns[demo].role}</span>
-            <p lang="en">{scene.turns[demo].line}</p>
+            <p lang="en">
+              <LearningText text={scene.turns[demo].line} zh={scene.turns[demo].zh} />
+            </p>
             {zh && <small>{scene.turns[demo].zh}</small>}
             <Speak text={scene.turns[demo].line} />
           </div>
           <div className="dialogue-line user-line">
             <span>你 · 一种可能的回应</span>
-            <p lang="en">{scene.turns[demo].sample}</p>
+            <p lang="en">
+              <LearningText text={scene.turns[demo].sample} />
+            </p>
             <Speak text={scene.turns[demo].sample} />
           </div>
           <div className="row wrap">
@@ -225,7 +234,9 @@ export function CommunicationPlayer({
                   ].map(([label, en]) => (
                     <div key={label}>
                       <span className="tag neutral">{label}</span>
-                      <p lang="en">{en}</p>
+                      <p lang="en">
+                        <LearningText text={en} zh={e.usage} />
+                      </p>
                       <Speak text={en} compact />
                     </div>
                   ))}
@@ -263,7 +274,9 @@ export function CommunicationPlayer({
             </div>
             <div className="dialogue-line">
               <span>{turn.role}</span>
-              <p lang="en">{turn.line}</p>
+              <p lang="en">
+                <LearningText text={turn.line} zh={turn.zh} />
+              </p>
               {zh && <small>{turn.zh}</small>}
               <Speak text={turn.line} />
             </div>
@@ -272,17 +285,17 @@ export function CommunicationPlayer({
             {advanced && <p className="note">{turn.advanced.hint}</p>}
             <ul className="task-checklist">
               {task.criteria.map((c) => (
-                <li key={c.label}>
-                  {feedback?.checks.find((f) => f.label === c.label)?.met ? '✓' : '○'} {c.label}
-                </li>
+                <li key={c.label}>○ {c.label}</li>
               ))}
             </ul>
             <form
               onSubmit={(e) => {
                 e.preventDefault();
-                const result = taskEvidence(answer, task);
+                const result = communicationFeedback(answer, scene.context, scene.knowledgeIds);
+                setConfirmed(false);
                 setFeedback(result);
-                if (!result.passed) {
+                if (result.canReflect && result.issues.length === 0) setSubmitted((n) => n + 1);
+                if (!result.canReflect || result.issues.length) {
                   setMistakes((n) => n + 1);
                   setRevised(true);
                 }
@@ -295,56 +308,64 @@ export function CommunicationPlayer({
                 id="task-output"
                 value={answer}
                 maxLength={1500}
-                disabled={feedback?.passed}
+                disabled={passed}
                 placeholder="用自己的理由和措辞回应，不需要背示范句。"
                 onChange={(e) => {
                   setAnswer(e.target.value);
                   setFeedback(null);
+                  setConfirmed(false);
                 }}
               />
               <VoiceInput
                 onText={(value) => {
-                  if (!feedback?.passed) {
+                  if (!passed) {
                     setAnswer(value.slice(0, 1500));
                     setFeedback(null);
+                    setConfirmed(false);
                   }
                 }}
               />
               {feedback && (
-                <div className={`feedback ${feedback.passed ? 'correct' : 'wrong'}`} role="status">
+                <div className="feedback layered-feedback" role="status">
                   <strong>
-                    {feedback.passed
-                      ? '已找到任务要素，请核对意思与语气。'
-                      : '补充或调整表达后再试。'}
+                    {!feedback.canReflect || feedback.issues.length
+                      ? '补充或调整表达后再试。'
+                      : '分层建议已生成，请对照任务核对。'}
                   </strong>
-                  <p>
-                    {feedback.words} 个英文单词
-                    {feedback.enough
-                      ? '，已达到输出长度。'
-                      : `，请至少使用 ${task.minWords} 词说明意思。`}
-                  </p>
-                  {feedback.checks
-                    .filter((c) => !c.met)
-                    .map((c) => (
-                      <p key={c.label}>待补充：{c.label}</p>
-                    ))}
+                  <h4>1 · 信息与语言正确性</h4>
+                  <p>{feedback.correctness}</p>
+                  <h4>2 · 自然表达</h4>
+                  <p lang="en">{feedback.naturalness}</p>
+                  <h4>3 · 当前语境</h4>
+                  <p>{feedback.context}</p>
+                  <h4>4 · 如何升级</h4>
+                  <p>{feedback.upgrade}</p>
+                  <p>{feedback.why}</p>
                   {feedback.issues.map((issue, i) => (
                     <p key={i}>
                       {issue.before} → {issue.after} · {issue.why}
                     </p>
                   ))}
+                  {!feedback.canReflect && <p>这句尚未提供当前任务需要的信息；请表达你的意思。</p>}
                   <small>
-                    仅按词语与已知规则检查，不保证语义、事实或语法完整正确；不作为英语等级评分。
+                    本地反馈只判断已覆盖规则；未确认的意思和语境需自行核对或请求真实模型。没有关键词通关或英语能力评分。
                   </small>
+                  <label className="check-field">
+                    <input
+                      type="checkbox"
+                      checked={confirmed}
+                      disabled={!feedback.canReflect || Boolean(feedback.issues.length)}
+                      onChange={(e) => setConfirmed(e.target.checked)}
+                    />
+                    我已对照沟通目标、事实和参考核对意思与语气
+                  </label>
                 </div>
               )}
-              {feedback?.passed ? (
+              {feedback?.canReflect && feedback.issues.length === 0 && (
+                <AutoDialogue text={turn.followUp} role="预设角色回应 · 非 AI" />
+              )}
+              {passed ? (
                 <>
-                  <div className="dialogue-line role-response">
-                    <span>预设角色回应 · 非 AI</span>
-                    <p lang="en">{turn.followUp}</p>
-                  </div>
-                  <Speak text={turn.followUp} />
                   <button
                     type="button"
                     className="button primary"
@@ -354,6 +375,8 @@ export function CommunicationPlayer({
                         { role: turn.role, prompt: turn.line, text: answer.trim(), revised },
                       ];
                       setOutputs(updated);
+                      setConfirmed(false);
+                      setSubmitted(0);
                       if (step === scene.turns.length - 1) {
                         const finalScore =
                           score + (mistakes === 0 && !updated.some((o) => o.revised) ? 1 : 0);
@@ -364,6 +387,7 @@ export function CommunicationPlayer({
                         setStep(step + 1);
                         setAnswer('');
                         setFeedback(null);
+                        setConfirmed(false);
                         setRevised(false);
                       }
                     }}
@@ -374,7 +398,7 @@ export function CommunicationPlayer({
                 </>
               ) : (
                 <button className="button primary" disabled={!answer.trim()}>
-                  检查任务要素
+                  查看分层反馈
                 </button>
               )}
             </form>
@@ -393,8 +417,18 @@ export function CommunicationPlayer({
             </details>
           </section>
           <div>
+            <label className="check-field ai-auto-choice">
+              <input
+                type="checkbox"
+                checked={aiAuto}
+                onChange={(e) => setAIAuto(e.target.checked)}
+              />
+              本场景提交回答后使用我的 AI 自动互动（发送练习文本）
+            </label>
             <AIRolePractice
               key={step}
+              automatic={aiAuto}
+              requestId={submitted}
               scene={scene}
               level={advanced ? 'C1' : 'B2'}
               answer={answer}
@@ -429,7 +463,7 @@ export function CommunicationPlayer({
           <div className="result-grid">
             <div>
               <strong>{score} / 3</strong>
-              <span>首次任务检查通过</span>
+              <span>理解与独立应用记录</span>
             </div>
             <div>
               <strong>{scene.turns.length} 轮</strong>
@@ -447,7 +481,7 @@ export function CommunicationPlayer({
             {score !== 3
               ? '本次调整或提示使用会安排复习。'
               : '次日主动回忆，检查能否不用示范完成任务。'}
-            本地任务检查不是语义评估、CEFR 认证或 AI 反馈。
+            本次记录包含你的自评，不是语义认证、CEFR 等级或真实掌握评分。
           </p>
           <details>
             <summary>查看本次输出记录</summary>
@@ -465,7 +499,7 @@ export function CommunicationPlayer({
             </button>
           )}
           <button className="button ghost" onClick={onExit}>
-            {lesson ? '返回学习首页' : '返回场景探索'}
+            {lesson ? '返回学习首页' : scene.knowledgeIds ? '返回知识路线' : '返回场景探索'}
           </button>
         </section>
       )}

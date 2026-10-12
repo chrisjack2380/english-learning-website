@@ -3344,3 +3344,369 @@ select {
     padding: 20px;
   }
 }
+/* Knowledge learning and photographic virtual scenes */
+.knowledge-home,
+.knowledge-goal,
+.knowledge-sources {
+  padding: 26px;
+  margin: 24px 0;
+}
+.knowledge-goal {
+  display: flex;
+  gap: 26px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.knowledge-layout {
+  display: grid;
+  grid-template-columns: 270px minmax(0, 1fr);
+  gap: 22px;
+}
+.knowledge-index,
+.knowledge-unit {
+  padding: 24px;
+  min-width: 0;
+}
+.knowledge-index nav {
+  display: grid;
+  gap: 8px;
+  margin-top: 18px;
+  max-height: 650px;
+  overflow: auto;
+}
+.knowledge-index nav button {
+  border: 0;
+  border-radius: 10px;
+  background: #f1f3eb;
+  text-align: left;
+  padding: 12px;
+}
+.knowledge-index small {
+  display: block;
+  margin-top: 5px;
+  color: var(--muted);
+}
+.knowledge-index nav button.selected {
+  background: #dfead9;
+  box-shadow: inset 3px 0 var(--green);
+}
+.knowledge-unit h3 {
+  margin: 22px 0 10px;
+}
+.knowledge-unit > p {
+  line-height: 1.8;
+  margin: 10px 0;
+}
+.knowledge-option {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin: 12px 0;
+}
+.knowledge-check {
+  border-top: 1px solid var(--line);
+  margin: 22px 0;
+  padding-top: 20px;
+}
+.knowledge-check fieldset {
+  border: 0;
+  padding: 0;
+}
+.knowledge-sources > div {
+  margin: 18px 0;
+}
+.check-field {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin: 12px 0;
+  line-height: 1.7;
+}
+.check-field input {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  margin-top: 5px;
+}
+.word-token {
+  display: inline;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-decoration-color: #8ba18d;
+  text-underline-offset: 3px;
+  cursor: help;
+}
+.word-token:hover,
+.word-token:focus-visible {
+  background: #e1ecd9;
+  color: #294332;
+  border-radius: 3px;
+}
+.sentence-lookup {
+  display: inline-flex;
+  margin-left: 5px;
+  border: 0;
+  background: #e9efe2;
+  color: #476d54;
+  border-radius: 4px;
+  padding: 2px;
+}
+.dictionary-dialog {
+  width: min(600px, calc(100vw - 28px));
+  max-height: 85vh;
+  border: 1px solid #d5decd;
+  border-radius: 20px;
+  padding: 0;
+  color: var(--green);
+  background: #fffdf7;
+}
+.dictionary-dialog::backdrop {
+  background: #182a24aa;
+}
+.dictionary-dialog article {
+  padding: 26px;
+}
+.dictionary-dialog p {
+  line-height: 1.7;
+  margin: 12px 0;
+  overflow-wrap: anywhere;
+}
+.dictionary-dialog h3 {
+  margin-top: 20px;
+}
+.dictionary-dialog small {
+  display: block;
+  margin-top: 22px;
+  line-height: 1.7;
+  color: var(--muted);
+}
+.dictionary-dialog .row {
+  align-items: center;
+}
+.layered-feedback h4 {
+  margin: 14px 0 5px;
+}
+.layered-feedback p {
+  line-height: 1.7;
+}
+.auto-dialogue {
+  background: #edf3e8;
+  border-radius: 14px;
+  padding: 18px;
+  margin: 20px 0;
+}
+.auto-dialogue.speaking {
+  box-shadow: inset 3px 0 #739579;
+}
+.auto-dialogue small {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+  margin-top: 10px;
+}
+.role-caption {
+  font-size: 12px;
+  color: #5d7a63;
+}
+.synchronized-caption {
+  line-height: 1.8;
+  margin: 12px 0;
+}
+.spoken-line {
+  background: #dfeccc;
+  border-radius: 4px;
+}
+.scene-view-toggle {
+  padding: 8px 14px;
+  text-align: right;
+}
+.realistic-stage {
+  min-height: 360px;
+  background-image: linear-gradient(#18312820, #18312870), url('/visuals/learning-atlas.png');
+  background-size:
+    100% 100%,
+    200% 200%;
+  background-position:
+    center,
+    0% 0%;
+  border-radius: 16px;
+  overflow: hidden;
+}
+.realistic-stage.library-room {
+  background-position:
+    center,
+    100% 0%;
+}
+.realistic-scene-overlay {
+  padding: 24px;
+  color: white;
+}
+.realistic-scene-overlay h3 {
+  margin: 10px 0 18px;
+  text-shadow: 0 2px 8px #0008;
+}
+.realistic-roles {
+  display: flex;
+  justify-content: space-between;
+  gap: 26px;
+}
+.portrait {
+  width: 160px;
+  height: 170px;
+  background-image: url('/visuals/learning-atlas.png');
+  background-size: 200% 200%;
+  border-radius: 14px;
+  position: relative;
+  box-shadow: 0 10px 25px #0005;
+  transition:
+    transform 0.4s,
+    box-shadow 0.4s;
+}
+.portrait-colleague {
+  background-position: 0% 100%;
+}
+.portrait-client {
+  background-position: 100% 100%;
+}
+.portrait span {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #183128cc;
+  padding: 8px;
+  font-size: 11px;
+  border-radius: 0 0 14px 14px;
+}
+.active-speaker {
+  animation: presence 3s ease-in-out infinite;
+  box-shadow:
+    0 0 0 3px #dfefc2,
+    0 10px 25px #0005;
+}
+.stage-progress {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 20px;
+}
+.stage-progress span {
+  font-size: 10px;
+  padding: 6px 8px;
+  background: #294535b3;
+  border-radius: 5px;
+}
+.stage-progress .current {
+  background: #e3edc9;
+  color: #294332;
+}
+.realistic-scene-overlay > small {
+  display: block;
+  margin-top: 12px;
+  font-size: 10px;
+}
+.communication-world .world-hotspots {
+  position: relative;
+}
+.ai-auto-choice {
+  padding: 14px;
+  background: #f0f3e8;
+  border-radius: 12px;
+  font-size: 13px;
+}
+@keyframes presence {
+  50% {
+    transform: translateY(-3px);
+  }
+}
+@media (max-width: 800px) {
+  .knowledge-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .knowledge-index nav {
+    max-height: 210px;
+  }
+  .realistic-stage {
+    min-height: 310px;
+  }
+  .portrait {
+    width: 125px;
+    height: 140px;
+  }
+  .knowledge-goal {
+    align-items: stretch;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .active-speaker {
+    animation: none;
+  }
+}
+.portrait {
+  background-size: auto 200%;
+}
+.portrait-colleague {
+  background-position: 14% 100%;
+}
+.portrait-client {
+  background-position: 86% 100%;
+}
+.personal-word {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  border: 0;
+  border-radius: 10px;
+  background: #eaf0e3;
+  padding: 12px;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+.private-reading {
+  padding: 26px;
+  margin: 24px 0;
+}
+.private-reading p {
+  line-height: 1.8;
+  margin: 12px 0;
+}
+.private-reading label {
+  display: block;
+  margin: 14px 0;
+}
+.realistic-roles .portrait {
+  flex-shrink: 0;
+}
+.realistic-stage .portrait {
+  width: clamp(90px, 25vw, 160px);
+}
+.realistic-stage {
+  background-repeat: no-repeat;
+}
+.world.hero-world .realistic-stage {
+  min-height: 320px;
+}
+.scene-card .realistic-stage {
+  min-height: 260px;
+}
+.scene-card .realistic-scene-overlay {
+  padding: 18px;
+}
+.scene-card .portrait {
+  width: 100px;
+  height: 125px;
+}
+.scene-card .realistic-roles {
+  gap: 14px;
+}
+.scene-card .stage-progress {
+  display: none;
+}
+.scene-card .realistic-scene-overlay > small {
+  font-size: 9px;
+}

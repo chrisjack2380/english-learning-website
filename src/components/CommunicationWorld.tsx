@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Person } from './World';
 import type { CommunicationScene } from '../advanced-content';
 import { findCommunicationScene } from '../advanced-content';
@@ -16,6 +17,7 @@ export function CommunicationWorld({
   onInspect?: (item: string) => void;
   definition?: CommunicationScene;
 }) {
+  const [realistic, setRealistic] = useState(true);
   const data = definition || findCommunicationScene(scene)!;
   const social = data.environment.kind === 'lounge';
   const service = data.environment.kind === 'service';
@@ -24,7 +26,61 @@ export function CommunicationWorld({
     <div
       className={`world communication-world ${playing ? '' : 'paused'} ${hero ? 'hero-world' : ''}`}
     >
+      <div className="scene-view-toggle">
+        <button
+          type="button"
+          className="text-button"
+          aria-pressed={realistic}
+          onClick={() => setRealistic(!realistic)}
+        >
+          {realistic ? '切换示意图' : '切换照片风格'}
+        </button>
+      </div>
+      {realistic && (
+        <div
+          style={{
+            backgroundImage: `linear-gradient(#18312820,#18312870),url(${import.meta.env.BASE_URL}visuals/learning-atlas.png)`,
+          }}
+          className={`realistic-stage ${social || data.role === 'friend' ? 'library-room' : 'office-room'}`}
+          role="img"
+          aria-label={`${data.environment.name}：AI生成虚拟角色与互动环境`}
+        >
+          <div className="realistic-scene-overlay">
+            <span className="tag">{data.environment.name}</span>
+            <h3>{stages[Math.min(step, stages.length - 1)]}</h3>
+            <div className="realistic-roles">
+              <div
+                style={{
+                  backgroundImage: `url(${import.meta.env.BASE_URL}visuals/learning-atlas.png)`,
+                }}
+                className={`portrait portrait-colleague ${step % 2 === 0 && playing ? 'active-speaker' : ''}`}
+              >
+                <span>
+                  {data.roles[0]?.name || 'Alex'} · {data.roles[0]?.job || '对话伙伴'}
+                </span>
+              </div>
+              <div
+                style={{
+                  backgroundImage: `url(${import.meta.env.BASE_URL}visuals/learning-atlas.png)`,
+                }}
+                className={`portrait portrait-client ${step % 2 === 1 && playing ? 'active-speaker' : ''}`}
+              >
+                <span>你 · 沟通者</span>
+              </div>
+            </div>
+            <div className="stage-progress">
+              {stages.map((s, i) => (
+                <span key={s} className={step === i ? 'current' : ''}>
+                  {i + 1} · {s}
+                </span>
+              ))}
+            </div>
+            <small>原创AI生成虚拟人物 · 照片风格与轻量动效，并非真人视频</small>
+          </div>
+        </div>
+      )}
       <svg
+        style={{ display: realistic ? 'none' : undefined }}
         viewBox="0 0 540 310"
         role="img"
         aria-label={`${data.environment.name}：角色互动与任务进展`}

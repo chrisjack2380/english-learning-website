@@ -579,6 +579,7 @@ export function createCommunicationLesson(s: CommunicationScene, advanced = fals
       },
     ],
     review: {
+      selfReview: true,
       prompt: `重新输出：${output.task}${advanced ? ' ' + output.advanced.hint : ''}`,
       sample: output.sample,
       rubric,

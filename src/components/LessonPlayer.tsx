@@ -5,6 +5,7 @@ import { Exercise } from './Exercise';
 import { ScenePlayer } from './ScenePlayer';
 import { Speak } from './Speech';
 import { VisualLesson } from './World';
+import { LearningText } from './KnowledgeContext';
 export function LessonPlayer({
   lesson,
   onFinish,
@@ -85,7 +86,7 @@ export function LessonPlayer({
               <span className="example-number">0{i + 1}</span>
               <div>
                 <p className="english" lang="en">
-                  {e.en}
+                  <LearningText text={e.en} zh={e.zh} />
                 </p>
                 {zh && <p className="muted">{e.zh}</p>}
               </div>

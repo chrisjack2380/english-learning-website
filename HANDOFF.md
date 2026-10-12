@@ -1,39 +1,34 @@
 # 项目交接状态
 
-更新：2026-10-11。入口：REQUIREMENTS 的第二阶段基准 → RULES → AGENTS。成人中高级真实沟通为主，简单的是教学方式。
+更新：2026-10-12。入口 REQUIREMENTS 第三阶段 → RULES → AGENTS → docs/KNOWLEDGE.md。成人中高级知识与实际交流为主；简单的是教学方式。第三阶段本机验收完成，正在提交和发布；实际线上记录将在成功后补充。
 
-## 当前第二阶段实现
+## 第三阶段已实现
 
-- 数据驱动场景数据库与通用课程工厂。11 个不同中高级场景，22 个 B2/C1 路径任务：会议、深度 Small Talk、产品介绍、面试、汇报、技术讨论、谈判、客户需求、投诉、跨文化、租房维修。另保留六节入门和三个基础场景。C1 变体不是新的独立场景。
-- 所有记录含类型、等级、地点、角色、目标、任务、表达、词汇、语法、文化、对话、难度、练法、评价标准。播放器/动画/卡片按注册表渲染，新增只加数据。
-- 本地需求匹配及模板生成、B2/C1、产品/事实参数；采购评估不会杜撰设备效果。最多 12 个独立本地用户场景，保存、继续及删除；未知主题须明确选择模板。
-- Make My English Natural 支持场景表达库、已知语法和观点/建议/职责/产品目的组合框架。超出覆盖如实提示，无假 AI 全文判断。
-- 可选 OpenAI/Claude/Gemini/兼容模型配置、真实连接测试代码、默认切换、重新配置、删除和锁定；默认内存 Key，可选 PBKDF2/AES-GCM 本地保险箱。独立于学习 schema/备份，网页不调用 GitHub 或开发者后台收集 Key。
-- 主动 AI 场景改写、表达分析、六轮角色追问；白名单/长度/任务样例校验，不让 AI 定义 regex/评分/ID。请求失败保留本地；使用 AI 支架标 revised，仍依赖核心流程完成必修。
-- 原 localStorage v1/稳定 ID/先修/输出/复习兼容；备份导入重建已知 schema。326 段备用音频，旧 URL 保留；动态句依赖设备 TTS。生产 CSP、HTTPS/无 URL Key/无 Cookie/拒绝跳转/超时/错误脱敏和提交扫描。
+- 32个原创词/短语/语法单元：双语含义、音标、搭配、例句、用法/区别、等级/目标、来源、理解题。IELTS/TOEFL/六级为学习方向，非官方全量教材或认证。
+- Knowledge→Scenario 共用引擎，依据商务/学术/日常角色和原场景生成4轮应用任务，自己的听力、表达、追问及评价标准，不继承无关结账任务。
+- 目标知识路线、理解和应用分离、1/3/7/14天复习；错误或支架立即巩固。成人首页默认知识训练，系统课程保留。只探索不跳过必修。
+- 原生模态即时词典、词/选择短语/整句查询。1154个合法WordNet英文词条懒加载，完整版权/许可；未审核中文/音标明确缺省。原创单元词库与200条任意摘词/中文笔记可备份。
+- 私人TXT/Markdown≤200KB或粘贴，原文仅页面内存发现已收录知识，可清除；不存Git、不自动存本地或发模型。不支持PDF教材解析。
+- 开放输出不再用关键词/词数通关。四层本地反馈、已知用法错误、自评确认和可选模型分析；时态/事实区别保留，不擅自改成职责。taskEvidence只留历史兼容，不能恢复为全文评分。
+- 提交后预设角色自动播音，重播/慢速/审核中文，原生TTS句子边界与MP3整句提示。604段备用合成音频，旧URL不改；动态句依赖设备声音。
+- 原创AI照片风格虚拟角色和两环境、活动角色轻动效、阶段变化，暂停/减少动画/切回SVG。不是真人录像、3D骨骼或嘴形同步。
+- 可选已有个人模型协议、安全保险箱、场景改写/查词/表达/角色接话。本场景自动模式需明确开启，提交一次请求一次，关闭/离开取消。无私人Key调用验收，模型协议用mock，不冒充真实连接或质量。
+- 原11场景、22B2/C1系统任务、6入门/3基础场景、本地模板生成、原v1数据/备份和先修保留。新增知识不新增独立页面。
 
-## 当前验证与发布
+## 验证与发布记录
 
-39 项单元检查与安全扫描通过；最终生产子路径 45 项真实 Chromium 流程全部通过（约 1.2 分钟），类型与格式检查通过。68 张实际截图已复查，修复下拉框标签、复选框/隐藏输入框溢出及切换输入保留旧 AI 建议的问题。真实供应商仅协议 mock，未用私人 Key 验收。
+本机最终验证：47项单元（含音频覆盖）与53项真实Chromium生产子路径流程全部通过（约1.8分钟），类型/格式/diff检查通过；75张截图复查，历史11次提交的已知凭据扫描无匹配。线上仍待发布工作流完成，见docs/TESTING.md。
 
-本次已提交、推送并上线：源代码提交 `847fc2748b0bcf48b2a88442ff682e2a6d4f6b6d`，远程分支一致。网站 https://chrisjack2380.github.io/english-learning-website/ 提供当前11场景/生成/可选AI版本。
+上次已上线源码847fc2748b0bcf48b2a88442ff682e2a6d4f6b6d，Pages run38110841350。当前分支 feat/english-learning-mvp；PR #1 https://github.com/chrisjack2380/english-learning-website/pull/1 OPEN，第三阶段提交后更新标题/说明，等待用户合并。不能擅自合并、强推或删重要分支。
 
-[Pages run 38110841350](https://github.com/chrisjack2380/english-learning-website/actions/runs/38110841350) 的 build/deploy/verify-online 全成功；生产服务器步骤04:13:10–04:15:06 UTC，真实HTTPS同一45项套件步骤04:16:22–04:18:21 UTC成功。部署 `6990793189`；常规CI [38110843075](https://github.com/chrisjack2380/english-learning-website/actions/runs/38110843075) 成功。页面/新JS均200，资源 `index-CZvrUfje.js` 与本机已验收dist一致；生成场景听力MP3为200 / audio/mp3 / 72087字节。
+用户已将仓库公开、Pages Source=GitHub Actions，github-pages环境允许main/feat分支，无需重问设置或私人Token。原生Git及不显式加Authorization的受支持HTTPS使用平台注入身份；CLI旧显式GH_TOKEN401不能判定所有权限失效。
 
-线上截图及报告为 `pages-online-evidence` artifact `11690888877`（约21.65MB），生产证据 `11692030160`，发布产物 `11691830372`。本机68张截图保留在output/playwright，不能混称线上截图。后续交接文档提交不重复发布应用。
+网站固定 https://chrisjack2380.github.io/english-learning-website/ 。Pages工作流生产测试、发布、真实HTTPS同一套在线验收；文档/截图单独提交不会重发应用。合并后移除临时feat发布触发。不能用本机通过替代实际线上证据。
 
-GitHub认证排查已解决：旧CLI的显式GH_TOKEN认证返回401，不能据此判定平台权限丢失。原生Git及不加显式Authorization的受支持HTTPS请求使用平台注入身份，已成功推送和更新PR标题/说明。没有提取平台密钥或要求用户提供Token，不需要再操作Pages/授权。
+## 操作与下一步
 
-分支 feat/english-learning-mvp；PR #1 https://github.com/chrisjack2380/english-learning-website/pull/1 OPEN，代码、标题和说明已更新，等待用户合并。远程授权允许提交/推送/发布，不能擅自合并或强推。
+Node24；npm ci --cache /tmp/english-npm-cache；Chromium /usr/bin/chromium。npm test、npm run format:check、VITE_BASE_PATH=/english-learning-website/ npm run test:production。云浏览器可能缺代理CA，不能关闭TLS/持久改信任；线上验收用GitHub托管Chromium。日志/ZIP下载域名可能受限，API元数据可读。
 
-用户已经将仓库公开、Pages Source 为 GitHub Actions，并允许 main/feat/english-learning-mvp 在 github-pages 环境部署。Codex App contents/actions 可写，pages/administration 不具备；已解决的首次设置无需重问。官方 Actions 最小权限发布，不需要 Vercel 或个人令牌。合并后移除临时开发分支触发。
+音频增量仅开发需要经审核eSpeak/FFmpeg：ESPEAK_BIN=/tmp/english-voice/run-espeak npm run audio:generate；临时工具随环境重置可能消失，普通运行不需要。
 
-## 操作与后续入口
-
-Node24；npm ci --cache /tmp/english-npm-cache；本云 Chromium /usr/bin/chromium。npm test、npm run format:check、VITE_BASE_PATH=/english-learning-website/ npm run test:production。上线后 SITE_URL=实际HTTPS npm run test:online，由 GitHub 托管 Chromium 完成同一套真实流程。云浏览器曾缺代理 CA；不关闭 TLS 或修改持久信任。日志/Artifact ZIP 下载域名可能受限，状态及元数据仍可读。
-
-音频生成仅开发需要经审核 eSpeak/FFmpeg，ESPEAK_BIN=/tmp/english-voice/run-espeak npm run audio:generate；临时工具可能随环境重置消失，普通安装无需生成。
-
-架构扩展见 docs/EXTENDING.md，模型安全见 docs/AI.md。用户的新 BYOK 要求覆盖旧“仅预留 AI”边界；不能回退为假 AI 或内置共享 Key。真实个人服务商连接/模型质量尚未用真实 Key 验收；自动化协议 mock 与真实连接务必区分。
-
-下一阶段：完整 C1 学术论证/长观点输出、更复杂生活事务、更多录音和口音、真人麦克风与跨浏览器；可信后端鉴权/预算/隐私；长期规划/能力模型/账号同步/未完成步骤恢复。
+扩展入口 docs/KNOWLEDGE.md、EXTENDING.md；模型安全 docs/AI.md；授权记录 docs/RESEARCH.md。下一阶段：更多原创知识/合法教材解析、更细的领域任务、多口音真人语音、跨浏览器/真实麦克风、可信后端与长期能力规划。未知中文/全文语义/专业事实不伪造。用户新BYOK授权覆盖早期仅预留接口限制，但密钥仍禁止入仓或学习备份。

@@ -12,6 +12,7 @@ import {
 import { matches, scenes, sceneForLesson, lessons, type SceneId } from '../content';
 import { VisualLesson, World } from './World';
 import { Speak, VoiceInput } from './Speech';
+import { LearningText } from './KnowledgeContext';
 export function ScenePlayer({
   id,
   embedded = false,
@@ -126,7 +127,9 @@ export function ScenePlayer({
             <h3>口袋表达</h3>
             {scene.expressions.map((e) => (
               <div key={e.en}>
-                <span lang="en">{e.en}</span>
+                <span lang="en">
+                  <LearningText text={e.en} zh={e.zh} />
+                </span>
                 {zh && <small>{e.zh}</small>}
                 <Speak text={e.en} compact />
               </div>
@@ -187,13 +190,17 @@ export function ScenePlayer({
               </p>
               <div className="dialogue-line">
                 <span>{turn.speaker}</span>
-                <p lang="en">{turn.line}</p>
+                <p lang="en">
+                  <LearningText text={turn.line} zh={turn.zh} />
+                </p>
                 {zh && <small>{turn.zh}</small>}
                 <Speak text={turn.line} />
               </div>
               <div className="dialogue-line user-line">
                 <span>Lin · 你</span>
-                <p lang="en">{turn.sample}</p>
+                <p lang="en">
+                  <LearningText text={turn.sample} />
+                </p>
                 <Speak text={turn.sample} />
               </div>
               <div className="row">
@@ -229,7 +236,9 @@ export function ScenePlayer({
             <>
               <div className="dialogue-line">
                 <span>{turn.speaker}</span>
-                <p lang="en">{turn.line}</p>
+                <p lang="en">
+                  <LearningText text={turn.line} zh={turn.zh} />
+                </p>
                 {zh && <small>{turn.zh}</small>}
                 <Speak text={turn.line} />
               </div>

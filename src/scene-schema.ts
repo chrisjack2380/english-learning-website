@@ -61,6 +61,7 @@ export type SceneMetadata = {
 };
 export type CommunicationScene = SceneCore &
   SceneMetadata & {
+    knowledgeIds?: string[];
     source?: 'template' | 'ai';
     customization?: { request: string; level: 'B2' | 'C1'; product: string; facts: string };
   };

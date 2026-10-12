@@ -1,6 +1,6 @@
 # 扩展场景、课程与动画
 
-先核对 REQUIREMENTS 的当前阶段。稳定 ID 关系到已有进度，标题可以改，ID 不随意变。
+先核对 REQUIREMENTS 的第三阶段当前基准与 docs/KNOWLEDGE.md。新增知识先有含义、搭配、区别、理解题和应用任务，再进入场景。稳定 ID 关系到已有进度，标题可以改，ID 不随意变。
 
 ## 数据驱动场景库
 
@@ -13,11 +13,11 @@ src/scene-schema.ts 定义 CommunicationScene。原 meeting/smalltalk/pitch 在 
 - environment 的 kind、name、heading、objects、stages。现有 office/lounge/demo/service 四种环境共用原创 SVG。三件屏幕物品保持短标签，stage 与 turn 对齐。
 - 听力台词、意图选择题、表达分析题，以及不同的 C1 隐含意义/证据题。
 - 三组基本/自然/流畅表达，解释实际差异和适用条件。
-- 2–8 轮对话，每轮台词/中文/沟通任务/参考/追问/已审核 rubric/C1 额外条件。当前 11 个场景均四轮；参考必须能通过 B2 与 C1 规则。
+- 2–8 轮对话，每轮台词/中文/沟通任务/参考/追问/已审核 rubric/C1 额外条件。当前 11 个场景均四轮；参考须由作者核对语义、语域和事实，不能靠关键词规则通过来证明教学质量。
 
 createCommunicationLesson 自动生成 B2 和 C1 系统课、输出题、复习题；学习路径按数据库顺序分别先修。SceneCards、CommunicationPlayer、World 通过注册表渲染，新增记录自动出现。追加保持原顺序；重排或移除先修会影响旧备份，需要迁移方案。
 
-本地 taskEvidence 是词语/长度与有限语法规则证据，不是语义真值；测试参考、独立措辞、缺项、无关输入。参考/AI 使用须标记 revised。探索只调用 finishScene，不能调用 finishLesson。
+开放沟通不再调用 taskEvidence：feedback.ts 给四层反馈，已知错误要求改正，其他语义由用户对照任务/参考明确自评，或主动使用模型。taskEvidence 只保留历史数据兼容与旧单元检查，不能恢复为开放输出评分。测试短而有效的独立措辞、已知错误和自评门槛。参考/AI 使用须标记 revised。探索只调用 finishScene，不能调用 finishLesson。
 
 ## 模板生成与用户场景
 
@@ -25,7 +25,7 @@ scene-generator.ts 的 intents 匹配中文/英文需求，或让用户选明确
 
 新增模板可加审核的参数化策略和匹配词，保持表达、听力、任务及事实一致。未知需求明确不支持，不随机编写假教学。SavedScene 只保存输入与可选白名单 AI 文本，最多 12 个，本地不跨设备同步；练习证据按基础模板保存，不跳过必修。
 
-AI 改写只能返回 title/brief/context、三组 expressions、与原任务同数的文本 turns。applyAIProse 重用可信 ID、环境、任务和 rubric，拒绝模型 regex、未知字段或不覆盖任务的参考句。模型输出不是课程事实，用户须核对。
+AI 改写只能返回 title/brief/context、三组 expressions、与原任务同数的文本 turns。applyAIProse 重用可信 ID、环境、任务和 rubric，拒绝模型 regex、未知字段、畸形结构或超限文本；结构有效不代表语义已认证。模型输出不是课程事实，用户须核对。
 
 ## 表达与 AI
 

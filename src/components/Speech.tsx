@@ -26,7 +26,19 @@ function speechConstructor() {
       .webkitSpeechRecognition
   );
 }
-export function Speak({ text, compact = false }: { text: string; compact?: boolean }) {
+export function Speak({
+  text,
+  compact = false,
+  auto = false,
+  onBoundary,
+  onPlaying,
+}: {
+  text: string;
+  compact?: boolean;
+  auto?: boolean;
+  onBoundary?: (index: number) => void;
+  onPlaying?: (active: boolean) => void;
+}) {
   const [slow, setSlow] = useState(false);
   const [status, setStatus] = useState('');
   const [playing, setPlaying] = useState(false);
@@ -54,21 +66,29 @@ export function Speak({ text, compact = false }: { text: string; compact?: boole
     audioRef.current = a;
     activeAudio = a;
     a.playbackRate = slow ? 0.7 : 1;
+    onBoundary?.(-1);
     a.onplaying = () => {
       setPlaying(true);
+      onPlaying?.(true);
       setStatus('正在播放备用英文合成音频');
     };
     a.onended = () => {
       setPlaying(false);
+      onPlaying?.(false);
       setStatus('播放结束，可重复收听');
     };
-    a.onpause = () => setPlaying(false);
+    a.onpause = () => {
+      setPlaying(false);
+      onPlaying?.(false);
+    };
     a.onerror = () => {
       setPlaying(false);
+      onPlaying?.(false);
       setStatus('音频加载失败，请阅读英文文本或稍后重试。');
     };
     a.play().catch(() => {
       setPlaying(false);
+      onPlaying?.(false);
       setStatus('浏览器暂未允许音频播放，请再次点击或使用文本。');
     });
   }
@@ -82,19 +102,23 @@ export function Speak({ text, compact = false }: { text: string; compact?: boole
       return;
     }
     const u = new SpeechSynthesisUtterance(text);
+    u.onboundary = (e) => onBoundary?.(e.charIndex);
     u.lang = 'en-US';
     u.rate = slow ? 0.7 : 1;
     u.voice = voice;
     u.onstart = () => {
       setPlaying(true);
+      onPlaying?.(true);
       setStatus('正在播放系统英文语音');
     };
     u.onend = () => {
       setPlaying(false);
+      onPlaying?.(false);
       setStatus('播放结束，可重复收听');
     };
     u.onerror = (event) => {
       setPlaying(false);
+      onPlaying?.(false);
       if (event.error === 'canceled' || event.error === 'interrupted') return;
       playClip();
     };
@@ -102,6 +126,9 @@ export function Speak({ text, compact = false }: { text: string; compact?: boole
     window.speechSynthesis.speak(u);
     setStatus('准备播放');
   }
+  useEffect(() => {
+    if (auto) play();
+  }, [text, auto, slow]);
   return (
     <div className={`speech ${compact ? 'compact' : ''}`}>
       <button
@@ -131,6 +158,7 @@ export function Speak({ text, compact = false }: { text: string; compact?: boole
             window.speechSynthesis?.cancel();
             audioRef.current?.pause();
             setPlaying(false);
+            onPlaying?.(false);
             setStatus('已停止');
           }}
         >

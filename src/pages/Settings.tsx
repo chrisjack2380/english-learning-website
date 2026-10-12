@@ -1,3 +1,5 @@
+import { useKnowledge } from '../components/KnowledgeContext';
+import { goalLabels, type LearningGoal } from '../knowledge';
 import { useRef, type Dispatch, type SetStateAction } from 'react';
 import { ArrowDownToLine, Upload } from 'lucide-react';
 import { ModelSettings } from '../components/ModelSettings';
@@ -16,6 +18,7 @@ export function SettingsPage({
   importData: (event: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
   onReset: () => void;
 }) {
+  const knowledge = useKnowledge();
   const file = useRef<HTMLInputElement>(null);
   return (
     <>
@@ -26,6 +29,26 @@ export function SettingsPage({
           <p className="muted">轻松开始，稳定坚持。</p>
         </div>
       </div>
+      <section className="card settings-card">
+        <h2>个人学习目标</h2>
+        <label>
+          目标路线
+          <select
+            aria-label="目标路线"
+            value={knowledge.state.goal}
+            onChange={(e) =>
+              knowledge.update({ ...knowledge.state, goal: e.target.value as LearningGoal })
+            }
+          >
+            {Object.entries(goalLabels).map(([id, label]) => (
+              <option key={id} value={id}>
+                {label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <p>知识首页根据目标、等级及到期记录推荐，原系统必修课进度不变。</p>
+      </section>
       <section className="card settings-card">
         <h2>学习等级与推荐起点</h2>
         <p>已有基础默认进入 B1–B2。切换路径保留所有已完成课程和复习记录。</p>

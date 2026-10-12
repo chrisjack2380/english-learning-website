@@ -1,9 +1,11 @@
+import { goalLabels, type LearningGoal } from '../knowledge';
 import { useState } from 'react';
 import { ArrowRight, BookOpen, Check, Leaf, Sprout, Target } from 'lucide-react';
 import type { Profile } from '../learning';
 import { Brand } from '../components/Brand';
 import { World } from '../components/World';
 export function Onboarding({ onStart }: { onStart: (profile: Profile) => void }) {
+  const [goal, setGoal] = useState<LearningGoal>('work');
   const [level, setLevel] = useState<Profile['level']>('basics');
   const [minutes, setMinutes] = useState<Profile['minutes']>(20);
   return (
@@ -31,7 +33,7 @@ export function Onboarding({ onStart }: { onStart: (profile: Profile) => void })
         <section className="onboard-form card">
           <p className="eyebrow">WELCOME ABOARD</p>
           <h2>先认识一下你。</h2>
-          <p className="muted">只需两个选择，开始你的专属学习节奏。</p>
+          <p className="muted">选择基础、目标和节奏，开始你的专属学习节奏。</p>
           <fieldset>
             <legend>01 · 你目前的英语基础</legend>
             <label className={`level-choice ${level === 'beginner' ? 'selected' : ''}`}>
@@ -99,6 +101,20 @@ export function Onboarding({ onStart }: { onStart: (profile: Profile) => void })
               ))}
             </div>
           </fieldset>
+          <label className="field-label">
+            学习目标
+            <select
+              aria-label="新手学习目标"
+              value={goal}
+              onChange={(e) => setGoal(e.target.value as LearningGoal)}
+            >
+              {Object.entries(goalLabels).map(([id, label]) => (
+                <option value={id} key={id}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </label>
           <div className="note">
             <Target size={18} />
             <p>
@@ -111,7 +127,7 @@ export function Onboarding({ onStart }: { onStart: (profile: Profile) => void })
           </div>
           <button
             className="button primary wide"
-            onClick={() => onStart({ level, minutes, createdAt: Date.now() })}
+            onClick={() => onStart({ level, minutes, goal, createdAt: Date.now() })}
           >
             开启我的学习旅程
             <ArrowRight size={19} />

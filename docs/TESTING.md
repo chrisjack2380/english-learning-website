@@ -1,51 +1,41 @@
 # 验证与截图
 
-2026-10-11 第二阶段升级。所有本机测试打开实际运行的 Vite 生产构建，使用 /english-learning-website/ 子路径。新版已发布，且针对真实公开 HTTPS 的同一45项套件验收成功，记录见下方。
+2026-10-12 第三阶段知识驱动升级。实际运行生产构建，使用 /english-learning-website/ 子路径；47项单元及最终53项真实浏览器流程全部通过（约1.8分钟）；类型构建、格式及diff检查通过。发布和实际HTTPS结果在成功后补充。
 
-## 本机验证
+## 验收覆盖
 
-- npm test：39 项单元/内容/调度/模型安全检查通过，并扫描源码、文档及构建的已知凭据/私人文件模式。
-- 类型构建及 Prettier 格式检查通过。
-- VITE_BASE_PATH=/english-learning-website/ npm run test:production：45 项真实 Chromium 浏览器流程通过。最终复验45项全部成功（约1.2分钟）；AI 请求通过明确 test-only Key 和网络 mock 验证，未调用真实私人模型。
+1. 首次成人选择目标 → 首页知识推荐 → 含义/搭配/理解题 → 场景听力/表达分析 → 四轮自主输出/反馈/自评 → 保存应用与复习 → 重载恢复；自由知识应用不完成必修课。
+2. 32个知识模型、5目标路线、记录校验、理解/应用分离、错误/支架复习、领域一致性和604段音频覆盖。
+3. 已知词完整双语词典、WordNet实际懒加载英文释义、未知词提示、个人摘词/中文笔记及学习备份；私人文本不写localStorage、可清除，改变目标改变真实推荐。
+4. 提交后自动语音，无点击播放前置；模拟原生TTS边界突出当前句、重播/译文；真实MP3解码、播放推进、0.7×、停止。所有604个文件HTTP非空/音频类型检查分批执行，未跳过。
+5. 分层反馈、自评门槛、短而有效独立措辞、已知错误修正、持续/结束时态区别。去掉重复解释和修复表单内译文按钮误提交；不使用关键词或篇幅进行开放语义通关。
+6. 桌面1440×1000、平板820×1180、手机390×844与360px键盘流程；知识/词典/照片场景实际截图、无横向溢出和页面/控制台错误。复查照片比例和移动排版。
+7. 保留原11中高级场景全部B2/C1连续流程、6入门课、3基础场景、下一课、错误/支架、复习、备份、损坏/不可写存储和刷新恢复。
+8. 无AI环保设备需求匹配→本地任务生成→四轮练习→保存/重载、未知主题选模板；安全白名单不接收模型ID/regex/执行代码。
+9. 四供应商协议认证header、无URL Key/Cookie、拒绝跳转、限额/超时/脱敏；默认切换、刷新清内存Key、AES-GCM保险箱错误口令/解锁/删除；学习备份剥离私密配置。
+10. 真实UI连接模型协议mock：场景/表达/词典接口及角色回答上下文，明确启用后一次提交一次请求，关闭后返回本地；不把mock认作供应商质量。
 
-覆盖：
+npm test还执行已知凭据与私密文件扫描，类型构建、Prettier、git diff --check亦需通过。新增没有SDK/框架依赖。
 
-1. 首次已有基础默认 B1–B2；原 beginner 六课闭环、先修、纠错、复习、下一课、备份、损坏/不可写存储、重载恢复。旧入门薄弱知识保留但不接管中级推荐。
-2. 11 个中高级场景全部完成听力、意图/表达分析和四轮自主输出；完整 11 课 C1 路径，实际额外条件与隐含意义题。探索不完成必修，输出历史与提示使用可恢复。
-3. 无 AI 需求匹配 → 环保设备采购任务 → C1 → 错误输出 → 修改完成四轮 → 本地保存 → 重载再次进入。未知请求需选模板；分类与搜索真实可用。
-4. 官方四种协议的认证 header、无 URL Key、无 Cookie、拒绝跳转、长度限制、错误脱敏；恶意/缺失 AI 场景拒绝 ID/regex/非任务样例。
-5. 模型设置测试/保存、失败不能保存、两供应商默认切换、刷新清会话密钥；本地 AES-GCM 密文、错误口令、解锁和删除，绑定模型/地址。
-6. 可选 AI 场景改写、表达分析、实际传递回答上下文的角色追问；模拟响应来源明确，使用支架安排复习。改换表达示例后清除旧 AI 建议。
-7. 学习备份无模型 Key/地址/保险箱；导入剥离未知私密配置，不影响现有课程 schema。截图无可见 Key。
-8. 桌面1440×1000、平板820×1180、手机390×844以及360px键盘流程；生成/设置/场景/表达页面无横向溢出、控制台异常。实际截图复查。
-9. 326 段 MP3 的 HTTP 内容类型/非空数据，以及真实浏览器解码、播放时间推进、0.7×和停止；原 URL 保留。系统 TTS/语音识别接线与拒绝权限使用能力 mock，不代表真人识别质量。
+## 实际截图
 
-## 截图
+本机75张PNG在output/playwright，保留原流程并加入知识/词典/照片风格三端。模型截图mocked文件名明确表示模拟响应。线上截图单独在Actions产物，不用本机图冒充线上证据。
 
-本机共 68 张 PNG，位于 output/playwright；新增场景/生成/C1/AI安全状态与原基础流程均保留。较长页面用 full-page，固定侧栏以顶部状态截图；复查修复了复选框及隐藏备份输入框被通用 input 样式撑宽的问题，以及下拉框无障碍名称混入选项文字。
+- [桌面知识库](../output/playwright/knowledge-desktop-library.png)
+- [手机知识库](../output/playwright/knowledge-mobile-library.png)
+- [即时词典](../output/playwright/knowledge-dictionary.png)
+- [桌面照片场景](../output/playwright/knowledge-desktop-scene.png)
+- [手机照片场景](../output/playwright/knowledge-mobile-scene.png)
+- [无AI场景生成](../output/playwright/scenes-desktop-generator.png)
+- [C1技术讨论](../output/playwright/communication-technical-c1-output.png)
+- [模型协议mock](../output/playwright/scenes-ai-role-mocked.png)
 
-- [桌面生成场景](../output/playwright/scenes-desktop-generator.png)
-- [手机生成场景](../output/playwright/scenes-mobile-generator.png)
-- [平板模型设置](../output/playwright/scenes-tablet-settings.png)
-- [手机模型设置](../output/playwright/scenes-mobile-settings.png)
-- [加密保险箱设置（测试值）](../output/playwright/scenes-encrypted-settings.png)
-- [AI 角色协议 mock 状态](../output/playwright/scenes-ai-role-mocked.png)
-- [AI 场景协议 mock 状态](../output/playwright/scenes-ai-scene-mocked.png)
-- [面试自主输出](../output/playwright/communication-interview-output.png)
-- [技术讨论 C1 输出](../output/playwright/communication-technical-c1-output.png)
-- [谈判自主输出](../output/playwright/communication-negotiation-output.png)
-- [租房问题 C1 输出](../output/playwright/communication-housing-c1-output.png)
+## 当前线上状态
 
-AI 截图的 mocked 文件名表示协议测试响应，不是私人模型或真实供应商质量证据。
+第三阶段发布待最终测试、提交/推送和Pages工作流完成，尚未报告已上线。上次第二阶段源847fc2748b0bcf48b2a88442ff682e2a6d4f6b6d的Pages run38110841350构建/部署/实际45项在线流程成功；第三阶段必须重新验收。
 
-## 本次线上状态
+云浏览器可能缺代理CA，不关闭TLS或修改持久信任。实际HTTPS套件由GitHub托管Chromium执行，在线配置不启动本地服务器。平台原生Git/HTTPS身份可用，不必索取用户Token。
 
-本次已部署源码 `847fc2748b0bcf48b2a88442ff682e2a6d4f6b6d`：[Pages run 38110841350](https://github.com/chrisjack2380/english-learning-website/actions/runs/38110841350) 的 build/deploy/verify-online 全部成功。生产子路径步骤2026-10-11 04:13:10–04:15:06 UTC；实际公开 HTTPS 45项套件步骤04:16:22–04:18:21 UTC成功，在线配置没有启动本地服务。常规CI38110843075也成功。
+## 未验证及边界
 
-线上截图和HTML报告为该run的 `pages-online-evidence`（artifact11690888877，21645426字节）；生产证据11692030160。没有将本机PNG冒充线上文件。额外真实HTTPS请求确认页面及新JS200、生产CSP存在；`index-CZvrUfje.js` 与本机生产资产一致，默认生成采购任务听力MP3为200 / audio/mp3 / 72087字节。
-
-认证排查：CLI显式GH_TOKEN请求曾401；原生Git和受支持HTTPS的平台注入身份正常，已推送、更新现有PR并触发部署。没有要求私人Token或重复Pages设置。当前云浏览器代理CA曾影响外部HTTPS，不关闭TLS或改持久信任，线上套件使用GitHub托管Chromium。
-
-## 未验证及产品边界
-
-真实个人供应商连接、模型质量、费用/CORS/地区权限未用真实 Key 验收；保险箱不抵御已解锁设备恶意脚本/扩展。凭据模式扫描不能发现所有未知格式机密，仍需人工 diff 检查。词语任务规则不是完整语义/事实/语法/CEFR评估。合成音频非真人对话；真人麦克风、Safari/Firefox、实机触屏、多口音尚未验收。未完成课程步骤刷新重来，动态 AI 语句需设备 TTS。
+没有真实私人模型Key，供应商可达性/CORS/费用/教学质量未验收。WordNet许可已读取，原32单元由本站自编，不是官方考试教材；官方参考网站网络受限不冒称已全文调研。真人麦克风/识别质量、Safari/Firefox、多口音、实机触屏尚未验收；TTS边界和识别权限用mock验证接线。没有本地全文语义认证或发音评分。照片为虚拟人物轻动效，无真人视频/嘴形同步。未完成课程步骤刷新重来，设备无动态声音可文本继续。

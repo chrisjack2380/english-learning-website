@@ -1,3 +1,4 @@
+import { communicationFeedback } from '../feedback';
 import { useEffect, useRef, useState } from 'react';
 import { upgradeExpression } from '../communication';
 import { communicationScenes } from '../advanced-content';
@@ -153,6 +154,32 @@ export function ExpressionCoach({ initial = '' }: { initial?: string }) {
       {result && (
         <div className="upgrade-result" role="status">
           <span className="tag neutral">本地规则与审核示例</span>
+          <div className="layered-feedback">
+            <h3>四层表达反馈</h3>
+            {(() => {
+              const f = communicationFeedback(text, context);
+              return (
+                <>
+                  <p>
+                    <strong>信息与正确性：</strong>
+                    {f.correctness}
+                  </p>
+                  <p>
+                    <strong>自然度：</strong>
+                    {f.naturalness}
+                  </p>
+                  <p>
+                    <strong>语境：</strong>
+                    {f.context}
+                  </p>
+                  <p>
+                    <strong>升级：</strong>
+                    {f.upgrade}
+                  </p>
+                </>
+              );
+            })()}
+          </div>
           <h3>原句分析</h3>
           <p>原意：{text}。先检查已支持的错误，再比较表达的目的、事实和语气。</p>
           <h3>1 · 已检查的语法规则</h3>

@@ -1,3 +1,6 @@
+import { useKnowledge } from '../components/KnowledgeContext';
+import { knowledgePlan } from '../knowledge-learning';
+import { goalLabels } from '../knowledge';
 import {
   ArrowRight,
   BookOpen,
@@ -29,14 +32,18 @@ export function HomePage({
   openLesson,
   setSceneId,
   startToday,
+  continueCourse,
 }: {
   state: LearningState;
   navigate: (page: Page) => void;
   openLesson: (id: string) => void;
   setSceneId: (id: SceneId) => void;
   startToday: () => void;
+  continueCourse: () => void;
 }) {
   const profile = state.profile!;
+  const k = useKnowledge();
+  const knowledge = knowledgePlan(k.state, profile.level === 'advanced');
   const path = trackLessons(state);
   const higher = activeTrack(state) !== 'beginner';
   const current = nextLesson(state);
@@ -73,31 +80,51 @@ export function HomePage({
         <div className="hero-copy">
           <span className="hero-kicker">
             <span />
-            你的下一小步 · {due.length ? '巩固已学知识' : current?.level || '生活实践'}
+            你的下一小步 ·{' '}
+            {higher
+              ? knowledge.due.length
+                ? '巩固知识应用'
+                : goalLabels[k.state.goal]
+              : due.length
+                ? '巩固已学知识'
+                : current?.level || '生活实践'}
           </span>
           <h2>
-            {due.length
-              ? '让学过的英语，\n真正留下来。'
-              : current
-                ? current.id === 'hello'
-                  ? '从一句 Hello，\n认识一个新世界。'
-                  : current.title
-                : '把每一小步，\n变成生活里的英语。'}
+            {higher
+              ? `${knowledge.next?.term || '巩固应用'} · 理解与交流`
+              : due.length
+                ? '让学过的英语，\n真正留下来。'
+                : current
+                  ? current.id === 'hello'
+                    ? '从一句 Hello，\n认识一个新世界。'
+                    : current.title
+                  : '把每一小步，\n变成生活里的英语。'}
           </h2>
           <p>
-            {due.length
-              ? `${due.length} 个知识点需要复习，先用两分钟回忆一下。`
-              : current?.goal || '当前路径已完成，继续场景练习、挑战和间隔复习。'}
+            {higher
+              ? `${knowledge.next?.zh || '复习知识并检验应用'}。先理解搭配，再进入场景表达。`
+              : due.length
+                ? `${due.length} 个知识点需要复习，先用两分钟回忆一下。`
+                : current?.goal || '当前路径已完成，继续场景练习、挑战和间隔复习。'}
           </p>
           <button className="button primary" onClick={startToday}>
             开始今天的学习
             <ArrowRight size={19} />
           </button>
+          {higher && (
+            <button className="text-button" onClick={continueCourse}>
+              继续系统沟通课
+            </button>
+          )}
           <div className="hero-meta">
             <Clock3 size={15} />
-            {due.length ? '约 2 分钟起' : `约 ${current?.minutes || 10} 分钟`}
+            {higher
+              ? '理解与应用约 10–15 分钟'
+              : due.length
+                ? '约 2 分钟起'
+                : `约 ${current?.minutes || 10} 分钟`}
             <span>·</span>
-            {due.length ? '回忆 + 反馈' : '动画讲解 + 互动练习'}
+            {higher ? '搭配 + 自主输出' : due.length ? '回忆 + 反馈' : '动画讲解 + 互动练习'}
           </div>
         </div>
         <div className="hero-art">
@@ -106,6 +133,18 @@ export function HomePage({
             <MessageCircle size={16} />A little English, a little closer.
           </span>
         </div>
+      </section>
+      <section className="card knowledge-home">
+        <p className="eyebrow">YOUR KNOWLEDGE ROUTE · {goalLabels[k.state.goal]}</p>
+        <h2>今天理解一个知识，再用起来。</h2>
+        <p>
+          {knowledge.next
+            ? `${knowledge.next.term}：${knowledge.next.zh} → 含义检查 → 四轮场景应用`
+            : '当前单元已学习，继续复习与应用。'}
+        </p>
+        <button className="button ghost" onClick={() => navigate('knowledge')}>
+          开始知识训练
+        </button>
       </section>
       <div className="stats-row">
         <div>

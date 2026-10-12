@@ -8,10 +8,16 @@
 - 输出先明确沟通任务、事实和边界。动画不授予掌握；词语规则不是语义评估。自由/生成/AI 练习不得跳过系统必修课。使用支架或 AI 建议记录 revised 并安排复习。
 - 本地生成在 src/scene-generator.ts，必须使用审核模板；AI 只能改写受校验的文本，不允许模型定义 regex、ID、评分或执行代码。不编造产品效果、法律/医疗结论、经历或文化定律。
 - 用户第二阶段要求授权网页配置个人模型，覆盖旧版“只预留服务端、不做配置”的限制。配置在 src/model-config.ts，接口在 src/model-api.ts；默认内存 Key，可选 AES-GCM 本地保险箱。密钥只在用户主动操作时发给其选定服务商，不写入源码、Git、环境前端变量、日志、URL、错误或学习备份。见 docs/AI.md。
-- AI 配置与本地学习记录严格分开；学习备份进口只重建已知字段。私人模型配置、.env、密钥文件不可入仓，.env.example 只用占位符。AI 网络请求不自动启动，失败保留本地功能。
+- AI 配置与本地学习记录严格分开；学习备份进口只重建已知字段。私人模型配置、.env、密钥文件不可入仓，.env.example 只用占位符。AI 请求仅主动调用或明确开启本场景提交后模式；失败保留本地功能。
 - 关键改变运行 npm test（含安全扫描）、npm run build、npm run format:check；学习/UI 用 VITE_BASE_PATH=/english-learning-website/ npm run test:production。新内容补备用音频；已审核 eSpeak/FFmpeg 工具只在开发生成时需要，不改变旧音频 URL。
 - 测试实际网站，截图覆盖桌面/平板/手机、状态和控制台。模型协议 mock 不等于真实连接或质量；真实麦克风、跨浏览器和真人发音未验收须注明。
 - 用户已选择公开 GitHub Pages，并允许 main 与 feat/english-learning-mvp 部署。发布后用 SITE_URL 与 npm run test:online 验收实际 HTTPS，不用本机通过代替线上证据。不要要求 Vercel 凭据或声称 YAML 提升 Codex App 权限。
 - 每个明确任务验证后 commit/push，更新 PR 等用户合并；阶段结束同步需求、规则、交接、扩展、测试文档。合并后移除 Pages 临时开发分支触发。
 
 - GitHub 认证按通道和操作检查：原生 Git 与不设置显式 Authorization 的受支持 HTTPS 可用平台注入身份；旧 CLI 显式凭据的 401 不代表全部权限丢失。不要提取代理凭据、打印 Token 或盲目要求新授权，先测试实际操作。
+
+## 第三阶段入口
+
+knowledge.ts 是原创知识数据，knowledge-learning.ts 管理解读、应用、复习和目标路线；KnowledgeContext/KnowledgePage 提供词典、词库与私人阅读。开放沟通使用 feedback.ts 分层反馈与明确自评，不再用 taskEvidence 关键词通关。源语言需保留事实/时态，不自动将动作改成职责。
+
+WordNet 公共数据有完整许可和免责声明，原创素材在 public/visuals。中文覆盖、语音字幕边界和照片动效限制须如实说明。AI自动模式只有用户明确启用、提交回答后发请求；纯播音不应触发模型或保存私人原文。变更后验证知识→场景→保存/复习、未知查词/备份、自动语音及表单按钮、三端截图。

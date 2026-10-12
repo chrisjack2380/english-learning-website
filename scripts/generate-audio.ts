@@ -18,16 +18,34 @@ await build({
     rollupOptions: { output: { entryFileNames: 'content.mjs' } },
   },
 });
-const { lessons, scenes, sceneForLesson, communicationScenes, upgradeExpression, generateScene } =
-  (await import(pathToFileURL(join(bundleTemp, 'content.mjs')).href)) as {
-    lessons: Lesson[];
-    scenes: Scene[];
-    sceneForLesson: (id: string) => Scene;
-    communicationScenes: import('../src/advanced-content').CommunicationScene[];
-    upgradeExpression: typeof import('../src/communication').upgradeExpression;
-    generateScene: typeof import('../src/scene-generator').generateScene;
-  };
+const {
+  lessons,
+  scenes,
+  sceneForLesson,
+  communicationScenes,
+  upgradeExpression,
+  generateScene,
+  knowledgeEntries,
+  knowledgeToScene,
+} = (await import(pathToFileURL(join(bundleTemp, 'content.mjs')).href)) as {
+  lessons: Lesson[];
+  scenes: Scene[];
+  sceneForLesson: (id: string) => Scene;
+  communicationScenes: import('../src/advanced-content').CommunicationScene[];
+  upgradeExpression: typeof import('../src/communication').upgradeExpression;
+  generateScene: typeof import('../src/scene-generator').generateScene;
+  knowledgeEntries: typeof import('../src/knowledge').knowledgeEntries;
+  knowledgeToScene: typeof import('../src/knowledge-learning').knowledgeToScene;
+};
 const phrases = new Set<string>();
+for (const e of knowledgeEntries) {
+  phrases.add(e.term);
+  phrases.add(e.example);
+  const scene = knowledgeToScene(e.id);
+  for (const t of scene.turns) [t.line, t.sample, t.followUp].forEach((text) => phrases.add(text));
+  for (const expr of scene.expressions)
+    [expr.basic, expr.natural, expr.fluent].forEach((text) => phrases.add(text));
+}
 for (const l of lessons) {
   l.examples.forEach((e) => phrases.add(e.en));
   l.questions.forEach((q) => {

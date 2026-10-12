@@ -1,6 +1,6 @@
 # GitHub Pages 在线交付
 
-当前发布：2026-10-11 第二阶段源码 `847fc27`，Pages run [38110841350](https://github.com/chrisjack2380/english-learning-website/actions/runs/38110841350) 的构建/部署/实际HTTPS45项套件均成功。网站仍为原网址，详细交接和证据见 HANDOFF.md、TESTING.md。CLI显式旧认证401已通过平台原生Git/HTTPS身份排查解决，不需要重新配置Pages或提供私人Token。
+当前第三阶段发布正在最终验收，实际源提交、Pages run及HTTPS结果在成功后更新。网址保持不变，记录见HANDOFF.md、TESTING.md；无需重新配置Pages或私人Token。
 
 关联 REQUIREMENTS.md、RULES.md、HANDOFF.md。用户要求开发者完成发布与在线验收，并选择 GitHub Pages；用户只在在线网站测试。
 
@@ -27,11 +27,11 @@ GitHub 官方 `actions/configure-pages` 的 `enablement` 输入明确要求 `GIT
 `.github/workflows/pages.yml` 在 main 和当前开发分支推送时运行，亦支持手动触发。允许当前分支是为了在 PR 合并前交付真实网站；用户合并后移除该临时分支触发，正式发布只跟随 main。PR 本身不会触发发布。
 
 1. 读取实际 Pages 配置及 `base_path`。
-2. 冻结安装、格式、39 项单元/内容/模型安全检查与凭据扫描，并按 Pages 子路径构建真实 dist 和执行 45 项生产浏览器测试。
+2. 冻结安装、格式、47 项单元/内容/模型安全检查与凭据扫描，并按 Pages 子路径构建真实 dist 和执行 53 项生产浏览器测试。
 3. 官方 `upload-pages-artifact` 上传构建产物；`deploy-pages` 发布，并输出真实站点地址。
-4. 使用输出的 `SITE_URL` 在独立 GitHub Actions Chromium 上执行全部 45 项在线测试。配置不启动本地服务器，直接请求公开 HTTPS 站点，允许根路径或项目子路径。
+4. 使用输出的 `SITE_URL` 在独立 GitHub Actions Chromium 上执行全部 53 项在线测试。配置不启动本地服务器，直接请求公开 HTTPS 站点，允许根路径或项目子路径。
 5. 上传 `pages-build-evidence` 和 `pages-online-evidence`，包括桌面、平板、手机截图和测试报告。在线测试只写独立测试浏览器的 localStorage，不影响用户的学习记录。
-6. 确认在线完整学习闭环、三场景及全部 48 音频通过后，更新交接文档和交付实际网址。生产构建通过不等于网站已上线；部署失败或在线测试失败应如实报告。
+6. 确认在线完整学习闭环、知识闭环、全部中高级/入门场景及604段音频通过后，更新交接文档和交付实际网址。生产构建通过不等于网站已上线；部署失败或在线测试失败应如实报告。
 
 常规 CI 同样按仓库项目子路径验收生产版本，并上传 website-dist；即使 Pages 尚未启用也能独立验证代码。
 

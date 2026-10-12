@@ -77,12 +77,14 @@ test('offline intent generation produces a full C1 mission, saves custom library
   for (let i = 0; i < generated.turns.length; i++) {
     if (i === 0) {
       await page.getByLabel('你的自主英文回答').fill('Hello');
-      await page.getByRole('button', { name: '检查任务要素' }).click();
+      await page.getByRole('button', { name: '查看分层反馈' }).click();
       await expect(page.getByText('补充或调整表达后再试。')).toBeVisible();
     }
     await page.getByLabel('你的自主英文回答').fill(generated.turns[i].sample);
-    await page.getByRole('button', { name: '检查任务要素' }).click();
-    await expect(page.getByText('已找到任务要素，请核对意思与语气。')).toBeVisible();
+    await page.getByRole('button', { name: '查看分层反馈' }).click();
+    await expect(page.getByText('分层建议已生成，请对照任务核对。')).toBeVisible();
+    if (!(await page.getByLabel('我已对照沟通目标、事实和参考核对意思与语气').isChecked()))
+      await page.getByLabel('我已对照沟通目标、事实和参考核对意思与语气').check();
     await page
       .getByRole('button', { name: i === 3 ? '完成沟通任务' : '回应追问', exact: true })
       .click();
@@ -196,7 +198,7 @@ test('owner model protocol drives optional scene, expression and role feedback; 
     page.getByText('Could we give ourselves a little more time?', { exact: true }),
   ).toBeVisible();
   await page.getByRole('button', { name: '今日学习', exact: true }).click();
-  await page.getByRole('button', { name: '开始今天的学习' }).click();
+  await page.getByRole('button', { name: '继续系统沟通课' }).click();
   await reachOutput(page, communicationScenes[0], false);
   await page.getByLabel('你的自主英文回答').fill(communicationScenes[0].turns[0].sample);
   await page.getByRole('button', { name: '获取 AI 角色反馈' }).click();
@@ -211,7 +213,9 @@ test('owner model protocol drives optional scene, expression and role feedback; 
   await screenshot(page, 'ai-role-mocked');
   for (let i = 0; i < 4; i++) {
     await page.getByLabel('你的自主英文回答').fill(communicationScenes[0].turns[i].sample);
-    await page.getByRole('button', { name: '检查任务要素' }).click();
+    await page.getByRole('button', { name: '查看分层反馈' }).click();
+    if (!(await page.getByLabel('我已对照沟通目标、事实和参考核对意思与语气').isChecked()))
+      await page.getByLabel('我已对照沟通目标、事实和参考核对意思与语气').check();
     await page
       .getByRole('button', { name: i === 3 ? '完成沟通任务' : '回应追问', exact: true })
       .click();
@@ -283,7 +287,7 @@ test('failed vendor requests show sanitized feedback and leave local learning av
   await expect(page.getByRole('button', { name: '保存模型配置' })).toBeDisabled();
   expect(await page.locator('body').innerText()).not.toContain(mockedKey);
   await page.getByRole('button', { name: '今日学习', exact: true }).click();
-  await page.getByRole('button', { name: '开始今天的学习' }).click();
+  await page.getByRole('button', { name: '继续系统沟通课' }).click();
   await expect(page.getByRole('heading', { name: '美国职场会议交流', exact: true })).toBeVisible();
 });
 test('two saved providers switch the default while refresh clears session keys', async ({

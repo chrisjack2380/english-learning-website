@@ -3,7 +3,10 @@ import { taskEvidence, type TaskSpec } from './communication';
 /** Scene IDs are registry keys: adding data never requires editing a union or page. */
 export type SceneId = string;
 export { generateScene } from './scene-generator';
+export { knowledgeEntries } from './knowledge';
+export { knowledgeToScene } from './knowledge-learning';
 export type Question = {
+  selfReview?: boolean;
   rubric?: TaskSpec;
   prompt: string;
   english?: string;

@@ -1,4 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
+import { KnowledgeProvider } from './components/KnowledgeContext';
+const KnowledgePage = lazy(() =>
+  import('./pages/Knowledge').then((m) => ({ default: m.KnowledgePage })),
+);
+import { freshKnowledge, recordKnowledge, knowledgePlan } from './knowledge-learning';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import {
   BookOpen,
   ChevronRight,
@@ -43,6 +48,7 @@ import { SettingsPage } from './pages/Settings';
 const navigation = [
   { id: 'home', label: '今日学习', icon: Home },
   { id: 'path', label: '学习路径', icon: BookOpen },
+  { id: 'knowledge', label: '知识与词库', icon: BookOpen },
   { id: 'explore', label: '场景探索', icon: Compass },
   { id: 'review', label: '温故知新', icon: RotateCcw },
   { id: 'progress', label: '学习记录', icon: TrendingUp },
@@ -88,7 +94,9 @@ export default function App() {
       );
     }
   }, [state, initial]);
-  const learningActive = Boolean((lessonId || sceneId || page === 'review') && state.profile);
+  const learningActive = Boolean(
+    (lessonId || sceneId || page === 'review' || page === 'knowledge') && state.profile,
+  );
   useEffect(() => {
     if (!learningActive) return;
     let last = Date.now();
@@ -139,6 +147,14 @@ export default function App() {
     } else setNotice('先完成前面的必修课，再继续这一步。');
   }
   function startToday() {
+    if (
+      state.profile?.level !== 'beginner' &&
+      knowledgePlan(state.knowledge || freshKnowledge(), state.profile?.level === 'advanced').next
+    )
+      navigate('knowledge');
+    else continueCourse();
+  }
+  function continueCourse() {
     if (due.length) navigate('review');
     else if (current) openLesson(current.id);
     else navigate('explore');
@@ -169,7 +185,15 @@ export default function App() {
   if (!state.profile)
     return (
       <>
-        <Onboarding onStart={(profile) => setState((s) => ({ ...s, profile }))} />
+        <Onboarding
+          onStart={(profile) =>
+            setState((s) => ({
+              ...s,
+              profile,
+              knowledge: { ...freshKnowledge(), goal: profile.goal || 'work' },
+            }))
+          }
+        />
         {storageIssue && (
           <div className="storage-banner" role="alert">
             {storageIssue}
@@ -178,232 +202,268 @@ export default function App() {
       </>
     );
   return (
-    <div className="app-shell">
-      <a className="skip-link" href="#main">
-        跳到主内容
-      </a>
-      <aside className="sidebar">
-        <Brand />
-        <div className="nav-group-title">你的学习空间</div>
-        <nav aria-label="主导航">
-          {navigation.map((n) => (
-            <button
-              key={n.id}
-              className={`nav-item ${page === n.id && !lessonId && !sceneId ? 'active' : ''}`}
-              aria-current={page === n.id && !lessonId && !sceneId ? 'page' : undefined}
-              onClick={() => navigate(n.id)}
-            >
-              <n.icon size={20} />
-              <span>{n.label}</span>
-              {n.id === 'review' && due.length > 0 && <b>{due.length}</b>}
-            </button>
-          ))}
-        </nav>
-        <div className="sidebar-note">
-          <span className="plant-icon">
-            <Leaf size={32} />
-          </span>
-          <strong>
-            每天一点，
-            <br />
-            离世界近一点。
-          </strong>
-          <p>Every little step counts.</p>
-        </div>
-        <button
-          className={`nav-item settings-nav ${page === 'settings' ? 'active' : ''}`}
-          onClick={() => navigate('settings')}
-        >
-          <Settings2 size={20} />
-          <span>学习设置</span>
-        </button>
-        <div className="sidebar-footer">
-          <span className="avatar">L</span>
-          <div>
-            英语学习者
-            <small>
-              {state.profile.level === 'beginner'
-                ? 'Beginner'
-                : state.profile.level === 'advanced'
-                  ? 'C1 挑战'
-                  : 'B1–B2 主路径'}{' '}
-              · 每日 {state.profile.minutes} 分钟
-            </small>
-          </div>
-        </div>
-      </aside>
-      <main id="main" tabIndex={-1} ref={main}>
-        <header className="topbar">
-          <div className="breadcrumb">
-            <span>我的学习空间</span>
-            <ChevronRight size={14} />
-            {lesson
-              ? '课程学习'
-              : sceneId
-                ? '生活英语'
-                : page === 'settings'
-                  ? '学习设置'
-                  : navigation.find((n) => n.id === page)?.label}
-          </div>
-          <div className="topbar-right">
-            <span className="local-label">
-              <span />
-              {storageIssue ? '本地记录未能保存' : '本地记录已保存'}
+    <KnowledgeProvider
+      state={state.knowledge || freshKnowledge()}
+      update={(knowledge) => setState((s) => ({ ...s, knowledge }))}
+    >
+      <div className="app-shell">
+        <a className="skip-link" href="#main">
+          跳到主内容
+        </a>
+        <aside className="sidebar">
+          <Brand />
+          <div className="nav-group-title">你的学习空间</div>
+          <nav aria-label="主导航">
+            {navigation.map((n) => (
+              <button
+                key={n.id}
+                className={`nav-item ${page === n.id && !lessonId && !sceneId ? 'active' : ''}`}
+                aria-current={page === n.id && !lessonId && !sceneId ? 'page' : undefined}
+                onClick={() => navigate(n.id)}
+              >
+                <n.icon size={20} />
+                <span>{n.label}</span>
+                {n.id === 'review' && due.length > 0 && <b>{due.length}</b>}
+              </button>
+            ))}
+          </nav>
+          <div className="sidebar-note">
+            <span className="plant-icon">
+              <Leaf size={32} />
             </span>
-            <button
-              className="icon-button"
-              aria-label="学习帮助"
-              onClick={() => setShowHelp(!showHelp)}
-            >
-              <CircleHelp size={20} />
-            </button>
-            <span className="avatar small-avatar">L</span>
+            <strong>
+              每天一点，
+              <br />
+              离世界近一点。
+            </strong>
+            <p>Every little step counts.</p>
           </div>
-        </header>
-        {storageIssue && (
-          <div className="notice warning" role="alert">
-            {storageIssue}
-          </div>
-        )}
-        {notice && (
-          <div className="notice" role="status">
-            {notice}
-          </div>
-        )}
-        {showHelp && (
-          <div className="notice help">
+          <button
+            className={`nav-item settings-nav ${page === 'settings' ? 'active' : ''}`}
+            onClick={() => navigate('settings')}
+          >
+            <Settings2 size={20} />
+            <span>学习设置</span>
+          </button>
+          <div className="sidebar-footer">
+            <span className="avatar">L</span>
             <div>
-              <strong>一步英语如何帮助你？</strong>
-              <p>
-                每天先复习，再学习推荐课程。完成练习和场景后解锁下一课。所有数据只保存在当前浏览器，可在设置导出备份。语音能力取决于浏览器，不作为发音评分。
-              </p>
-            </div>
-            <button
-              className="icon-button"
-              aria-label="关闭帮助"
-              onClick={() => setShowHelp(false)}
-            >
-              <X size={18} />
-            </button>
-          </div>
-        )}
-        <div className="page-content">
-          {lesson?.track ? (
-            <CommunicationPlayer
-              key={lesson.id}
-              id={lesson.scene}
-              lesson={lesson}
-              onExit={() => navigate('home')}
-              onNext={openLesson}
-              onFinish={(correct, mistakes, outputs) => {
-                setState((s) => finishLesson(s, lesson.id, correct, mistakes));
-                saveOutputs(lesson.scene, outputs, lesson.id);
-              }}
-            />
-          ) : lesson ? (
-            <LessonPlayer
-              key={lesson.id}
-              lesson={lesson}
-              onExit={() => navigate('home')}
-              onNext={openLesson}
-              onFinish={(correct, mistakes) =>
-                setState((s) => finishLesson(s, lesson.id, correct, mistakes))
-              }
-            />
-          ) : sceneId && findCommunicationScene(sceneId) ? (
-            <CommunicationPlayer
-              key={sceneId}
-              id={sceneId}
-              definition={customScene}
-              challenge={
-                customScene
-                  ? customScene.customization?.level === 'C1'
+              英语学习者
+              <small>
+                {state.profile.level === 'beginner'
+                  ? 'Beginner'
                   : state.profile.level === 'advanced'
-              }
-              onExit={() => navigate('explore')}
-              onFinish={(_correct, mistakes, outputs) => {
-                setState((s) => finishScene(s, sceneId, mistakes));
-                saveOutputs(sceneId, outputs);
-              }}
-            />
-          ) : sceneId ? (
-            <ScenePlayer
-              key={sceneId}
-              id={sceneId}
-              onExit={() => navigate('explore')}
-              onFinish={(mistakes) => setState((s) => finishScene(s, sceneId, mistakes))}
-            />
-          ) : (
-            <>
-              {page === 'home' && (
-                <HomePage
-                  state={state}
-                  navigate={navigate}
-                  openLesson={openLesson}
-                  setSceneId={selectScene}
-                  startToday={startToday}
-                />
-              )}
-              {page === 'path' && (
-                <PathPage
-                  state={state}
-                  openLesson={openLesson}
-                  onLevel={(level) =>
-                    setState((s) => ({ ...s, profile: s.profile ? { ...s.profile, level } : null }))
-                  }
-                />
-              )}
-              {page === 'explore' && (
-                <ExplorePage
-                  onCustom={openCustom}
-                  state={state}
-                  setSceneId={selectScene}
-                  onLevel={(level) =>
-                    setState((s) => ({ ...s, profile: s.profile ? { ...s.profile, level } : null }))
-                  }
-                />
-              )}
-              {page === 'review' && (
-                <ReviewPanel
-                  state={state}
-                  onExit={() => navigate('home')}
-                  onReview={(id, correct) => setState((s) => reviewSkill(s, id, correct))}
-                />
-              )}
-              {page === 'progress' && (
-                <ProgressPage state={state} navigate={navigate} exportData={exportData} />
-              )}
-              {page === 'settings' && (
-                <SettingsPage
-                  state={state}
-                  setState={setState}
-                  exportData={exportData}
-                  importData={importData}
-                  onReset={() => {
-                    if (
-                      window.confirm(
-                        '确定清空本浏览器的学习记录吗？请先导出备份。此操作不会影响其他设备。',
-                      )
-                    ) {
-                      setLessonId(null);
-                      setSceneId(null);
-                      setPage('home');
-                      setState(freshState());
-                    }
-                  }}
-                />
-              )}
-            </>
+                    ? 'C1 挑战'
+                    : 'B1–B2 主路径'}{' '}
+                · 每日 {state.profile.minutes} 分钟
+              </small>
+            </div>
+          </div>
+        </aside>
+        <main id="main" tabIndex={-1} ref={main}>
+          <header className="topbar">
+            <div className="breadcrumb">
+              <span>我的学习空间</span>
+              <ChevronRight size={14} />
+              {lesson
+                ? '课程学习'
+                : sceneId
+                  ? '生活英语'
+                  : page === 'settings'
+                    ? '学习设置'
+                    : navigation.find((n) => n.id === page)?.label}
+            </div>
+            <div className="topbar-right">
+              <span className="local-label">
+                <span />
+                {storageIssue ? '本地记录未能保存' : '本地记录已保存'}
+              </span>
+              <button
+                className="icon-button"
+                aria-label="学习帮助"
+                onClick={() => setShowHelp(!showHelp)}
+              >
+                <CircleHelp size={20} />
+              </button>
+              <span className="avatar small-avatar">L</span>
+            </div>
+          </header>
+          {storageIssue && (
+            <div className="notice warning" role="alert">
+              {storageIssue}
+            </div>
           )}
-          <footer className="page-footer">
-            <span>
-              <Leaf size={14} />
-              Little by little, a little becomes a lot.
-            </span>
-            <span>一步英语 · 本地学习，轻松开始</span>
-          </footer>
-        </div>
-      </main>
-    </div>
+          {notice && (
+            <div className="notice" role="status">
+              {notice}
+            </div>
+          )}
+          {showHelp && (
+            <div className="notice help">
+              <div>
+                <strong>一步英语如何帮助你？</strong>
+                <p>
+                  成人首页从目标知识训练开始：理解、场景应用、反馈与复习。也可继续系统沟通课；自由探索不跳过必修。数据只保存在当前浏览器，可导出学习和词库备份。语音不作为发音评分。
+                </p>
+              </div>
+              <button
+                className="icon-button"
+                aria-label="关闭帮助"
+                onClick={() => setShowHelp(false)}
+              >
+                <X size={18} />
+              </button>
+            </div>
+          )}
+          <div className="page-content">
+            {lesson?.track ? (
+              <CommunicationPlayer
+                key={lesson.id}
+                id={lesson.scene}
+                lesson={lesson}
+                onExit={() => navigate('home')}
+                onNext={openLesson}
+                onFinish={(correct, mistakes, outputs) => {
+                  setState((s) => finishLesson(s, lesson.id, correct, mistakes));
+                  saveOutputs(lesson.scene, outputs, lesson.id);
+                }}
+              />
+            ) : lesson ? (
+              <LessonPlayer
+                key={lesson.id}
+                lesson={lesson}
+                onExit={() => navigate('home')}
+                onNext={openLesson}
+                onFinish={(correct, mistakes) =>
+                  setState((s) => finishLesson(s, lesson.id, correct, mistakes))
+                }
+              />
+            ) : sceneId && findCommunicationScene(sceneId) ? (
+              <CommunicationPlayer
+                key={sceneId}
+                id={sceneId}
+                definition={customScene}
+                challenge={
+                  customScene
+                    ? customScene.customization?.level === 'C1'
+                    : state.profile.level === 'advanced'
+                }
+                onExit={() => navigate(customScene?.knowledgeIds ? 'knowledge' : 'explore')}
+                onFinish={(_correct, mistakes, outputs) => {
+                  setState((s) => {
+                    let knowledge = s.knowledge || freshKnowledge();
+                    for (const id of customScene?.knowledgeIds || [])
+                      knowledge = recordKnowledge(
+                        knowledge,
+                        id,
+                        'practice',
+                        outputs.map((o) => o.text).join(' '),
+                      );
+                    if (_correct !== 3 || mistakes > 0 || outputs.some((o) => o.revised))
+                      for (const id of customScene?.knowledgeIds || [])
+                        knowledge = recordKnowledge(knowledge, id, 'again');
+                    return {
+                      ...finishScene(s, sceneId, mistakes),
+                      ...(customScene?.knowledgeIds ? { knowledge } : {}),
+                    };
+                  });
+                  saveOutputs(sceneId, outputs);
+                }}
+              />
+            ) : sceneId ? (
+              <ScenePlayer
+                key={sceneId}
+                id={sceneId}
+                onExit={() => navigate('explore')}
+                onFinish={(mistakes) => setState((s) => finishScene(s, sceneId, mistakes))}
+              />
+            ) : (
+              <>
+                {page === 'home' && (
+                  <HomePage
+                    state={state}
+                    navigate={navigate}
+                    openLesson={openLesson}
+                    setSceneId={selectScene}
+                    startToday={startToday}
+                    continueCourse={continueCourse}
+                  />
+                )}
+                {page === 'knowledge' && (
+                  <Suspense fallback={<p role="status">正在加载知识路线…</p>}>
+                    <KnowledgePage
+                      onOpen={openCustom}
+                      advanced={state.profile.level === 'advanced'}
+                    />
+                  </Suspense>
+                )}
+                {page === 'path' && (
+                  <PathPage
+                    state={state}
+                    openLesson={openLesson}
+                    onLevel={(level) =>
+                      setState((s) => ({
+                        ...s,
+                        profile: s.profile ? { ...s.profile, level } : null,
+                      }))
+                    }
+                  />
+                )}
+                {page === 'explore' && (
+                  <ExplorePage
+                    onCustom={openCustom}
+                    state={state}
+                    setSceneId={selectScene}
+                    onLevel={(level) =>
+                      setState((s) => ({
+                        ...s,
+                        profile: s.profile ? { ...s.profile, level } : null,
+                      }))
+                    }
+                  />
+                )}
+                {page === 'review' && (
+                  <ReviewPanel
+                    state={state}
+                    onExit={() => navigate('home')}
+                    onReview={(id, correct) => setState((s) => reviewSkill(s, id, correct))}
+                  />
+                )}
+                {page === 'progress' && (
+                  <ProgressPage state={state} navigate={navigate} exportData={exportData} />
+                )}
+                {page === 'settings' && (
+                  <SettingsPage
+                    state={state}
+                    setState={setState}
+                    exportData={exportData}
+                    importData={importData}
+                    onReset={() => {
+                      if (
+                        window.confirm(
+                          '确定清空本浏览器的学习记录吗？请先导出备份。此操作不会影响其他设备。',
+                        )
+                      ) {
+                        setLessonId(null);
+                        setSceneId(null);
+                        setPage('home');
+                        setState(freshState());
+                      }
+                    }}
+                  />
+                )}
+              </>
+            )}
+            <footer className="page-footer">
+              <span>
+                <Leaf size={14} />
+                Little by little, a little becomes a lot.
+              </span>
+              <span>一步英语 · 本地学习，轻松开始</span>
+            </footer>
+          </div>
+        </main>
+      </div>
+    </KnowledgeProvider>
   );
 }

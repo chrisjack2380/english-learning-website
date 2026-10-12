@@ -36,7 +36,7 @@ async function execute(page: Page, id: string, wrong = false, advanced = false) 
   for (let i = 0; i < 4; i++) {
     if (wrong && i === 0) {
       await page.getByLabel('你的自主英文回答').fill('Hello!');
-      await page.getByRole('button', { name: '检查任务要素' }).click();
+      await page.getByRole('button', { name: '查看分层反馈' }).click();
       await expect(page.getByText('补充或调整表达后再试。')).toBeVisible();
       await shot(page, `${id}-correction`);
     }
@@ -47,10 +47,13 @@ async function execute(page: Page, id: string, wrong = false, advanced = false) 
           ? 'My concern is the checkout flow; it needs another round of careful testing.'
           : s.turns[i].sample,
       );
-    await page.getByRole('button', { name: '检查任务要素' }).click();
-    await expect(page.getByText('已找到任务要素，请核对意思与语气。')).toBeVisible();
+    await page.getByRole('button', { name: '查看分层反馈' }).click();
+    await expect(page.getByText('分层建议已生成，请对照任务核对。')).toBeVisible();
+    await page.getByLabel('我已对照沟通目标、事实和参考核对意思与语气').check();
     await expect(page.getByText('预设角色回应 · 非 AI', { exact: true })).toBeVisible();
     if (i === 0) await shot(page, `${id}${advanced ? '-c1' : ''}-output`);
+    if (!(await page.getByLabel('我已对照沟通目标、事实和参考核对意思与语气').isChecked()))
+      await page.getByLabel('我已对照沟通目标、事实和参考核对意思与语气').check();
     await page
       .getByRole('button', { name: i === 3 ? '完成沟通任务' : '回应追问', exact: true })
       .click();
@@ -66,10 +69,10 @@ test('foundations default to B1–B2, all three courses save output and continue
   await onboard(page);
   await shot(page, 'home');
   await expect(
-    page.locator('.hero-copy').getByRole('heading', { name: '美国职场会议交流', exact: true }),
+    page.locator('.hero-copy').getByRole('heading', { name: 'allocate · 理解与交流', exact: true }),
   ).toBeVisible();
   await expect(page.getByText('从一句 Hello 开始', { exact: true })).toHaveCount(0);
-  await page.getByRole('button', { name: '开始今天的学习' }).click();
+  await page.getByRole('button', { name: '继续系统沟通课' }).click();
   for (let i = 0; i < 3; i++) {
     await execute(page, communicationScenes[i].id, i === 0);
     if (i === 0) {
@@ -112,7 +115,7 @@ test('all C1 task extensions execute with independent prerequisites and saved pr
 }) => {
   test.setTimeout(240000);
   await onboard(page, true);
-  await page.getByRole('button', { name: '开始今天的学习' }).click();
+  await page.getByRole('button', { name: '继续系统沟通课' }).click();
   for (let i = 0; i < communicationScenes.length; i++) {
     await execute(page, communicationScenes[i].id, false, true);
     if (i < communicationScenes.length - 1)
@@ -164,7 +167,7 @@ for (const device of [
     });
     await onboard(page);
     await shot(page, `${device.name}-home`);
-    await page.getByRole('button', { name: '开始今天的学习' }).click();
+    await page.getByRole('button', { name: '继续系统沟通课' }).click();
     await shot(page, `${device.name}-scene`);
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
@@ -202,7 +205,7 @@ test('legacy foundations records retain beginner mistakes but recommend only the
     { key: STORAGE_KEY },
   );
   await page.goto('./');
-  await page.getByRole('button', { name: '开始今天的学习' }).click();
+  await page.getByRole('button', { name: '继续系统沟通课' }).click();
   await expect(page.getByRole('heading', { name: '美国职场会议交流', exact: true })).toBeVisible();
   const record = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)!), STORAGE_KEY);
   expect(record.completed).toEqual(['hello']);
@@ -213,7 +216,7 @@ test('using a reference retains scaffolding evidence and schedules review instea
   page,
 }) => {
   await onboard(page);
-  await page.getByRole('button', { name: '开始今天的学习' }).click();
+  await page.getByRole('button', { name: '继续系统沟通课' }).click();
   await page.getByRole('button', { name: '开始听力任务' }).click();
   await page.getByRole('radio', { name: communicationScenes[0].listening.answer }).check();
   await page.getByRole('button', { name: '检查答案' }).click();
@@ -224,7 +227,9 @@ test('using a reference retains scaffolding evidence and schedules review instea
   for (let i = 0; i < 4; i++) {
     if (i === 0) await page.getByText('需要支架？查看一种参考回应', { exact: true }).click();
     await page.getByLabel('你的自主英文回答').fill(communicationScenes[0].turns[i].sample);
-    await page.getByRole('button', { name: '检查任务要素' }).click();
+    await page.getByRole('button', { name: '查看分层反馈' }).click();
+    if (!(await page.getByLabel('我已对照沟通目标、事实和参考核对意思与语气').isChecked()))
+      await page.getByLabel('我已对照沟通目标、事实和参考核对意思与语气').check();
     await page
       .getByRole('button', { name: i === 3 ? '完成沟通任务' : '回应追问', exact: true })
       .click();

@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { roleWithModel, type RoleFeedback } from '../ai-training';
 import type { CommunicationScene } from '../scene-schema';
-import { Speak } from './Speech';
+import { AutoDialogue } from './AutoDialogue';
+import { LearningText } from './KnowledgeContext';
 
 export function AIRolePractice({
   scene,
@@ -9,7 +10,11 @@ export function AIRolePractice({
   answer,
   task,
   onAdvice,
+  automatic = false,
+  requestId = 0,
 }: {
+  automatic?: boolean;
+  requestId?: number;
   scene: CommunicationScene;
   level: 'B2' | 'C1';
   answer: string;
@@ -25,11 +30,13 @@ export function AIRolePractice({
   useEffect(() => () => controller.current?.abort(), []);
   async function ask(text: string, fresh = false) {
     setBusy(true);
-    controller.current = new AbortController();
+    controller.current?.abort();
+    const current = new AbortController();
+    controller.current = current;
     const messages = [...(fresh ? [] : history), { role: 'user' as const, content: text }];
     try {
-      const feedback = await roleWithModel(scene, level, task, messages, controller.current.signal);
-      if (controller.current.signal.aborted) return;
+      const feedback = await roleWithModel(scene, level, task, messages, current.signal);
+      if (current.signal.aborted) return;
       setResult(feedback);
       setHistory([
         ...messages,
@@ -39,18 +46,21 @@ export function AIRolePractice({
       setStatus('');
       onAdvice();
     } catch (e) {
-      setStatus(e instanceof Error ? e.message : 'AI 暂不可用。');
+      if (!current.signal.aborted) setStatus(e instanceof Error ? e.message : 'AI 暂不可用。');
     } finally {
-      setBusy(false);
+      if (controller.current === current) setBusy(false);
     }
   }
+  useEffect(() => {
+    if (automatic && requestId > 0 && answer.trim()) void ask(answer, true);
+  }, [requestId]);
   return (
     <section className="card ai-role-practice">
       <p className="eyebrow">OPTIONAL · REAL MODEL FEEDBACK</p>
       <h3>让角色继续追问</h3>
       <p>
         把本轮回答交给你配置的模型，让{scene.roles[0].job}接话。AI
-        建议需要核对，不替代本地任务检查或授予掌握。
+        建议需要核对，结合沟通目标进行自评，不自动授予掌握。
       </p>
       <button
         className="button ghost"
@@ -74,10 +84,11 @@ export function AIRolePractice({
       {result && (
         <div className="ai-feedback" role="status">
           <span className="tag">真实模型 · AI 建议</span>
-          <p lang="en">{result.reply}</p>
-          <Speak text={result.reply} compact />
+          <AutoDialogue text={result.reply} role="AI 角色" />
           <p lang="en">
-            <strong>{result.followUp}</strong>
+            <strong>
+              <LearningText text={result.followUp} />
+            </strong>
           </p>
           <h4>修正与自然表达</h4>
           <p lang="en">{result.corrected}</p>
@@ -120,7 +131,8 @@ export function AIRolePractice({
         </div>
       )}
       <p className="small-text muted">
-        仅在点击时发送到所选模型；AI 对话不自动保存。使用建议会标记本轮使用支架并安排复习。
+        主动点击或已启用本场景提交后模式时，才发送到所选模型。AI
+        对话不自动保存；使用建议标记支架并安排复习。
       </p>
     </section>
   );

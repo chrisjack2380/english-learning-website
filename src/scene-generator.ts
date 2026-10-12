@@ -1,5 +1,4 @@
 import { communicationScenes } from './advanced-content';
-import { taskEvidence } from './communication';
 import type { CommunicationScene } from './scene-schema';
 
 export type SceneRequest = {
@@ -257,12 +256,7 @@ export function applyAIProse(base: CommunicationScene, value: unknown): Communic
       !['line', 'zh', 'sample', 'followUp'].every((k) => text(t[k]))
     )
       throw new Error('AI 对话格式错误。');
-    const referenceTask = {
-      ...base.turns[i].rubric,
-      criteria: [...base.turns[i].rubric.criteria, base.turns[i].advanced],
-    };
-    if (!taskEvidence(t.sample, referenceTask).passed)
-      throw new Error('AI 示例未覆盖模板任务；请继续使用本地场景或重试。');
+    if ((t.sample.match(/[a-z]+/gi) || []).length < 4) throw new Error('AI 示例必须提供英文输出。');
     return { ...base.turns[i], line: t.line, zh: t.zh, sample: t.sample, followUp: t.followUp };
   });
   return {
