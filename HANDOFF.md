@@ -15,7 +15,7 @@
 
 ## 当前验证状态
 
-54项单元与安全扫描通过；本地70项完整生产子路径浏览器通过（2.5分钟），最终受影响的25项复测（1.3分钟）和咖啡修复4项复测和图片修复5项复测通过。最终GitHub生产70项（4.2分钟）与实际公开HTTPS同一70项（4.3分钟）全部通过，包含1394段音频。类型构建、格式、diff检查通过。
+54项单元与安全扫描通过；本地70项完整生产子路径浏览器通过（2.5分钟），最终受影响的25项复测（1.3分钟）、咖啡修复4项及图片修复5项复测通过。最终GitHub生产70项（4.2分钟）与实际公开HTTPS同一70项（4.3分钟）全部通过，包含1394段音频。类型构建、格式、diff检查通过。
 
 已部署源码 `1edff3901b64ee71ed76207373cea9c581a815ef`：[Pages run38409978927](https://github.com/chrisjack2380/english-learning-website/actions/runs/38409978927) build/deploy/verify-online全成功；[CI38409991470](https://github.com/chrisjack2380/english-learning-website/actions/runs/38409991470)成功。部署2026-10-13 14:07:56–14:08:02 UTC，线上验收14:08:44–14:13:01 UTC（北京时间22:08–22:13）。公开页面、index-Bt8x02ik.js、index-BO43nWgD.css、life-atlas.png及WordNet JSON均200且字节与验收构建一致。
 
@@ -23,7 +23,7 @@
 
 代码已提交并推送（9644641主重构、4d5e2db咖啡语义修复、1edff39图片优先/加载提示/完整截图修复）；最终文档/证据提交不重发应用，部署源码以以上sha为准。PR仍OPEN待用户合并。
 
-Git仅保留文档引用的六张真实线上精选图（目录output/playwright，来源为上述HTTPS run）；其余96张完整报告/三端状态保留Actions产物。新生成截图默认忽略，已有历史图不自动替换；新增精选图用git add -f。
+Git仅保留文档引用的六张真实线上精选图（目录output/playwright，来源为上述HTTPS run）；完整96张截图、报告和三端状态保留Actions产物。新生成截图默认忽略，已有历史图不自动替换；新增精选图用git add -f。
 
 ## 操作与下一步
 
