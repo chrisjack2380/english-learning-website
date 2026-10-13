@@ -4,6 +4,7 @@ import { mkdirSync, writeFileSync, mkdtempSync, rmSync, statSync } from 'node:fs
 import { tmpdir } from 'node:os';
 import { resolve, join } from 'node:path';
 import { build } from 'vite';
+import { officeLab } from '../src/office-lab.ts';
 import { pathToFileURL } from 'node:url';
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
@@ -48,7 +49,7 @@ for (const e of knowledgeEntries) {
   phrases.add(e.term);
   phrases.add(e.example);
 }
-for (const j of lifeJourneys)
+for (const j of [...lifeJourneys, officeLab])
   for (const s of j.stages) {
     [
       s.intro,

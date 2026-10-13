@@ -35,6 +35,7 @@ export type JourneyStage = {
     why: string;
   };
   output: {
+    intent?: string;
     prompt: string;
     zh: string;
     options: string[];
@@ -56,7 +57,7 @@ export type LearningJourney = {
 export const teachingSteps = [
   '观察与发现',
   '词汇与表达',
-  '选择理解',
+  '情境回忆',
   '听力匹配',
   '情境填空',
   '模仿与输出',

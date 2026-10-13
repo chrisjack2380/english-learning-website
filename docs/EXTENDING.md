@@ -40,3 +40,11 @@ communication.ts 保留已知语法规则、审核整句示例、四种组合框
 新增固定播音句运行 npm run audio:generate（需要经过验证的 eSpeak NG/FFmpeg，可用 ESPEAK_BIN），增量保留旧 URL。网站运行不需要合成器。默认采购生成模板的固定台词也有备用 MP3；任意产品名及 AI 动态台词依赖设备 TTS，设备无声音时明确提示并用文本继续。
 
 运行 npm test、npm run format:check、VITE_BASE_PATH=/english-learning-website/ npm run test:production。真正走完新场景/生成输出、保存重载、下一课、错误/支架反馈及多端截图；生产 CSP、隐私配置与资源亦需验证。推送后用现有 Pages 工作流上线，再在真实 HTTPS 运行同一浏览器套件。阶段结束更新四份维护文档，不用静态截图代替学习闭环。
+
+## 情境回忆与三维环境
+
+`WordSeed`保留完整英文例句、中文辅助、搭配；三个关键词语在原例句中回忆，其他探索不授予掌握。表达选择的 `output.intent` 明确要表达的事实与目的，干扰表达来自同一互动、表达不同事实；半开放回答不按这些固定选项通关。固定生活流程的对比支架在output-scaffolds.ts，全部文本为原创。
+
+视角放stage-visuals.ts，可给一个阶段配置多个图集位置；不插入新的强制进度ID破坏旧完成记录。只新增数据即可切换环境、状态、角色轻动效和观察入口。
+
+办公室实验增加新物件时，在Blender脚本为网格或父对象设置 `obj['term']`，导出extras；在office-lab.ts补WordSeed及原创新例句。OfficeWorld物品键盘入口取阶段数据，实际网格点击用同一term查词，不按对象名写命中规则。新增关键帧可通过GLB动画导出；真实人物/完整骨骼另做质量验证。新增固定台词后运行现有audio:generate工具；原文件URL不变。保持模型小于2MB，按需加载并提供无WebGL回退，详见BLENDER.md。

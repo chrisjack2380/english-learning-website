@@ -1,4 +1,8 @@
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
+const OfficeWorld = lazy(() => import('./OfficeWorld'));
+
+import { contextRecall, stageRecallTerms } from '../context-practice';
+import { stageViews } from '../stage-visuals';
 import { ArrowRight, ChevronLeft, Pause, Play, RotateCcw } from 'lucide-react';
 import type { LearningJourney } from '../journey-schema';
 import { teachingSteps } from '../journey-schema';
@@ -26,7 +30,9 @@ export function JourneyWorld({
   place,
   children,
   priority = false,
+  stageId,
 }: {
+  stageId?: string;
   image: number;
   place: string;
   children?: React.ReactNode;
@@ -35,19 +41,56 @@ export function JourneyWorld({
   const [failed, setFailed] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [paused, setPaused] = useState(false);
+  const [viewIndex, setViewIndex] = useState(0);
+  useEffect(() => {
+    setViewIndex(0);
+    setLoaded(false);
+    setFailed(false);
+  }, [stageId]);
+  const views = stageId ? stageViews[stageId] : undefined;
+  const view = views?.[viewIndex];
+  const tile = view?.tile ?? image;
   return (
-    <div className={`journey-world ${paused ? 'still' : ''} ${failed ? 'image-fallback' : ''}`}>
+    <div
+      className={`journey-world focus-${view?.focus || 'center'} ${paused ? 'still' : ''} ${failed ? 'image-fallback' : ''}`}
+    >
       {!failed && (
         <img
-          src={`${import.meta.env.BASE_URL}visuals/life-atlas.png`}
-          alt={`${place} · 原创合成环境图片`}
+          key={`${stageId}-${viewIndex}`}
+          src={`${import.meta.env.BASE_URL}visuals/${view?.atlas === 'process' ? 'process' : 'life'}-atlas.png`}
+          alt={`${view?.name || place} · 原创合成环境图片`}
           loading={priority ? 'eager' : 'lazy'}
           onLoad={() => setLoaded(true)}
           onError={() => setFailed(true)}
-          style={{ left: `-${(image % 3) * 100}%`, top: `-${Math.floor(image / 3) * 100}%` }}
+          style={{ left: `-${(tile % 3) * 100}%`, top: `-${Math.floor(tile / 3) * 100}%` }}
         />
       )}
-      <span className="journey-place">{place}</span>
+      <span className="journey-place">{view?.name || place}</span>
+      {view && (
+        <div className={`scene-activity motion-${view.motion}`} aria-label="环境动态">
+          <span className="scene-actor" aria-hidden="true">
+            <i />
+            <b />
+          </span>
+          <span className="scene-state" lang="en">
+            {view.state}
+          </span>
+        </div>
+      )}
+      {views && views.length > 1 && (
+        <div className="scene-view-switch" aria-label="当前阶段的环境">
+          <button
+            type="button"
+            className="tag"
+            onClick={() => {
+              setViewIndex((viewIndex + 1) % views.length);
+              setLoaded(false);
+            }}
+          >
+            切换环境：{views[(viewIndex + 1) % views.length].name}
+          </button>
+        </div>
+      )}
       {!failed && !loaded && (
         <p className="image-loading-note" role="status">
           正在加载场景图片…
@@ -74,10 +117,12 @@ export function JourneyPlayer({
   onFinish,
   persist = true,
   onAdvanced,
+  office3d = false,
 }: {
   journey: LearningJourney;
   onExit: () => void;
   onFinish?: (correct: number, mistakes: number, outputs: OutputEvidence[]) => void;
+  office3d?: boolean;
   persist?: boolean;
   onAdvanced?: () => void;
 }) {
@@ -97,10 +142,13 @@ export function JourneyPlayer({
   const [selected, setSelected] = useState('');
   const [choice, setChoice] = useState('');
   const [message, setMessage] = useState('');
-  const [input, setInput] = useState('');
-  const [typed, setTyped] = useState(false);
+  const [input, setInput] = useState(p.outputText || '');
+  const [selfChecked, setSelfChecked] = useState(false);
+  const [feedbackShown, setFeedbackShown] = useState(false);
+  const [hint, setHint] = useState(false);
+  const [typed, setTyped] = useState(Boolean(p.outputText && p.phase === 5));
   const [audio, setAudio] = useState(true);
-  const items = [...stage.words.map((w) => w[0]), ...stage.expressions.map((e) => e[0])];
+  const items = stageRecallTerms(stage);
   const nextTerm = items.find((term) => !p.recognized.includes(term));
   function contextualUnit(term: string): KnowledgeEntry | undefined {
     const known = lookupKnowledge(term);
@@ -138,9 +186,23 @@ export function JourneyPlayer({
   }
   const unit = contextualUnit(nextTerm || items[0]);
   const inspected = contextualUnit(selected);
+  const recall = unit
+    ? contextRecall(
+        unit,
+        stage.words.map((w) => w[0]),
+      )
+    : undefined;
   function commit(patch: Partial<StageProgress>, atIndex = index) {
     const sid = journey.stages[atIndex].id;
-    const next = { ...local, [sid]: { ...(local[sid] || freshStage()), ...patch, at: Date.now() } };
+    const next = {
+      ...local,
+      [sid]: {
+        ...(local[sid] || freshStage()),
+        learningVersion: 2 as const,
+        ...patch,
+        at: Date.now(),
+      },
+    };
     setLocal(next);
     if (persist)
       t.update({ ...t.records, [journey.id]: { stage: atIndex, stages: next, at: Date.now() } });
@@ -151,6 +213,9 @@ export function JourneyPlayer({
     setMessage('');
     setInput('');
     setSelected('');
+    setHint(false);
+    setSelfChecked(false);
+    setFeedbackShown(false);
   }
   function discover(term: string) {
     setSelected(term);
@@ -177,29 +242,58 @@ export function JourneyPlayer({
     if (id) k.update(recordKnowledge(k.state, id, 'miss'));
   }
   useEffect(() => {
+    setSelfChecked(false);
+    setFeedbackShown(false);
+  }, [index]);
+  useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' });
   }, [index, p.phase]);
-  function finishOutput(answer: string) {
-    commit({ phase: 6, output: true, completed: true });
+  function finishOutput(answer: string, mode: StageProgress['outputMode'] = 'supported') {
+    const finalChecks = {
+      ...(p.firstChecks || {
+        vocabulary: p.mistakes === 0,
+        listening: p.mistakes === 0,
+        output: p.mistakes === 0,
+      }),
+      ...(mode === 'self-checked' ? { output: false } : {}),
+    };
+    commit({
+      phase: 6,
+      output: true,
+      completed: true,
+      outputText: answer,
+      outputMode: mode,
+      firstChecks: finalChecks,
+    });
+    if (mode === 'self-checked') {
+      const entry = lookupKnowledge(stage.expressions[0][0]);
+      if (entry) k.update(recordKnowledge(k.state, entry.id, 'miss'));
+    }
     setMessage('');
     if (index === journey.stages.length - 1) {
       const mistakes = Object.values(local).reduce((n, s) => n + s.mistakes, 0);
-      onFinish?.(guidedFirstScore(Object.values({ ...local, [stage.id]: p })), mistakes, [
-        {
-          role: stage.role,
-          prompt: stage.output.prompt,
-          text: answer,
-          revised: true,
-          guided: true,
-        },
-        {
-          role: '学习者 · 跟读自评',
-          prompt: '模仿参考表达',
-          text: stage.expressions[0][0],
-          revised: true,
-          guided: true,
-        },
-      ]);
+      onFinish?.(
+        guidedFirstScore(
+          Object.values({ ...local, [stage.id]: { ...p, firstChecks: finalChecks } }),
+        ),
+        mistakes,
+        [
+          {
+            role: stage.role,
+            prompt: stage.output.prompt,
+            text: answer,
+            revised: true,
+            guided: true,
+          },
+          {
+            role: '学习者 · 跟读自评',
+            prompt: '模仿参考表达',
+            text: stage.expressions[0][0],
+            revised: true,
+            guided: true,
+          },
+        ],
+      );
     }
   }
   return (
@@ -257,21 +351,27 @@ export function JourneyPlayer({
       </ol>
       <div className="journey-layout">
         <aside className="journey-environment">
-          <JourneyWorld image={stage.image} place={stage.place} priority>
-            <div className="world-word-elements">
-              {stage.words.map(([term]) => (
-                <button
-                  key={term}
-                  onClick={() => discover(term)}
-                  aria-pressed={selected === term}
-                  className={p.seen.includes(term) ? 'discovered' : ''}
-                >
-                  {p.seen.includes(term) ? '✓ ' : '+ '}
-                  {term}
-                </button>
-              ))}
-            </div>
-          </JourneyWorld>
+          {office3d ? (
+            <Suspense fallback={<p>正在准备三维办公室…</p>}>
+              <OfficeWorld onSelect={discover} seen={p.seen} terms={stage.words.map((w) => w[0])} />
+            </Suspense>
+          ) : (
+            <JourneyWorld image={stage.image} place={stage.place} priority stageId={stage.id}>
+              <div className="world-word-elements">
+                {stage.words.map(([term]) => (
+                  <button
+                    key={term}
+                    onClick={() => discover(term)}
+                    aria-pressed={selected === term}
+                    className={p.seen.includes(term) ? 'discovered' : ''}
+                  >
+                    {p.seen.includes(term) ? '✓ ' : '+ '}
+                    {term}
+                  </button>
+                ))}
+              </div>
+            </JourneyWorld>
+          )}
           <p className="muted small-text">
             点击物品、动作与状态标签发现英语。图片用于环境理解，标签也支持键盘操作。
           </p>
@@ -381,25 +481,38 @@ export function JourneyPlayer({
                 </article>
               ))}
               <p className="small-text muted">
-                看过和收藏都不代表已掌握。接下来通过含义辨认检查理解。
+                先在情境中回忆三个关键词语，其余词语继续探索；看过和收藏不等于掌握。
               </p>
               <button className="button primary" onClick={() => advance(2)}>
-                检查词语理解
+                开始情境回忆
               </button>
             </>
           )}
-          {p.phase === 2 && unit && (
+          {p.phase === 2 && unit && recall && nextTerm && (
             <>
-              <h2>这个英语元素想表达什么？</h2>
+              <h2>让词语回到真实表达里。</h2>
               <p>
-                理解 {p.recognized.length + 1} / {items.length}
+                情境回忆 {items.filter((term) => p.recognized.includes(term)).length + 1} /{' '}
+                {items.length}
               </p>
-              <p className="english">
-                <LearningText text={unit.term} zh={unit.zh} />
+              <p>
+                {stage.place} · {recall.prompt}
               </p>
-              <Speak key={unit.term} text={unit.term} auto={audio} />
-              <div className="guided-options" role="group" aria-label="词语含义选项">
-                {optionOrder(unit.question.options, unit.id).map((a) => (
+              <p className="english" lang="en">
+                {recall.line}
+              </p>
+              <button className="text-button" onClick={() => setHint(!hint)}>
+                需要一点提示
+              </button>
+              {hint && (
+                <p className="note">
+                  {recall.hint}
+                  <br />
+                  {unit.translation}
+                </p>
+              )}
+              <div className="guided-options" role="group" aria-label="情境回忆选项">
+                {optionOrder(recall.options, unit.id).map((a) => (
                   <button
                     aria-pressed={choice === a}
                     key={a}
@@ -416,18 +529,42 @@ export function JourneyPlayer({
                 className="button primary"
                 disabled={!choice}
                 onClick={() => {
-                  if (choice === unit.question.answer) {
-                    const recognized = [...p.recognized, nextTerm!];
-                    commit({ recognized, phase: recognized.length === items.length ? 3 : 2 });
-                    k.update(recordKnowledge(k.state, unit.id, 'recognize'));
+                  if (choice === recall.answer) {
+                    const recognized = [...new Set([...p.recognized, nextTerm])];
+                    commit({
+                      recognized,
+                      phase: items.every((term) => recognized.includes(term)) ? 3 : 2,
+                      ...(hint
+                        ? {
+                            firstChecks: {
+                              ...(p.firstChecks || {
+                                vocabulary: true,
+                                listening: true,
+                                output: true,
+                              }),
+                              vocabulary: false,
+                            },
+                          }
+                        : {}),
+                    });
+                    k.update(recordKnowledge(k.state, unit.id, hint ? 'miss' : 'recognize'));
                     setChoice('');
                     setMessage('');
-                  } else wrong(`再听一次并核对：${unit.question.why}`, unit.id);
+                    setHint(false);
+                  } else wrong(`再读一次完整情境：${unit.example}。${unit.translation}`, unit.id);
                 }}
               >
-                检查理解
+                理解并继续
               </button>
+              <p className="muted small-text">
+                可随时查看提示。使用提示会安排短期巩固，不计为独立回忆。
+              </p>
             </>
+          )}
+          {p.phase === 2 && !nextTerm && (
+            <button className="button primary" onClick={() => advance(3)}>
+              继续听角色表达
+            </button>
           )}
           {p.phase === 3 && (
             <>
@@ -510,7 +647,7 @@ export function JourneyPlayer({
           )}
           {p.phase === 5 && (
             <>
-              <h2>先模仿，再完成一个小回应。</h2>
+              <h2>先模仿，再表达自己的意思。</h2>
               <p className="english">
                 <LearningText text={stage.expressions[0][0]} zh={stage.expressions[0][1]} />
               </p>
@@ -528,11 +665,14 @@ export function JourneyPlayer({
                 <LearningText text={stage.output.prompt} zh={stage.output.zh} />
               </h3>
               <p>{stage.output.zh}</p>
+              <p className="note">当前练习意图：{stage.output.intent || stage.output.why}</p>
               <button
                 className="text-button"
                 onClick={() => {
                   setTyped(!typed);
                   setInput('');
+                  setSelfChecked(false);
+                  setFeedbackShown(false);
                   setChoice('');
                   setMessage('');
                 }}
@@ -546,22 +686,37 @@ export function JourneyPlayer({
                     <textarea
                       aria-label="我的简单回应"
                       value={input}
-                      onChange={(e) => setInput(e.target.value)}
+                      onChange={(e) => {
+                        setInput(e.target.value);
+                        setSelfChecked(false);
+                        setFeedbackShown(false);
+                        setChoice('');
+                        commit({ outputText: e.target.value });
+                      }}
                       maxLength={1500}
                     />
                   </label>
-                  <VoiceInput onText={setInput} />
+                  <VoiceInput
+                    onText={(text) => {
+                      setInput(text);
+                      setSelfChecked(false);
+                      setFeedbackShown(false);
+                      setChoice('');
+                      commit({ outputText: text });
+                    }}
+                  />
                   <button
                     className="button ghost"
                     disabled={!input.trim()}
                     onClick={() => {
+                      setFeedbackShown(true);
                       if (equivalentOutput(input, stage.output.answer, stage.output.equivalents)) {
                         setMessage('意思正确，这个简单表达可以完成当前任务。');
                         setChoice(input);
                       } else {
                         const f = communicationFeedback(input, stage.output.zh);
                         setMessage(
-                          `${f.correctness} ${f.naturalness} 当前本地模式未覆盖这种说法，不据此判错。可对照参考表达，或使用选择回答完成练习。`,
+                          `${f.correctness} ${f.naturalness} ${f.context} ${f.upgrade} 当前本地模式未覆盖这种说法，不据此判错。请核对下方任务与参考，确认后可以保留自己的表达继续。`,
                         );
                       }
                     }}
@@ -569,7 +724,29 @@ export function JourneyPlayer({
                     查看表达反馈
                   </button>
                   <p className="note">
+                    沟通目标：{stage.output.intent || stage.task}
+                    <br />
+                    关键词支架：
+                    {stage.words
+                      .slice(0, 3)
+                      .map((w) => w[0])
+                      .join(' · ')}
+                    <br />
                     参考：{stage.output.answer}。{stage.output.why}
+                  </p>
+                  {feedbackShown &&
+                    !equivalentOutput(input, stage.output.answer, stage.output.equivalents) && (
+                      <label className="check-field">
+                        <input
+                          type="checkbox"
+                          checked={selfChecked}
+                          onChange={(e) => setSelfChecked(e.target.checked)}
+                        />
+                        我已核对：回应符合沟通目标，没有添加未知事实
+                      </label>
+                    )}
+                  <p className="small-text muted">
+                    自主核对可以继续学习，记录为自评；不自动认证意思、自然度或语境。可修改自己的表达再看反馈。
                   </p>
                 </>
               ) : (
@@ -590,10 +767,14 @@ export function JourneyPlayer({
               )}
               <button
                 className="button primary"
-                disabled={!p.imitated || !choice}
+                disabled={
+                  !p.imitated ||
+                  !(typed ? input.trim() && feedbackShown && (choice || selfChecked) : choice)
+                }
                 onClick={() => {
-                  if (equivalentOutput(choice, stage.output.answer, stage.output.equivalents))
-                    finishOutput(choice);
+                  if (typed && selfChecked) finishOutput(input, 'self-checked');
+                  else if (equivalentOutput(choice, stage.output.answer, stage.output.equivalents))
+                    finishOutput(choice, typed ? 'reviewed' : 'supported');
                   else wrong(`这个回答本身可能语法正确，但没有回应当前问题。${stage.output.why}`);
                 }}
               >
@@ -607,12 +788,24 @@ export function JourneyPlayer({
           {p.phase === 6 && (
             <>
               <h2>这一小段，已经学进生活。</h2>
-              <p>完成 {p.recognized.length} 个词语或表达的辨认、听力匹配、填空和简单回应。</p>
+              <p>
+                完成 {items.filter((term) => p.recognized.includes(term)).length}{' '}
+                个关键词语的情境回忆、听力理解、填空和回应。其他看过的词语尚未授予掌握。
+              </p>
               <p className="note">
                 {p.mistakes
                   ? `${p.mistakes} 次调整已记录；答错词语安排 10 分钟后复习。`
                   : '本段首次理解正确的词语安排次日复习。'}{' '}
                 辨认、跟读与自主表达是不同能力；本段不作为流利度或发音认证。
+              </p>
+              <p className="note">
+                表达证据：
+                {p.outputMode === 'self-checked'
+                  ? '自主核对，尚未自动验证语义'
+                  : p.outputMode === 'reviewed'
+                    ? '审核同义表达'
+                    : '借助表达选择'}
+                {p.outputText && <span lang="en"> · {p.outputText}</span>}
               </p>
               <h3>带走两句表达</h3>
               {stage.expressions.map(([en, zh]) => (

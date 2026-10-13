@@ -9,3 +9,6 @@ output/playwright/
 .env*
 !.env.example
 .DS_Store
+__pycache__/
+*.pyc
+*.blend1

@@ -1,3 +1,4 @@
+import { officeLab } from './office-lab';
 import { parseKnowledge, type KnowledgeState } from './knowledge-learning';
 import { parseJourneys, type JourneyRecords } from './journey-learning';
 import { lifeJourneys } from './life-content';
@@ -153,6 +154,7 @@ export function parseState(raw: string): LearningState {
           journeys: parseJourneys(
             s.journeys,
             (id) =>
+              id === officeLab.id ||
               lifeJourneys.some((j) => j.id === id) ||
               scenes.some((j) => `scene-${j.id}` === id) ||
               lessons.some((j) => `course-${j.id}` === id) ||

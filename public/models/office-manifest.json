@@ -1,0 +1,9 @@
+{
+  "blender": "4.3.2",
+  "bytes": 402172,
+  "nodes": 83,
+  "meshes": 81,
+  "animations": 1,
+  "terms": ["calendar", "coworker", "desk", "laptop", "notebook", "whiteboard"],
+  "source": "scripts/build-office.py"
+}

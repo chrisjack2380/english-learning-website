@@ -1,3 +1,4 @@
+import { outputScaffolds } from './output-scaffolds';
 import type { LearningJourney, JourneyStage, WordSeed, ExpressionSeed } from './journey-schema';
 // Entirely original teaching material. Each stage introduces six lexical items and two expressions.
 type StageInput = [
@@ -41,7 +42,13 @@ function stage([
     expressions,
     listening,
     cloze,
-    output,
+    output: outputScaffolds[id]
+      ? {
+          ...output,
+          intent: outputScaffolds[id].intent,
+          options: [output.answer, ...outputScaffolds[id].alternatives],
+        }
+      : output,
   };
 }
 const listen = (
@@ -259,13 +266,18 @@ export const lifeJourneys: LearningJourney[] = [
             '部分美国交通系统说 one-way ticket，single ticket 在英式英语中常见；应按当地票制核对。',
           ],
         ],
-        listen(
-          'Please wait on platform two.',
-          '请在二号站台等。',
-          '去二号站台候车',
-          ['在出口等', '向售票机买两张票'],
-          'platform 是候车地点；two 是编号。',
-        ),
+        {
+          line: 'The train arriving at platform three is delayed. Please wait behind the yellow line.',
+          zh: '即将到达三号站台的列车延误了。请在黄色安全线后等候。',
+          question: '这条车站广播意味着你现在应该怎么做？',
+          options: [
+            '在三号站台安全线后等待，并留意更新',
+            '列车已经到站，现在立即上车',
+            '立刻离开站台，换乘另一条线路',
+          ],
+          answer: '在三号站台安全线后等待，并留意更新',
+          why: 'delayed表示延误，arriving不代表已经到达；广播没有要求换乘或离站。',
+        },
         gap(
           'I bought a ticket from the ',
           'ticket machine',

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { contextRecall } from '../context-practice';
 import { knowledgeEntries } from '../knowledge';
 import { recordKnowledge } from '../knowledge-learning';
 import { useKnowledge } from './KnowledgeContext';
@@ -17,21 +18,39 @@ export function WordReview() {
   const [index, setIndex] = useState(0),
     [choice, setChoice] = useState(''),
     [feedback, setFeedback] = useState(''),
-    [checked, setChecked] = useState(false);
+    [checked, setChecked] = useState(false),
+    [hint, setHint] = useState(false);
   const e = knowledgeEntries.find((e) => e.id === queue[index]);
+  const recall = e
+    ? contextRecall(
+        e,
+        knowledgeEntries
+          .filter((x) => x.kind === e.kind && x.id !== e.id)
+          .slice(0, 2)
+          .map((x) => x.term),
+      )
+    : undefined;
   return (
     <section className="card word-review">
       <h2>场景词语复习</h2>
-      {e ? (
+      {e && recall ? (
         <>
           <p>
             主动回忆 {index + 1} / {queue.length}
           </p>
-          <h3>{e.term}</h3>
-          <Speak text={e.term} />
-          <p>{e.question.prompt}</p>
+          <p>{recall.prompt}</p>
+          <h3 lang="en">{recall.line}</h3>
+          <button className="text-button" onClick={() => setHint(true)}>
+            需要一点提示
+          </button>
+          {hint && (
+            <p className="note">
+              {recall.hint} {e.translation}
+              <Speak text={e.example} />
+            </p>
+          )}
           <div className="guided-options" role="group" aria-label="词语复习选项">
-            {optionOrder(e.question.options, e.id).map((o) => (
+            {optionOrder(recall.options, e.id).map((o) => (
               <button
                 key={o}
                 disabled={checked}
@@ -54,6 +73,7 @@ export function WordReview() {
                   setChecked(false);
                   setChoice('');
                   setFeedback('');
+                  setHint(false);
                 }}
               >
                 继续词语复习
@@ -64,10 +84,10 @@ export function WordReview() {
               className="button primary"
               disabled={!choice}
               onClick={() => {
-                const right = choice === e.question.answer;
-                k.update(recordKnowledge(k.state, e.id, right ? 'recognize' : 'miss'));
+                const right = choice === recall.answer;
+                k.update(recordKnowledge(k.state, e.id, right && !hint ? 'recognize' : 'miss'));
                 setFeedback(
-                  `${right ? '含义回忆正确。' : '本次回忆需要巩固，10 分钟后再练。'} ${e.translation} ${e.contrast}`,
+                  `${right && !hint ? '情境回忆正确。' : '借助提示或调整的表达，10 分钟后再巩固。'} ${e.translation} ${e.contrast}`,
                 );
                 setChecked(true);
               }}

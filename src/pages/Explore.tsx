@@ -36,6 +36,16 @@ export function ExplorePage({
         </span>
       </div>
       <LevelSelector value={state.profile!.level} onChange={onLevel} />
+      <article className="card office-demo-entry">
+        <p className="eyebrow">BLENDER → GLB → THREE.JS</p>
+        <h2>走进一个可以探索的办公室</h2>
+        <p>
+          转动视角，点击实物认识英语；听同事安排，借助词语尝试回应。三维学习实验与个人词库和复习共用记录。
+        </p>
+        <button className="button primary" onClick={() => onJourney('office-lab')}>
+          进入 3D 办公室
+        </button>
+      </article>
       <h2>连续的生活过程</h2>
       <p className="muted">
         每个流程分五段，可按自己的节奏继续。先学词语；复杂自由回答在高级模式中选择。

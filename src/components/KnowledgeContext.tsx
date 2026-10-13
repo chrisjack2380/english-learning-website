@@ -39,6 +39,7 @@ export function KnowledgeProvider({
   const [ai, setAI] = useState('');
   const [busy, setBusy] = useState(false);
   const dialog = useRef<HTMLDialogElement>(null);
+  const returnFocus = useRef<HTMLElement | null>(null);
   const controller = useRef<AbortController | null>(null);
   const [note, setNote] = useState('');
   const entry = selected ? lookupKnowledge(selected.text) : undefined;
@@ -64,15 +65,20 @@ export function KnowledgeProvider({
   }, [selected]);
   const close = () => {
     controller.current?.abort();
+    dialog.current?.close();
     setSelected(null);
+    if (returnFocus.current?.isConnected) returnFocus.current.focus({ preventScroll: true });
   };
   return (
     <Context.Provider
       value={{
         state,
         update,
-        open: (text, context, zh = '') =>
-          setSelected({ text: text.slice(0, 1500), context: context.slice(0, 1500), zh }),
+        open: (text, context, zh = '') => {
+          returnFocus.current =
+            document.activeElement instanceof HTMLElement ? document.activeElement : null;
+          setSelected({ text: text.slice(0, 1500), context: context.slice(0, 1500), zh });
+        },
       }}
     >
       {children}

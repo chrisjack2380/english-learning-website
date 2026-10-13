@@ -1,6 +1,11 @@
+import { officeLab } from './office-lab';
 import { lifeJourneys } from './life-content';
 import type { LearningGoal } from './knowledge';
+import { stageRecallTerms } from './context-practice';
 export type StageProgress = {
+  learningVersion?: 2;
+  outputMode?: 'supported' | 'reviewed' | 'self-checked';
+  outputText?: string;
   firstChecks?: { vocabulary: boolean; listening: boolean; output: boolean };
   phase: number;
   seen: string[];
@@ -53,7 +58,7 @@ export function parseJourneys(value: unknown, known: (id: string) => boolean): J
       Object.keys(r.stages).length > 10
     )
       throw new Error('过程位置无效');
-    const life = lifeJourneys.find((j) => j.id === id);
+    const life = [...lifeJourneys, officeLab].find((j) => j.id === id);
     if (life && r.stage >= life.stages.length) throw new Error('阶段位置无效');
     const stages: JourneyProgress['stages'] = {};
     for (const [sid, p] of Object.entries(r.stages)) {
@@ -85,6 +90,18 @@ export function parseJourneys(value: unknown, known: (id: string) => boolean): J
       )
         throw new Error('阶段缺少练习证据');
       const definition = life?.stages.find((s) => s.id === sid);
+      if (p.learningVersion !== undefined && p.learningVersion !== 2)
+        throw new Error('教学记录版本无效');
+      if (
+        p.outputMode !== undefined &&
+        !['supported', 'reviewed', 'self-checked'].includes(p.outputMode)
+      )
+        throw new Error('表达证据无效');
+      if (
+        p.outputText !== undefined &&
+        (typeof p.outputText !== 'string' || p.outputText.length > 1500)
+      )
+        throw new Error('表达记录无效');
       if (definition) {
         const terms = [
           ...definition.words.map((w) => w[0]),
@@ -96,12 +113,17 @@ export function parseJourneys(value: unknown, known: (id: string) => boolean): J
           new Set(p.recognized).size !== p.recognized.length ||
           (p.completed &&
             (p.phase !== 6 ||
-              !terms.every((w) => p.recognized.includes(w)) ||
+              !(p.learningVersion === 2 ? stageRecallTerms(definition) : terms).every((w) =>
+                p.recognized.includes(w),
+              ) ||
               !definition.words.every((w) => p.seen.includes(w[0]))))
         )
           throw new Error('阶段词语证据无效');
       }
       stages[sid] = {
+        ...(p.learningVersion === 2 ? { learningVersion: 2 as const } : {}),
+        ...(p.outputMode ? { outputMode: p.outputMode } : {}),
+        ...(p.outputText !== undefined ? { outputText: p.outputText } : {}),
         ...(p.firstChecks
           ? {
               firstChecks: Object.fromEntries(

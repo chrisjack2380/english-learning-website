@@ -1,6 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
 import { lifeJourneys } from '../src/life-content';
-import { lookupKnowledge } from '../src/knowledge';
+import { stageRecallTerms } from '../src/context-practice';
 import type { JourneyStage } from '../src/journey-schema';
 import { STORAGE_KEY } from '../src/learning';
 import { communicationJourney, basicJourney } from '../src/journey-adapters';
@@ -41,17 +41,16 @@ async function discover(page: Page, s: JourneyStage) {
       .click();
 }
 async function recognition(page: Page, s: JourneyStage) {
-  await page.getByRole('button', { name: '检查词语理解', exact: true }).click();
-  for (const term of [...s.words.map((w) => w[0]), ...s.expressions.map((e) => e[0])]) {
+  await page.getByRole('button', { name: '开始情境回忆', exact: true }).click();
+  for (const term of stageRecallTerms(s)) {
     await page
-      .getByRole('group', { name: '词语含义选项' })
+      .getByRole('group', { name: '情境回忆选项' })
       .getByRole('button', {
-        name:
-          lookupKnowledge(term)?.question.answer || s.expressions.find((e) => e[0] === term)![1],
+        name: term,
         exact: true,
       })
       .click();
-    await page.getByRole('button', { name: '检查理解', exact: true }).click();
+    await page.getByRole('button', { name: '理解并继续', exact: true }).click();
   }
 }
 async function finishStage(page: Page, s: JourneyStage, typed = false, wrong = false) {
@@ -183,20 +182,20 @@ test('wrong recognition retains a short review and unknown paraphrases are not l
   const s = lifeJourneys[0].stages[0];
   await discover(page, s);
   await page.getByRole('button', { name: '学习词汇与表达' }).click();
-  await page.getByRole('button', { name: '检查词语理解' }).click();
-  const q = lookupKnowledge(s.words[0][0])!.question;
+  await page.getByRole('button', { name: '开始情境回忆' }).click();
+  const q = { answer: s.words[0][0], options: s.words.map((w) => w[0]) };
   await page
-    .getByRole('group', { name: '词语含义选项' })
+    .getByRole('group', { name: '情境回忆选项' })
     .getByRole('button', { name: q.options.find((o) => o !== q.answer)!, exact: true })
     .click();
-  await page.getByRole('button', { name: '检查理解', exact: true }).click();
-  await expect(page.locator('.journey-lesson p.note[role=status]')).toContainText('再听一次');
-  for (const term of [...s.words.map((w) => w[0]), ...s.expressions.map((e) => e[0])]) {
+  await page.getByRole('button', { name: '理解并继续', exact: true }).click();
+  await expect(page.locator('.journey-lesson p.note[role=status]')).toContainText('再读一次');
+  for (const term of stageRecallTerms(s)) {
     await page
-      .getByRole('group', { name: '词语含义选项' })
-      .getByRole('button', { name: lookupKnowledge(term)!.question.answer, exact: true })
+      .getByRole('group', { name: '情境回忆选项' })
+      .getByRole('button', { name: term, exact: true })
       .click();
-    await page.getByRole('button', { name: '检查理解', exact: true }).click();
+    await page.getByRole('button', { name: '理解并继续', exact: true }).click();
   }
   await page
     .getByRole('group', { name: '听力选项' })
@@ -223,7 +222,9 @@ test('due word recall updates the word bank and learning backup excludes private
   const s = lifeJourneys[0].stages[0];
   await finishStage(page, s);
   await page.getByRole('button', { name: '返回学习空间' }).click();
-  await page.evaluate((key) => {
+  // Apply the due-date fixture before App mounts; React's activity cleanup may otherwise
+  // overwrite an out-of-band localStorage edit made immediately after navigation.
+  await page.addInitScript((key) => {
     const s = JSON.parse(localStorage.getItem(key)!);
     s.knowledge.records['wake-up'].due = Date.now() - 1000;
     localStorage.setItem(key, JSON.stringify(s));
@@ -233,7 +234,7 @@ test('due word recall updates the word bank and learning backup excludes private
   await expect(page.getByRole('heading', { name: '场景词语复习' })).toBeVisible();
   await page
     .getByRole('group', { name: '词语复习选项' })
-    .getByRole('button', { name: lookupKnowledge('wake up')!.zh, exact: true })
+    .getByRole('button', { name: 'wake up', exact: true })
     .click();
   await page.getByRole('button', { name: '检查词语回忆' }).click();
   await page.getByRole('button', { name: '继续词语复习' }).click();

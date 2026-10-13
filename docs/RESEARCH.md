@@ -86,3 +86,9 @@ AES-GCM/PBKDF2 使用浏览器原生 Web Crypto，无新加密依赖。浏览器
 新增 life-atlas.png 为本项目生成的一张原创九环境照片风格图集，未使用电影/电视剧、品牌或真实人物身份，约2.6MB。随Pages发布通过同源CDN缓存，不需外部图片账户/API；所有阶段复用，不提交大量照片。合成照片只有可暂停光线动效与词语交互，无真人视频或嘴形同步。
 
 本轮再次用Debian trixie官方InRelease签名和已安装的Debian archive keyring核验Packages.xz的SHA256，并逐包核对espeak-ng/espeak-ng-data/libespeak-ng1/libpcaudio0/libsonic0的SHA256，解包到/tmp运行。没有执行远程安装脚本、sudo、禁用TLS或更改证书信任；网站只发布原创文本的合成音频，保留旧文件URL。
+
+## 学习体验与3D实验（2026-10-13）
+
+详见 [Blender 调研与实验](BLENDER.md)。现有 cloud-environment-onboarding:setup 用于复核工具、认证、安装/启动/验证；没有安装未知插件、远程安装脚本或额外MCP。Three.js官方npm元数据和MIT LICENSE已查看，精确锁定0.186.1。官网Blender版本查询返回403，不能声称已核验最新Windows版本。
+
+学习有效性以情境回忆、理解行动、提示后巩固和后续提取区分，未进行真实学习者长期记忆实验；功能测试不等于教学效率临床或统计证明。照片风格九视角新图集为原创AI合成，没有使用电影、书籍或图库版权素材；共享同源CDN缓存，不依赖图片API密钥。

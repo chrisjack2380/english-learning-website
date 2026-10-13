@@ -6,6 +6,7 @@ import { freshKnowledge, recordKnowledge } from './knowledge-learning';
 import { TeachingProvider } from './components/TeachingContext';
 import { JourneyPlayer } from './components/JourneyPlayer';
 import { lifeJourneys } from './life-content';
+import { officeLab } from './office-lab';
 import { journeyPlan } from './journey-learning';
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import {
@@ -350,7 +351,8 @@ export default function App() {
               {journeyId ? (
                 <JourneyPlayer
                   key={journeyId}
-                  journey={lifeJourneys.find((j) => j.id === journeyId)!}
+                  journey={[...lifeJourneys, officeLab].find((j) => j.id === journeyId)!}
+                  office3d={journeyId === officeLab.id}
                   onExit={() => navigate('home')}
                 />
               ) : lesson?.track ? (

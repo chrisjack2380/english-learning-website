@@ -1,3 +1,4 @@
+import { officeLab } from './office-lab';
 /** Original teaching units; reference links describe frameworks, never reproduced textbook material. */
 import { lifeJourneys } from './life-content';
 import { adultVocabulary, adultTranslations } from './legacy-teaching';
@@ -562,7 +563,7 @@ export const wordId = (term: string) =>
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/^-|-$/g, '');
-const lifeEntries: KnowledgeEntry[] = lifeJourneys.flatMap((j) =>
+const lifeEntries: KnowledgeEntry[] = [...lifeJourneys, officeLab].flatMap((j) =>
   j.stages.flatMap((s) => [
     ...s.words.map(
       ([term, zh, en, example, translation, collocations]): KnowledgeEntry => ({
