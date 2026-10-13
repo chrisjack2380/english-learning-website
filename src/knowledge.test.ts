@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { knowledgeEntries, goalLabels, lookupKnowledge } from './knowledge';
+import { coreKnowledgeEntries as knowledgeEntries, goalLabels, lookupKnowledge } from './knowledge';
 import {
   freshKnowledge,
   recordKnowledge,
@@ -50,6 +50,8 @@ describe('knowledge understanding, application and learning route', () => {
     expect(s.records.allocate.interval).toBe(1);
     expect(s.records.allocate.lastOutput).toContain('proposal');
     s = recordKnowledge(s, 'allocate', 'practice', 'I would check the budget first.', 3000);
+    expect(s.records.allocate.interval).toBe(1);
+    s = recordKnowledge(s, 'allocate', 'practice', 'I reviewed the budget.', 86403000);
     expect(s.records.allocate.interval).toBe(3);
     expect(recordKnowledge(s, 'allocate', 'again', '', 4000).records.allocate.due).toBe(4000);
   });

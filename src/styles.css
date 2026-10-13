@@ -3718,3 +3718,329 @@ select {
 .scene-card .realistic-scene-overlay > small {
   font-size: 9px;
 }
+
+/* Input-first teaching: one shared photographic atlas and accessible vocabulary labels. */
+.journey-world {
+  width: 100%;
+  min-width: 0;
+  position: relative;
+  overflow: hidden;
+  min-height: 260px;
+  aspect-ratio: 3/2;
+  background: #314336;
+  border-radius: 18px;
+  isolation: isolate;
+}
+.journey-world > img {
+  position: absolute;
+  width: 300%;
+  height: 300%;
+  max-width: none;
+  object-fit: fill;
+  animation: journey-light 12s ease-in-out infinite alternate;
+  z-index: -2;
+}
+.journey-world::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(10, 24, 20, 0.12),
+    rgba(10, 24, 20, 0.04) 45%,
+    rgba(10, 24, 20, 0.65)
+  );
+  z-index: -1;
+}
+.journey-world.still > img {
+  animation-play-state: paused;
+}
+@keyframes journey-light {
+  from {
+    filter: brightness(0.93);
+  }
+  to {
+    filter: brightness(1.07);
+  }
+}
+.journey-place {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  right: 55px;
+  color: #fff;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  font-weight: 700;
+  text-shadow: 0 1px 4px #000;
+}
+.world-pause {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  background: #fff9 !important;
+  color: #243f30 !important;
+}
+.world-word-elements {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+  position: absolute;
+  left: 15px;
+  right: 15px;
+  bottom: 16px;
+}
+.world-word-elements button {
+  border: 1px solid #ffffff90;
+  background: #fffdeb;
+  color: #213b2c;
+  border-radius: 9px;
+  padding: 10px 12px;
+  text-align: left;
+  font-size: 13px;
+  min-height: 44px;
+  overflow-wrap: anywhere;
+  transition: transform 0.2s;
+}
+.world-word-elements button:hover {
+  transform: translateY(-2px);
+  background: #fff;
+}
+.world-word-elements button.discovered {
+  background: #e9f0dded;
+}
+.world-word-elements button[aria-pressed='true'] {
+  border: 2px solid #c34d34;
+}
+.journey-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.1fr);
+  gap: 24px;
+  align-items: start;
+}
+.journey-environment,
+.journey-lesson {
+  min-width: 0;
+}
+.journey-lesson {
+  padding: 28px !important;
+}
+.journey-lesson h2 {
+  font-size: 23px;
+  line-height: 1.5;
+}
+.journey-lesson .button {
+  margin-top: 16px;
+}
+.journey-environment .auto-dialogue {
+  margin: 18px 0;
+}
+.discovered-word {
+  padding: 20px !important;
+}
+.discovered-word h3 {
+  overflow-wrap: anywhere;
+}
+.journey-stage-road {
+  display: flex;
+  gap: 8px;
+  margin: 22px 0;
+  flex-wrap: wrap;
+}
+.journey-stage-road button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+  font-size: 13px;
+}
+.journey-stage-road button span {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--sage);
+}
+.journey-stage-road [aria-current='step'] {
+  border-color: var(--green);
+  background: var(--sage);
+}
+.teaching-road {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 0;
+  list-style: none;
+  margin: 20px 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+.teaching-road li {
+  padding: 6px 9px;
+  border-radius: 20px;
+}
+.teaching-road .current {
+  color: var(--coral);
+  background: var(--peach);
+  font-weight: 700;
+}
+.teaching-road .done {
+  color: var(--green);
+}
+.stage-vocabulary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.word-learning-card {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 13px;
+  border: 1px solid var(--line);
+  background: #f7f8f2;
+  border-radius: 10px;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+.word-learning-card span {
+  font-size: 12px;
+  color: var(--muted);
+}
+.expression-input {
+  margin: 22px 0;
+  padding: 16px;
+  border-left: 3px solid #c6d2bc;
+  background: #f8f9f4;
+}
+.guided-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 20px 0;
+}
+.guided-options button {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  padding: 15px;
+  text-align: left;
+  min-height: 48px;
+  overflow-wrap: anywhere;
+}
+.guided-options button[aria-pressed='true'] {
+  border: 2px solid var(--green);
+  background: var(--sage);
+}
+.journey-lesson input[aria-label='情境填空'] {
+  width: 100%;
+  max-width: 240px;
+  margin: 10px 6px;
+  padding: 9px;
+  border: 1px solid #9aac92;
+  border-radius: 8px;
+  background: #f4f7ef;
+}
+.journey-lesson textarea {
+  width: 100%;
+  min-height: 90px;
+}
+.journey-catalog {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+  margin: 24px 0 38px;
+}
+.journey-card {
+  padding: 0 !important;
+  overflow: hidden;
+}
+.journey-card .journey-world {
+  border-radius: 0;
+  min-height: 170px;
+}
+.journey-card-copy {
+  padding: 20px;
+}
+.journey-card-copy h3 {
+  margin: 12px 0;
+  font-size: 21px;
+}
+.journey-card-copy p {
+  font-size: 13px;
+  line-height: 1.8;
+}
+.life-hero-art {
+  padding: 0 !important;
+}
+.life-hero .hero-copy > .text-button {
+  display: flex;
+  margin-top: 12px;
+}
+.dashboard-grid > .card {
+  padding: 26px;
+}
+.life-hero-art .journey-world {
+  height: 100%;
+  min-height: 340px;
+  border-radius: 0;
+}
+.image-fallback-note {
+  padding: 75px 20px;
+  color: #fff;
+  font-size: 14px;
+}
+.word-bank-summary {
+  margin: 20px 0;
+}
+.word-review {
+  margin-bottom: 25px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .journey-world > img {
+    animation: none;
+  }
+  .world-word-elements button {
+    transition: none;
+  }
+}
+@media (max-width: 1100px) {
+  .journey-catalog {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .journey-layout {
+    gap: 16px;
+  }
+}
+@media (max-width: 760px) {
+  .journey-layout,
+  .journey-catalog {
+    grid-template-columns: 1fr;
+  }
+  .journey-lesson {
+    padding: 20px !important;
+  }
+  .journey-world {
+    min-height: 255px;
+  }
+  .journey-stage-road {
+    gap: 5px;
+  }
+  .journey-stage-road button {
+    font-size: 12px;
+    padding: 9px;
+  }
+  .life-hero-art .journey-world {
+    min-height: 230px;
+  }
+  .life-hero .hero-copy h2 {
+    font-size: 32px;
+  }
+  .stage-vocabulary {
+    gap: 6px;
+  }
+}

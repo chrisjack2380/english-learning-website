@@ -1,3 +1,22 @@
+# 输入先行阶段验证入口
+
+2026-10-13（Asia/Shanghai）。54项单元与安全扫描、70项完整生产子路径浏览器（2.5分钟）以及最终25项受影响流程复测（1.3分钟）通过，构建/格式/diff通过。本轮实际HTTPS尚未验收，结果待发布后同步；下文53项等为上一阶段历史。
+
+本轮新增验收：七个五阶段生活流程完整完成；首次打开→发现/收藏不授予掌握→辨认→听力→填空→简单回应→短复习→刷新→下一段；两种错误分类首次成绩；无AI生成产品场景默认引导可完成；保留原课程/高级输出/安全模型流程；全1394个备用音频HTTP与音频类型检查；真实图片失败回退、键盘/自动语音和三端无溢出。
+
+## 本轮精选截图
+
+- [桌面首页](../output/playwright/journey-desktop-home.png)
+- [平板首页](../output/playwright/journey-tablet-home.png)
+- [手机默认学习](../output/playwright/journey-mobile-discovery.png)
+- [桌面即时词典](../output/playwright/journey-desktop-dictionary.png)
+- [通勤全部完成](../output/playwright/journey-commute-complete.png)
+- [办公室输入](../output/playwright/journey-office-day-observe.png)
+
+完整新截图/报告保留本地与Actions产物，Git仅增加以上精选图。模型连接/语音识别mock保持明确标签；真人发音、私人服务商Key、实机触屏、Safari/Firefox未验收。图片为原创合成环境，非视频或嘴形同步；未知开放表达不进行可靠语义认证。
+
+## 上一阶段历史（不是本轮通过依据）
+
 # 验证与截图
 
 2026-10-13（Asia/Shanghai）第三阶段知识驱动升级。实际运行生产构建，使用 /english-learning-website/ 子路径；47项单元及最终GitHub生产/实际HTTPS各53项真实浏览器流程全部通过；类型构建、格式及diff检查通过。最终GitHub生产53项与实际公开HTTPS同一53项全部通过。

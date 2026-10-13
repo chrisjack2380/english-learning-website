@@ -7,7 +7,7 @@ async function onboard(page: Page, goal = 'business') {
   await page.goto('./');
   await page.getByLabel('新手学习目标').selectOption(goal);
   await page.getByRole('button', { name: '开启我的学习旅程' }).click();
-  await page.getByRole('button', { name: '开始今天的学习', exact: true }).click();
+  await page.getByRole('button', { name: '知识与词库', exact: true }).click();
   await expect(page.getByRole('heading', { name: '让知识，真正用得出来。' })).toBeVisible();
 }
 async function shot(page: Page, name: string) {
@@ -24,6 +24,8 @@ async function application(page: Page, id: string) {
   const scene = knowledgeToScene(id);
   await page.getByRole('button', { name: `把 ${id} 用到场景里`, exact: true }).click();
   await expect(page.getByRole('heading', { name: scene.title, exact: true })).toBeVisible();
+  if (await page.getByRole('button', { name: '高级自由表达', exact: true }).count())
+    await page.getByRole('button', { name: '高级自由表达', exact: true }).click();
   await page.getByRole('button', { name: '开始听力任务' }).click();
   await page.getByRole('radio', { name: scene.listening.answer, exact: true }).check();
   await page.getByRole('button', { name: '检查答案' }).click();
@@ -85,6 +87,7 @@ test('supplementary licensed dictionary and arbitrary personal vocabulary work w
 }) => {
   await onboard(page);
   await page.getByRole('button', { name: '把 allocate 用到场景里', exact: true }).click();
+  await page.getByRole('button', { name: '高级自由表达', exact: true }).click();
   await page.getByRole('button', { name: '查词 project', exact: true }).first().click();
   await expect(
     page.getByRole('dialog').getByText('a planned undertaking', { exact: false }),
@@ -159,6 +162,8 @@ test('answering automatically triggers speech and exposes sentence synchronizati
   await onboard(page);
   await page.getByRole('button', { name: '把 allocate 用到场景里' }).click();
   const s = knowledgeToScene('allocate');
+  if (await page.getByRole('button', { name: '高级自由表达', exact: true }).count())
+    await page.getByRole('button', { name: '高级自由表达', exact: true }).click();
   await page.getByRole('button', { name: '开始听力任务' }).click();
   await page.getByRole('radio', { name: s.listening.answer, exact: true }).check();
   await page.getByRole('button', { name: '检查答案' }).click();
@@ -205,7 +210,7 @@ for (const viewport of [
     );
     await page.getByRole('button', { name: '把 allocate 用到场景里', exact: true }).click();
     await shot(page, `${viewport.name}-scene`);
-    await expect(page.locator('.realistic-stage')).toBeVisible();
+    await expect(page.locator('.journey-world')).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
       true,
     );
@@ -244,6 +249,8 @@ test('explicit scene AI mode sends the submitted answer automatically and preser
   await page.getByRole('button', { name: '知识与词库', exact: true }).click();
   await page.getByRole('button', { name: '把 allocate 用到场景里', exact: true }).click();
   const s = knowledgeToScene('allocate');
+  if (await page.getByRole('button', { name: '高级自由表达', exact: true }).count())
+    await page.getByRole('button', { name: '高级自由表达', exact: true }).click();
   await page.getByRole('button', { name: '开始听力任务' }).click();
   await page.getByRole('radio', { name: s.listening.answer, exact: true }).check();
   await page.getByRole('button', { name: '检查答案' }).click();

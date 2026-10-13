@@ -1,5 +1,7 @@
 import { parseKnowledge, type KnowledgeState } from './knowledge-learning';
-import type { LearningGoal } from './knowledge';
+import { parseJourneys, type JourneyRecords } from './journey-learning';
+import { lifeJourneys } from './life-content';
+import { knowledgeEntries, type LearningGoal } from './knowledge';
 import { lessons, scenes, type SceneId } from './content';
 export const STORAGE_KEY = 'little-by-little:v1';
 export type Profile = {
@@ -18,6 +20,7 @@ export type Attempt = { lessonId: string; correct: number; total: number; at: nu
 export type LearningState = {
   version: 1;
   knowledge?: KnowledgeState;
+  journeys?: JourneyRecords;
   profile: Profile | null;
   completed: string[];
   skills: Record<string, SkillRecord>;
@@ -28,7 +31,7 @@ export type LearningState = {
     scene: SceneId;
     courseId?: string;
     at: number;
-    turns: { role: string; prompt: string; text: string; revised: boolean }[];
+    turns: { role: string; prompt: string; text: string; revised: boolean; guided?: boolean }[];
   }[];
 };
 export const freshState = (): LearningState => ({
@@ -145,6 +148,18 @@ export function parseState(raw: string): LearningState {
   return {
     version: 1,
     ...(s.knowledge ? { knowledge: s.knowledge } : {}),
+    ...(s.journeys
+      ? {
+          journeys: parseJourneys(
+            s.journeys,
+            (id) =>
+              lifeJourneys.some((j) => j.id === id) ||
+              scenes.some((j) => `scene-${j.id}` === id) ||
+              lessons.some((j) => `course-${j.id}` === id) ||
+              knowledgeEntries.some((e) => `knowledge-${e.id}` === id),
+          ),
+        }
+      : {}),
     profile: s.profile
       ? {
           level: s.profile.level,
@@ -179,6 +194,7 @@ export function parseState(raw: string): LearningState {
               prompt: t.prompt,
               text: t.text,
               revised: t.revised,
+              ...(t.guided === true ? { guided: true } : {}),
             })),
           })),
         }

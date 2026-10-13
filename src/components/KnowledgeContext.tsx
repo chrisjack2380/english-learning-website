@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
-import { lookupKnowledge } from '../knowledge';
+import { lookupKnowledge, knowledgeEntries } from '../knowledge';
 import { freshKnowledge, recordKnowledge, type KnowledgeState } from '../knowledge-learning';
 import { Speak } from './Speech';
 import { analyzeWithModel } from '../ai-training';
@@ -96,6 +96,9 @@ export function KnowledgeProvider({
             <Speak text={selected.text} compact />
             {entry ? (
               <>
+                <p className="muted small-text">
+                  以下为本站收录的词义与用法；多义词在其他语境可能不同，请结合原句核对。
+                </p>
                 {entry.term.toLowerCase() !== selected.text.toLowerCase() && (
                   <p className="muted">原形：{entry.term}。以下释义、音标和搭配对应原形。</p>
                 )}
@@ -199,7 +202,7 @@ export function KnowledgeProvider({
             )}
             {status && <p role="status">{status}</p>}
             <small>
-              本站原创32个单元；英文补充释义来自 WordNet 3.0。
+              本站原创{knowledgeEntries.length}个词语与知识单元；英文补充释义来自 WordNet 3.0。
               <a
                 href={`${import.meta.env.BASE_URL}dictionary/WORDNET-LICENSE.txt`}
                 target="_blank"

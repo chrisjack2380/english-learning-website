@@ -16,6 +16,8 @@ async function onboard(page: Page, advanced = false) {
   await expect(page.getByRole('heading', { name: /今天，也向前/ })).toBeVisible();
 }
 async function execute(page: Page, id: string, wrong = false, advanced = false) {
+  if (await page.getByRole('button', { name: '高级自由表达', exact: true }).count())
+    await page.getByRole('button', { name: '高级自由表达', exact: true }).click();
   const s = communicationScenes.find((s) => s.id === id)!;
   const lesson = higherLessons.find((l) => l.id === id + (advanced ? '-c1' : ''))!;
   await expect(page.getByRole('heading', { name: lesson.title, exact: true })).toBeVisible();
@@ -25,6 +27,8 @@ async function execute(page: Page, id: string, wrong = false, advanced = false) 
   await expect(page.locator('.communication-world')).toHaveClass(/paused/);
   await page.getByRole('button', { name: '下一步示范' }).click();
   await expect(page.getByRole('heading', { name: '角色示范 · 2 / 4' })).toBeVisible();
+  if (await page.getByRole('button', { name: '高级自由表达', exact: true }).count())
+    await page.getByRole('button', { name: '高级自由表达', exact: true }).click();
   await page.getByRole('button', { name: '开始听力任务' }).click();
   await page.getByRole('radio', { name: s.listening.answer, exact: true }).check();
   await page.getByRole('button', { name: '检查答案' }).click();
@@ -69,7 +73,7 @@ test('foundations default to B1–B2, all three courses save output and continue
   await onboard(page);
   await shot(page, 'home');
   await expect(
-    page.locator('.hero-copy').getByRole('heading', { name: 'allocate · 理解与交流', exact: true }),
+    page.locator('.hero-copy').getByRole('heading', { name: /上班通勤一天/ }),
   ).toBeVisible();
   await expect(page.getByText('从一句 Hello 开始', { exact: true })).toHaveCount(0);
   await page.getByRole('button', { name: '继续系统沟通课' }).click();
@@ -172,6 +176,8 @@ for (const device of [
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
     ).toBe(true);
+    if (await page.getByRole('button', { name: '高级自由表达', exact: true }).count())
+      await page.getByRole('button', { name: '高级自由表达', exact: true }).click();
     await page.getByRole('button', { name: '开始听力任务' }).click();
     await page.getByRole('radio', { name: communicationScenes[0].listening.answer }).check();
     await page.getByRole('button', { name: '检查答案' }).click();
@@ -217,6 +223,8 @@ test('using a reference retains scaffolding evidence and schedules review instea
 }) => {
   await onboard(page);
   await page.getByRole('button', { name: '继续系统沟通课' }).click();
+  if (await page.getByRole('button', { name: '高级自由表达', exact: true }).count())
+    await page.getByRole('button', { name: '高级自由表达', exact: true }).click();
   await page.getByRole('button', { name: '开始听力任务' }).click();
   await page.getByRole('radio', { name: communicationScenes[0].listening.answer }).check();
   await page.getByRole('button', { name: '检查答案' }).click();

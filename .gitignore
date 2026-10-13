@@ -5,6 +5,7 @@ test-results/
 playwright-report/
 .vercel/
 output/online/
+output/playwright/
 .env*
 !.env.example
 .DS_Store

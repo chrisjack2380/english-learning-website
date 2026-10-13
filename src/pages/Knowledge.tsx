@@ -10,12 +10,18 @@ import { knowledgePlan, knowledgeToScene, recordKnowledge } from '../knowledge-l
 import { LearningText, useKnowledge } from '../components/KnowledgeContext';
 import { Speak } from '../components/Speech';
 import type { CommunicationScene } from '../scene-schema';
+import { lifeJourneys } from '../life-content';
+import { dayKey } from '../learning';
 export function KnowledgePage({
   onOpen,
   advanced = false,
+  onJourney,
+  onBasic,
 }: {
   onOpen: (s: CommunicationScene) => void;
   advanced?: boolean;
+  onJourney: (id: string) => void;
+  onBasic: (id: string) => void;
 }) {
   const { state, update, open } = useKnowledge();
   const plan = knowledgePlan(state, advanced);
@@ -29,7 +35,7 @@ export function KnowledgePage({
   const e = knowledgeEntries.find((e) => e.id === selected)!;
   const filtered = knowledgeEntries.filter(
     (e) =>
-      (!savedOnly || state.records[e.id]?.saved) &&
+      (!savedOnly || state.records[e.id]?.saved || state.records[e.id]?.introducedAt) &&
       `${e.term} ${e.zh} ${e.tags.join(' ')}`.toLowerCase().includes(search.toLowerCase()),
   );
   function choose(id: string) {
@@ -45,7 +51,7 @@ export function KnowledgePage({
           <h1>让知识，真正用得出来。</h1>
           <p className="muted">先理解含义、搭配与边界，再把它用于有目的的交流。</p>
         </div>
-        <span className="tag">32 个原创知识单元</span>
+        <span className="tag">{knowledgeEntries.length} 个原创词语与知识单元</span>
       </div>
       <section className="card knowledge-goal">
         <label>
@@ -87,6 +93,29 @@ export function KnowledgePage({
           </div>
         </div>
       </section>
+      <section className="card word-bank-summary">
+        <h2>我的词库与复习</h2>
+        <p>
+          今天新发现{' '}
+          {
+            Object.values(state.records).filter(
+              (r) => r.introducedAt && dayKey(r.introducedAt) === dayKey(),
+            ).length
+          }{' '}
+          个 · 已收藏 {Object.values(state.records).filter((r) => r.saved).length} 个 · 已辨认{' '}
+          {Object.values(state.records).filter((r) => r.recognitions).length} 个 · 到期{' '}
+          {
+            Object.values(state.records).filter(
+              (r) => (r.introducedAt || r.understood) && r.due > 0 && r.due <= Date.now(),
+            ).length
+          }{' '}
+          个
+        </p>
+        <p className="muted small-text">
+          收藏和看过不代表掌握。辨认、应用输出分别累计；答错 10 分钟后再练，正确按 1 / 3 / 7 / 14
+          天复习，同日重复不延长间隔。
+        </p>
+      </section>
       <div className="knowledge-layout">
         <aside className="card knowledge-index">
           <label>
@@ -116,7 +145,13 @@ export function KnowledgePage({
                 <strong>{unit.term}</strong>
                 <small>
                   {unit.zh} · {unit.level}
-                  {state.records[unit.id]?.understood ? ' · 已理解' : ''}
+                  {state.records[unit.id]?.recognitions
+                    ? ' · 已辨认'
+                    : state.records[unit.id]?.understood
+                      ? ' · 已理解'
+                      : state.records[unit.id]?.introducedAt
+                        ? ' · 已发现'
+                        : ''}
                 </small>
               </button>
             ))}
@@ -204,7 +239,13 @@ export function KnowledgePage({
           <div className="row wrap">
             <button
               className="button primary"
-              onClick={() => onOpen(knowledgeToScene(e.id, advanced))}
+              onClick={() =>
+                lifeJourneys.some((j) => j.id === e.scene)
+                  ? onJourney(e.scene)
+                  : ['greeting', 'cafe', 'directions'].includes(e.scene)
+                    ? onBasic(e.scene)
+                    : onOpen(knowledgeToScene(e.id, advanced))
+              }
             >
               把 {e.term} 用到场景里
             </button>
@@ -218,7 +259,7 @@ export function KnowledgePage({
             )}
           </div>
           <p className="small-text muted">
-            理解题不代表掌握；四轮应用输出后安排 1/3/7/14
+            理解题不代表掌握；场景辨认与应用后安排 1/3/7/14
             天复习。IELTS/TOEFL/六级为原创选编方向，并非完整官方词表或考试分数预测。
           </p>
           {state.records[e.id]?.lastOutput && (

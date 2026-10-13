@@ -26,6 +26,8 @@ async function practiceScene(
   text = false,
   lessonId?: string,
 ) {
+  if (await page.getByRole('button', { name: '对话专项训练', exact: true }).count())
+    await page.getByRole('button', { name: '对话专项训练', exact: true }).click();
   const s = lessonId ? sceneForLesson(lessonId) : scenes.find((s) => s.id === id)!;
   await page.getByRole('button', { name: '准备好了，直接练习' }).click();
   for (let i = 0; i < s.turns.length; i++) {
@@ -62,7 +64,7 @@ test('first visit through a full lesson, corrected error, next lesson and reload
   await page.getByText('从零开始', { exact: true }).click();
   await page.getByRole('button', { name: '开启我的学习旅程' }).click();
   await screenshot(page, 'desktop-home');
-  await page.getByRole('button', { name: '开始今天的学习' }).click();
+  await page.getByRole('button', { name: '继续入门课程' }).click();
   await screenshot(page, 'desktop-lesson');
   await page.getByRole('button', { name: '暂停动画', exact: true }).click();
   await expect(page.locator('.world').first()).toHaveClass(/paused/);
@@ -119,6 +121,7 @@ for (const scene of scenes.filter((s) => ['greeting', 'cafe', 'directions'].incl
     await onboard(page);
     await page.getByRole('button', { name: '场景探索', exact: true }).click();
     await page.getByRole('button', { name: `进入${scene.title}`, exact: true }).click();
+    await page.getByRole('button', { name: '对话专项训练', exact: true }).click();
     await page
       .getByRole('button', {
         name: scene.id === 'cafe' ? 'Small cup' : scene.id === 'directions' ? 'Cafe' : 'Hello',
@@ -137,7 +140,7 @@ for (const scene of scenes.filter((s) => ['greeting', 'cafe', 'directions'].incl
 }
 test('all six sequential lessons execute their teaching and assessment flows', async ({ page }) => {
   await onboard(page, '从零开始');
-  await page.getByRole('button', { name: '开始今天的学习' }).click();
+  await page.getByRole('button', { name: '继续入门课程' }).click();
   for (const l of lessons.filter((l) => !l.track)) {
     await expect(page.getByRole('heading', { name: l.title, exact: true })).toBeVisible();
     await page.getByRole('button', { name: '下一步演示' }).click();
@@ -192,6 +195,7 @@ for (const device of [
     await screenshot(page, `${device.name}-animation`);
     await page.getByRole('button', { name: '场景探索', exact: true }).click();
     await page.getByRole('button', { name: '进入街角咖啡店' }).click();
+    await page.getByRole('button', { name: '对话专项训练', exact: true }).click();
     await noOverflow(page);
     await screenshot(page, `${device.name}-cafe`);
     await page.getByRole('button', { name: '观看对话示范' }).click();
@@ -246,6 +250,7 @@ test('speech synthesis and editable recognition wiring with browser capability m
   await onboard(page);
   await page.getByRole('button', { name: '场景探索', exact: true }).click();
   await page.getByRole('button', { name: '进入遇见新朋友' }).click();
+  await page.getByRole('button', { name: '对话专项训练', exact: true }).click();
   await page.getByRole('button', { name: '准备好了，直接练习' }).click();
   const dialogue = page.locator('.scene-dialogue');
   await dialogue.getByRole('button', { name: '切换慢速播放' }).click();
@@ -271,6 +276,7 @@ test('unavailable recognition falls back to text', async ({ page }) => {
   await onboard(page);
   await page.getByRole('button', { name: '场景探索', exact: true }).click();
   await page.getByRole('button', { name: '进入遇见新朋友' }).click();
+  await page.getByRole('button', { name: '对话专项训练', exact: true }).click();
   await page.getByRole('button', { name: '准备好了，直接练习' }).click();
   await page.getByRole('button', { name: '文字 / 语音' }).click();
   await page.getByRole('button', { name: '用语音回答' }).click();
@@ -326,6 +332,7 @@ test('real bundled audio decodes, advances playback, slows down and stops', asyn
   await onboard(page);
   await page.getByRole('button', { name: '场景探索', exact: true }).click();
   await page.getByRole('button', { name: '进入遇见新朋友' }).click();
+  await page.getByRole('button', { name: '对话专项训练', exact: true }).click();
   await page.getByRole('button', { name: '准备好了，直接练习' }).click();
   const dialogue = page.locator('.scene-dialogue');
   await dialogue.getByRole('button', { name: '切换慢速播放' }).click();
@@ -358,6 +365,7 @@ test('microphone denial feedback keeps text participation usable', async ({ page
   await onboard(page);
   await page.getByRole('button', { name: '场景探索', exact: true }).click();
   await page.getByRole('button', { name: '进入遇见新朋友' }).click();
+  await page.getByRole('button', { name: '对话专项训练', exact: true }).click();
   await page.getByRole('button', { name: '准备好了，直接练习' }).click();
   await page.getByRole('button', { name: '文字 / 语音' }).click();
   await page.getByRole('button', { name: '用语音回答' }).click();
@@ -385,7 +393,7 @@ test('storage write failure preserves the current session and offers backup', as
   });
   await onboard(page);
   await expect(page.getByRole('alert')).toContainText('浏览器未能保存数据');
-  await page.getByRole('button', { name: '开始今天的学习' }).click();
+  await page.getByRole('button', { name: '继续入门课程' }).click();
   await expect(page.getByRole('heading', { name: '从一句 Hello 开始', exact: true })).toBeVisible();
   await page.getByRole('button', { name: '学习设置', exact: true }).click();
   await expect(page.getByRole('button', { name: '导出学习备份' })).toBeVisible();
@@ -395,7 +403,7 @@ test('small mobile layout and keyboard navigation remain usable', async ({ page 
   await onboard(page);
   expect(await page.evaluate(() => scrollY)).toBe(0);
   await noOverflow(page);
-  await page.getByRole('button', { name: '开始今天的学习' }).focus();
+  await page.getByRole('button', { name: '继续入门课程' }).focus();
   await page.keyboard.press('Enter');
   await expect(page.getByRole('heading', { name: '从一句 Hello 开始', exact: true })).toBeVisible();
   await page.getByRole('button', { name: '下一步演示' }).focus();

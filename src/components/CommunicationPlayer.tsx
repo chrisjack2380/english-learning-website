@@ -15,8 +15,93 @@ import { Exercise } from './Exercise';
 import { ExpressionCoach } from './ExpressionCoach';
 import { Speak, VoiceInput } from './Speech';
 import { AIRolePractice } from './AIRolePractice';
-export type OutputEvidence = { role: string; prompt: string; text: string; revised: boolean };
-export function CommunicationPlayer({
+import { JourneyPlayer } from './JourneyPlayer';
+import { communicationJourney } from '../journey-adapters';
+export type OutputEvidence = {
+  role: string;
+  prompt: string;
+  text: string;
+  revised: boolean;
+  guided?: boolean;
+};
+type PlayerProps = {
+  id: CommunicationScene['id'];
+  definition?: CommunicationScene;
+  lesson?: Lesson;
+  challenge?: boolean;
+  onExit: () => void;
+  onNext?: (id: string) => void;
+  onFinish: (correct: number, mistakes: number, outputs: OutputEvidence[]) => void;
+};
+export function CommunicationPlayer(props: PlayerProps) {
+  const [advanced, setAdvanced] = useState(false);
+  const [complete, setComplete] = useState(false);
+  const scene = props.definition || communicationScenes.find((s) => s.id === props.id)!;
+  const course = props.lesson;
+  const next = course
+    ? higherLessons.filter((l) => l.track === course.track)[
+        higherLessons.filter((l) => l.track === course.track).findIndex((l) => l.id === course.id) +
+          1
+      ]
+    : undefined;
+  return advanced ? (
+    <AdvancedCommunicationPlayer {...props} />
+  ) : (
+    <>
+      {scene.source === 'ai' && (
+        <p className="note">
+          当前场景表达由你的模型改写，尚未经过教学审核。请核对事实与用法；本地课程仍可独立使用。
+        </p>
+      )}
+      <JourneyPlayer
+        journey={{
+          ...communicationJourney(
+            scene,
+            course
+              ? `course-${course.id}`
+              : scene.knowledgeIds
+                ? `knowledge-${scene.knowledgeIds[0]}`
+                : `scene-${scene.id}`,
+          ),
+          title: course?.title || (props.challenge ? `${scene.title} · C1 挑战` : scene.title),
+        }}
+        persist={!props.definition || !!scene.knowledgeIds}
+        onExit={props.onExit}
+        onAdvanced={() => setAdvanced(true)}
+        onFinish={(c, m, o) => {
+          props.onFinish(c, m, o);
+          setComplete(true);
+        }}
+      />
+      <details className="card">
+        <summary>当前场景的表达分析与完整情境</summary>
+        <p>{scene.context}</p>
+        <p>{scene.nuance}</p>
+        {scene.expressions.map((e) => (
+          <article key={e.natural}>
+            <p>
+              <LearningText text={e.basic} />
+            </p>
+            <p>
+              <LearningText text={e.natural} />
+            </p>
+            <p>
+              <LearningText text={e.fluent} />
+            </p>
+            <p>{e.explanation}</p>
+            <p>{e.usage}</p>
+          </article>
+        ))}
+      </details>
+      {complete && next && props.onNext && (
+        <button className="button primary" onClick={() => props.onNext?.(next.id)}>
+          继续：{next.title}
+        </button>
+      )}
+    </>
+  );
+}
+export function AdvancedCommunicationPlayer({
   id,
   lesson,
   challenge = false,

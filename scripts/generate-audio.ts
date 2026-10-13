@@ -26,6 +26,9 @@ const {
   upgradeExpression,
   generateScene,
   knowledgeEntries,
+  coreKnowledgeEntries,
+  lifeJourneys,
+  adultOutput,
   knowledgeToScene,
 } = (await import(pathToFileURL(join(bundleTemp, 'content.mjs')).href)) as {
   lessons: Lesson[];
@@ -35,12 +38,39 @@ const {
   upgradeExpression: typeof import('../src/communication').upgradeExpression;
   generateScene: typeof import('../src/scene-generator').generateScene;
   knowledgeEntries: typeof import('../src/knowledge').knowledgeEntries;
+  coreKnowledgeEntries: typeof import('../src/knowledge').coreKnowledgeEntries;
+  lifeJourneys: typeof import('../src/life-content').lifeJourneys;
+  adultOutput: typeof import('../src/legacy-teaching').adultOutput;
   knowledgeToScene: typeof import('../src/knowledge-learning').knowledgeToScene;
 };
 const phrases = new Set<string>();
 for (const e of knowledgeEntries) {
   phrases.add(e.term);
   phrases.add(e.example);
+}
+for (const j of lifeJourneys)
+  for (const s of j.stages) {
+    [
+      s.intro,
+      s.listening.line,
+      s.expressions[0][0],
+      s.expressions[1][0],
+      s.output.prompt,
+      s.output.answer,
+      s.output.reply,
+      `${s.cloze.before}${s.cloze.answer}${s.cloze.after}`,
+    ].forEach((p) => phrases.add(p));
+    s.output.options.forEach((p) => phrases.add(p));
+  }
+for (const s of communicationScenes) {
+  const output = adultOutput(s.id);
+  [s.listening.line, output.prompt, output.answer, output.reply, ...output.options].forEach((p) =>
+    phrases.add(p),
+  );
+  s.expressions.flatMap((e) => [e.basic, e.natural, e.fluent]).forEach((p) => phrases.add(p));
+}
+phrases.add('Thank you. Let us continue.');
+for (const e of coreKnowledgeEntries) {
   const scene = knowledgeToScene(e.id);
   for (const t of scene.turns) [t.line, t.sample, t.followUp].forEach((text) => phrases.add(text));
   for (const expr of scene.expressions)

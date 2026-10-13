@@ -3,6 +3,7 @@ import { ArrowRight, Check, RotateCcw } from 'lucide-react';
 import { lessons } from '../content';
 import { trackLessons, dueLessons, type LearningState } from '../learning';
 import { Exercise } from '../components/Exercise';
+import { WordReview } from '../components/WordReview';
 export function ReviewPanel({
   state,
   onReview,
@@ -28,6 +29,8 @@ export function ReviewPanel({
           <RotateCcw size={26} />
         </span>
       </div>
+      <WordReview />
+      <h2>系统课程复习</h2>
       {current ? (
         <div className="card exercise-card">
           <p className="muted">
@@ -49,7 +52,7 @@ export function ReviewPanel({
           <span className="round-icon sage">
             <Check size={28} />
           </span>
-          <h2>{results.length ? '本轮复习完成' : '今天没有到期的知识'}</h2>
+          <h2>{results.length ? '本轮复习完成' : '今天没有到期的课程'}</h2>
           <p>
             {results.length
               ? `${results.filter(Boolean).length} / ${results.length} 个知识点首次回忆正确。${results.some((x) => !x) ? '答错的知识已安排 10 分钟后再练。' : '正确知识的复习间隔已延长。'}`

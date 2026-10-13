@@ -1,4 +1,9 @@
 /** Original teaching units; reference links describe frameworks, never reproduced textbook material. */
+import { lifeJourneys } from './life-content';
+import { adultVocabulary, adultTranslations } from './legacy-teaching';
+import { communicationScenes } from './advanced-content';
+import { beginnerVocabulary } from './beginner-teaching';
+import basicExpressions from './basic-expressions.json' with { type: 'json' };
 export type LearningGoal = 'ielts' | 'toefl' | 'business' | 'work' | 'daily';
 export const goalLabels: Record<LearningGoal, string> = {
   ielts: 'IELTS',
@@ -12,7 +17,7 @@ export type KnowledgeEntry = {
   term: string;
   aliases: string[];
   kind: 'word' | 'phrase' | 'grammar';
-  level: 'B1' | 'B2' | 'C1';
+  level: 'A1' | 'A2' | 'B1' | 'B2' | 'C1';
   tags: string[];
   goals: LearningGoal[];
   zh: string;
@@ -491,7 +496,7 @@ const seeds: Seed[] = [
     'presentation',
   ],
 ];
-export const knowledgeEntries: KnowledgeEntry[] = seeds.map(
+export const coreKnowledgeEntries: KnowledgeEntry[] = seeds.map(
   ([term, zh, en, ipa, collocations, example, translation, usage, contrast, domain, scene]) => ({
     id: term.replaceAll(' ', '-'),
     term,
@@ -550,12 +555,230 @@ export const knowledgeEntries: KnowledgeEntry[] = seeds.map(
     },
   }),
 );
+export const wordId = (term: string) =>
+  term.toLowerCase() === 'check-in'
+    ? 'brief-check-in'
+    : term
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '');
+const lifeEntries: KnowledgeEntry[] = lifeJourneys.flatMap((j) =>
+  j.stages.flatMap((s) => [
+    ...s.words.map(
+      ([term, zh, en, example, translation, collocations]): KnowledgeEntry => ({
+        id: wordId(term),
+        term,
+        zh,
+        en,
+        example,
+        translation,
+        collocations: collocations.split(';'),
+        aliases: [],
+        kind: term.includes(' ') ? 'phrase' : 'word',
+        level: j.id === 'office-day' ? 'B2' : 'B1',
+        tags: ['生活过程', j.title],
+        goals: j.id === 'office-day' ? ['work', 'business'] : ['daily', 'work'],
+        ipa: '',
+        usage: `${s.title}：${en}。`,
+        contrast: '按当前情境理解；简单的同义表达也可以准确传达意思。',
+        scene: j.id,
+        domain: 'daily',
+        source: 'original',
+        question: {
+          prompt: `在这个场景中，${term} 表示什么？`,
+          options: [
+            zh,
+            ...s.words
+              .filter((w) => w[0] !== term)
+              .slice(0, 2)
+              .map((w) => w[1]),
+          ],
+          answer: zh,
+          why: translation,
+        },
+      }),
+    ),
+    ...s.expressions.map(
+      ([term, zh, explanation]): KnowledgeEntry => ({
+        id: wordId(term),
+        term,
+        zh,
+        en: 'An expression used to carry out the communication task shown in the example.',
+        example: term,
+        translation: zh,
+        collocations: s.words.slice(0, 2).map((w) => w[0]),
+        aliases: [],
+        kind: 'phrase',
+        level: 'B1',
+        tags: ['真实表达', j.title],
+        goals: j.id === 'office-day' ? ['work', 'business'] : ['daily', 'work'],
+        ipa: '',
+        usage: explanation,
+        contrast: explanation,
+        scene: j.id,
+        domain: 'daily',
+        source: 'original',
+        question: {
+          prompt: `这句话在${s.title}中想表达什么？`,
+          options: [
+            zh,
+            ...s.expressions.filter((e) => e[0] !== term).map((e) => e[1]),
+            '拒绝参与当前活动',
+          ],
+          answer: zh,
+          why: explanation,
+        },
+      }),
+    ),
+  ]),
+);
+const legacyEntries: KnowledgeEntry[] = [
+  ...adultVocabulary.map(
+    ([term, zh, en, example, translation, collocations]): KnowledgeEntry => ({
+      id: wordId(term),
+      term,
+      zh,
+      en,
+      example,
+      translation,
+      collocations: collocations.split(';'),
+      aliases: [],
+      kind: term.includes(' ') ? 'phrase' : 'word',
+      level: 'B2',
+      tags: ['职场与社交'],
+      goals: ['business', 'work'],
+      ipa: '',
+      usage: en,
+      contrast: '依据场景事实使用，不为了复杂措辞增加未经核实的信息。',
+      scene:
+        communicationScenes.find((s) => s.vocabulary.some((v) => v.en === term))?.id || 'meeting',
+      domain: 'business',
+      source: 'original',
+      question: {
+        prompt: `这里的 ${term} 表示什么？`,
+        options: [zh, '去机场办理登机', '选择水果的成熟程度'],
+        answer: zh,
+        why: translation,
+      },
+    }),
+  ),
+  ...communicationScenes.flatMap((s) =>
+    s.expressions.slice(0, 2).map((e) => ({
+      id: wordId(e.natural),
+      term: e.natural,
+      zh: adultTranslations[e.natural] || e.usage,
+      en: 'An expression used for the situation described in the usage note.',
+      example: e.natural,
+      translation: adultTranslations[e.natural] || e.usage,
+      collocations: s.vocabulary.map((v) => v.en),
+      aliases: [],
+      kind: 'phrase' as const,
+      level: 'B2' as const,
+      tags: [s.title, '自然表达'],
+      goals: ['work', 'business'] as LearningGoal[],
+      ipa: '',
+      usage: e.usage,
+      contrast: e.explanation,
+      scene: s.id,
+      domain: 'business' as const,
+      source: 'original',
+      question: {
+        prompt: '这句表达想传递什么？',
+        options: [adultTranslations[e.natural] || e.usage, '要求购买一张机票', '询问水果价格'],
+        answer: adultTranslations[e.natural] || e.usage,
+        why: e.explanation,
+      },
+    })),
+  ),
+];
+const basicEntries: KnowledgeEntry[] = [
+  ...Object.entries(beginnerVocabulary).flatMap(([scene, words]) =>
+    words.map(
+      ([term, zh, en, example, translation, collocations]): KnowledgeEntry => ({
+        id: wordId(term),
+        term,
+        zh,
+        en,
+        example,
+        translation,
+        collocations: collocations.split(';'),
+        aliases: [],
+        kind: term.includes(' ') ? 'phrase' : 'word',
+        level: 'A1',
+        tags: ['入门', scene],
+        goals: ['daily', 'work'],
+        ipa: '',
+        usage: translation,
+        contrast: '基础表达可以自然且准确；需结合上下文使用。',
+        scene,
+        domain: 'daily',
+        source: 'original',
+        question: {
+          prompt: `这里的 ${term} 表示什么？`,
+          options: [
+            zh,
+            ...words
+              .filter((w) => w[0] !== term)
+              .slice(0, 2)
+              .map((w) => w[1]),
+          ],
+          answer: zh,
+          why: translation,
+        },
+      }),
+    ),
+  ),
+  ...basicExpressions.map((e) => ({
+    id: wordId(e.en),
+    term: e.en,
+    zh: e.zh,
+    en: 'A basic expression with the meaning shown by its Chinese explanation.',
+    example: e.en,
+    translation: e.zh,
+    collocations: [],
+    aliases: [],
+    kind: 'phrase' as const,
+    level: 'A1' as const,
+    tags: ['入门表达'],
+    goals: ['daily', 'work'] as LearningGoal[],
+    ipa: '',
+    usage: e.zh,
+    contrast: '简单表达同样可以完成任务。',
+    scene: 'greeting',
+    domain: 'daily' as const,
+    source: 'original',
+    question: {
+      prompt: '这句表达是什么意思？',
+      options: [
+        e.zh,
+        ...basicExpressions
+          .filter((x) => x.zh !== e.zh)
+          .slice(0, 2)
+          .map((x) => x.zh),
+      ],
+      answer: e.zh,
+      why: e.zh,
+    },
+  })),
+];
+export const knowledgeEntries: KnowledgeEntry[] = [
+  ...new Map(
+    [...coreKnowledgeEntries, ...lifeEntries, ...legacyEntries, ...basicEntries].map((e) => [
+      e.id,
+      e,
+    ]),
+  ).values(),
+].map((e) => coreKnowledgeEntries.find((c) => c.id === e.id) || e);
 export function lookupKnowledge(text: string) {
   const normalized = text
     .toLowerCase()
     .trim()
     .replace(/[.,!?;:]+$/, '');
-  return knowledgeEntries.find((e) => e.term === normalized || e.aliases.includes(normalized));
+  return knowledgeEntries.find(
+    (e) =>
+      e.term.toLowerCase().replace(/[.,!?;:]+$/, '') === normalized ||
+      e.aliases.includes(normalized),
+  );
 }
 export function relatedKnowledge(text: string) {
   const lowered = text.toLowerCase();

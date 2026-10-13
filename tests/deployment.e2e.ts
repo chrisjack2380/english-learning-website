@@ -4,7 +4,7 @@ import clips from '../src/audio-manifest.json' with { type: 'json' };
 test('all bundled audio resources return real audio instead of an HTML fallback', async ({
   request,
 }) => {
-  test.setTimeout(180000);
+  test.setTimeout(300000);
   const files = [...new Set(Object.values(clips))];
   for (let index = 0; index < files.length; index += 4) {
     await Promise.all(

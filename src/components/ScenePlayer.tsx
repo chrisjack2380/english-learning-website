@@ -13,7 +13,39 @@ import { matches, scenes, sceneForLesson, lessons, type SceneId } from '../conte
 import { VisualLesson, World } from './World';
 import { Speak, VoiceInput } from './Speech';
 import { LearningText } from './KnowledgeContext';
-export function ScenePlayer({
+import { JourneyPlayer } from './JourneyPlayer';
+import { basicJourney } from '../journey-adapters';
+type SceneProps = {
+  id: SceneId;
+  embedded?: boolean;
+  lessonId?: string;
+  onFinish: (mistakes: number) => void;
+  onExit: () => void;
+};
+export function ScenePlayer(props: SceneProps) {
+  const [advanced, setAdvanced] = useState(false);
+  const scene = props.lessonId
+    ? sceneForLesson(props.lessonId)
+    : scenes.find((s) => s.id === props.id)!;
+  return advanced ? (
+    <DialogueScenePlayer {...props} />
+  ) : (
+    <>
+      <button className="text-button" onClick={() => setAdvanced(true)}>
+        对话专项训练
+      </button>
+      <JourneyPlayer
+        journey={basicJourney(
+          scene,
+          props.lessonId ? `course-${props.lessonId}` : `scene-${props.id}`,
+        )}
+        onExit={props.onExit}
+        onFinish={(_c, m) => props.onFinish(m)}
+      />
+    </>
+  );
+}
+export function DialogueScenePlayer({
   id,
   embedded = false,
   lessonId,

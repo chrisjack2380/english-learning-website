@@ -42,6 +42,8 @@ async function saveModel(page: Page, encrypted = false) {
   await expect(page.getByLabel('个人 API Key', { exact: true })).toHaveValue('');
 }
 async function reachOutput(page: Page, scene = generated, advanced = true) {
+  if (await page.getByRole('button', { name: '高级自由表达', exact: true }).count())
+    await page.getByRole('button', { name: '高级自由表达', exact: true }).click();
   await page.getByRole('button', { name: '开始听力任务' }).click();
   await page.getByRole('radio', { name: scene.listening.answer, exact: true }).check();
   await page.getByRole('button', { name: '检查答案' }).click();
@@ -70,6 +72,7 @@ test('offline intent generation produces a full C1 mission, saves custom library
   await page.getByRole('button', { name: '保存到我的场景库' }).click();
   await screenshot(page, 'generated');
   await page.getByRole('button', { name: '开始生成的训练' }).click();
+  await page.getByRole('button', { name: '高级自由表达', exact: true }).click();
   await expect(
     page.getByRole('heading', { name: generated.title + ' · C1 挑战', exact: true }),
   ).toBeVisible();

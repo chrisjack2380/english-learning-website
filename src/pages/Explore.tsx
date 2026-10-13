@@ -7,14 +7,17 @@ import { LevelSelector } from '../components/LevelSelector';
 import { ExpressionCoach } from '../components/ExpressionCoach';
 import type { LearningState, Profile } from '../learning';
 import { SceneCards } from '../components/SceneCards';
+import { JourneyCatalog } from '../components/JourneyCatalog';
 export function ExplorePage({
   state,
   setSceneId,
   onLevel,
   onCustom,
+  onJourney,
 }: {
   state: LearningState;
   onCustom: (scene: CommunicationScene) => void;
+  onJourney: (id: string) => void;
   setSceneId: (id: SceneId) => void;
   onLevel: (level: Profile['level']) => void;
 }) {
@@ -26,13 +29,19 @@ export function ExplorePage({
         <div>
           <p className="eyebrow">A WORLD TO PRACTICE IN</p>
           <h1>在这里，英语有了生活。</h1>
-          <p className="muted">选择一个场景，听示范、学表达，再亲自完成沟通任务。</p>
+          <p className="muted">从一个完整生活流程开始：看见英语、理解表达、听懂，再试着使用。</p>
         </div>
         <span className="round-icon peach">
           <Compass size={27} />
         </span>
       </div>
       <LevelSelector value={state.profile!.level} onChange={onLevel} />
+      <h2>连续的生活过程</h2>
+      <p className="muted">
+        每个流程分五段，可按自己的节奏继续。先学词语；复杂自由回答在高级模式中选择。
+      </p>
+      <JourneyCatalog onOpen={onJourney} records={state.journeys} />
+      <h2>职场、社交与专项场景</h2>
       {state.profile!.level !== 'beginner' && (
         <>
           <SceneGenerator

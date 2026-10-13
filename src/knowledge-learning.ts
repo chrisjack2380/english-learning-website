@@ -1,4 +1,4 @@
-import { knowledgeEntries, type LearningGoal } from './knowledge';
+import { knowledgeEntries, coreKnowledgeEntries, type LearningGoal } from './knowledge';
 import { generateScene } from './scene-generator';
 import type { CommunicationScene } from './scene-schema';
 export type KnowledgeRecord = {
@@ -8,6 +8,10 @@ export type KnowledgeRecord = {
   due: number;
   interval: number;
   lastOutput: string;
+  introducedAt?: number;
+  recognizedAt?: number;
+  recognitions?: number;
+  lapses?: number;
 };
 export type KnowledgeState = {
   goal: LearningGoal;
@@ -49,6 +53,21 @@ export function parseKnowledge(value: unknown): KnowledgeState {
       due: r.due,
       interval: r.interval,
       lastOutput: r.lastOutput,
+      ...Object.fromEntries(
+        ['introducedAt', 'recognizedAt', 'recognitions', 'lapses']
+          .filter((k) => r[k as 'introducedAt'] !== undefined)
+          .map((k) => {
+            const n = r[k as 'introducedAt'];
+            if (
+              typeof n !== 'number' ||
+              !Number.isFinite(n) ||
+              n < 0 ||
+              (['recognitions', 'lapses'].includes(k) && (!Number.isInteger(n) || n > 100000))
+            )
+              throw new Error('词语学习证据无效');
+            return [k, n];
+          }),
+      ),
     };
   }
   const words = v.words === undefined ? undefined : v.words;
@@ -76,7 +95,15 @@ export function parseKnowledge(value: unknown): KnowledgeState {
 export function recordKnowledge(
   s: KnowledgeState,
   id: string,
-  action: 'save' | 'remove' | 'understand' | 'practice' | 'again',
+  action:
+    | 'save'
+    | 'remove'
+    | 'understand'
+    | 'practice'
+    | 'again'
+    | 'discover'
+    | 'recognize'
+    | 'miss',
   output = '',
   now = Date.now(),
 ): KnowledgeState {
@@ -90,8 +117,28 @@ export function recordKnowledge(
     lastOutput: '',
   };
   const next = { ...r };
+  if (action === 'discover' && !next.introducedAt) next.introducedAt = now;
+  if (action === 'recognize') {
+    next.understood = true;
+    next.introducedAt ||= now;
+    next.recognitions = (r.recognitions || 0) + 1;
+    if (!r.recognizedAt || r.due <= now) {
+      next.interval = r.interval === 0 ? 1 : r.interval === 1 ? 3 : r.interval === 3 ? 7 : 14;
+      next.due = now + next.interval * 86400000;
+    }
+    next.recognizedAt = now;
+  }
+  if (action === 'miss') {
+    next.introducedAt ||= now;
+    next.lapses = (r.lapses || 0) + 1;
+    next.interval = 0;
+    next.due = now + 10 * 60000;
+    // Prevent immediate make-up attempts from erasing the short review.
+    next.recognizedAt = now;
+  }
   if (action === 'save' || action === 'remove') next.saved = action === 'save';
   if (action === 'understand') {
+    next.introducedAt ||= now;
     next.understood = true;
     next.due = now;
   }
@@ -100,8 +147,10 @@ export function recordKnowledge(
     next.understood = true;
     next.practices++;
     next.lastOutput = output.slice(0, 1500);
-    next.interval = r.interval === 0 ? 1 : r.interval === 1 ? 3 : r.interval === 3 ? 7 : 14;
-    next.due = now + next.interval * 86400000;
+    if ((!r.practices && !r.recognizedAt) || r.due <= now) {
+      next.interval = r.interval === 0 ? 1 : r.interval === 1 ? 3 : r.interval === 3 ? 7 : 14;
+      next.due = now + next.interval * 86400000;
+    }
   }
   if (action === 'again') {
     next.interval = 0;
@@ -110,7 +159,7 @@ export function recordKnowledge(
   return { ...s, records: { ...s.records, [id]: next } };
 }
 export function knowledgePlan(s: KnowledgeState, advanced = false, now = Date.now()) {
-  const pool = knowledgeEntries.filter((e) => e.goals.includes(s.goal));
+  const pool = coreKnowledgeEntries.filter((e) => e.goals.includes(s.goal));
   const due = pool.filter((e) => s.records[e.id]?.understood && s.records[e.id].due <= now);
   const newUnits = pool
     .filter((e) => !s.records[e.id]?.understood)
@@ -129,7 +178,17 @@ export function knowledgeToScene(id: string, advanced = false): CommunicationSce
   const housing = e.scene === 'housing';
   const base = generateScene({
     request: `练习 ${e.term}：${e.zh}`,
-    template: e.scene,
+    template: [
+      'commute',
+      'groceries',
+      'dining',
+      'airport',
+      'hotel',
+      'healthcare',
+      'office-day',
+    ].includes(e.scene)
+      ? 'meeting'
+      : e.scene,
     level: advanced ? 'C1' : 'B2',
     product: '',
     facts: '',

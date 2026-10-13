@@ -2,6 +2,7 @@ import { ArrowDownToLine, ArrowRight } from 'lucide-react';
 import { lessons, scenes } from '../content';
 import { trackLessons, activeTrack, nextLesson, type LearningState } from '../learning';
 import type { Page } from '../types';
+import { lifeJourneys } from '../life-content';
 export function ProgressPage({
   state,
   navigate,
@@ -29,6 +30,22 @@ export function ProgressPage({
           导出记录
         </button>
       </div>
+      <section className="card">
+        <h2>生活过程学习记录</h2>
+        <p>按实际辨认、听力与回应记录；看过环境不计完成。</p>
+        {lifeJourneys.map((j) => (
+          <p key={j.id}>
+            <strong>{j.title}</strong> ·{' '}
+            {j.stages.filter((s) => state.journeys?.[j.id]?.stages[s.id]?.completed).length} / 5 段
+            ·{' '}
+            {Object.values(state.journeys?.[j.id]?.stages || {}).reduce(
+              (n, p) => n + p.mistakes,
+              0,
+            )}{' '}
+            次调整
+          </p>
+        ))}
+      </section>
       <div className="progress-summary card">
         <div
           className="progress-ring"
@@ -120,6 +137,9 @@ export function ProgressPage({
                 </summary>
                 {o.turns.map((t, j) => (
                   <div key={j}>
+                    {t.guided && (
+                      <p className="muted small-text">有支架的回应或跟读，未计作独立口语输出。</p>
+                    )}
                     <p className="muted">{t.prompt}</p>
                     <p lang="en">{t.text}</p>
                     <small>{t.revised ? '使用提示或修改后输出' : '首次输出通过任务检查'}</small>

@@ -7,17 +7,22 @@ export function communicationFeedback(text: string, context = '', knowledgeIds: 
     : relatedKnowledge(text);
   const result = upgradeExpression(text);
   const ongoing = /\bI developed products for (\w+|\d+) years[.!]?$/i.exec(text.trim());
+  const attended = /^I joined a meeting yesterday[.!]?$/i.test(text.trim());
   return {
     issues,
     correctness: issues.length
       ? '发现可确认的用法问题，请先修改。'
+      : attended
+        ? '意思可以理解：你昨天参加了会议。'
+        : ongoing
+          ? '需先确认：这段经历已结束，还是现在仍在继续？'
+          : '未发现当前规则覆盖的错误；完整语义与语法仍需人工或模型核对。',
+    naturalness: attended
+      ? 'I attended a meeting yesterday. 适合概述出席；joined 也可自然地描述加入已开始或在线的会议。'
       : ongoing
-        ? '需先确认：这段经历已结束，还是现在仍在继续？'
-        : '未发现当前规则覆盖的错误；完整语义与语法仍需人工或模型核对。',
-    naturalness: ongoing
-      ? `如果仍在继续：I have been developing products for ${ongoing[1]} years. 如果已经结束，原过去时可能合适。`
-      : result.suggestion?.natural ||
-        '原句可能已经自然。请检查搭配、指代和信息顺序；没有依据时不强行改写。',
+        ? `如果仍在继续：I have been developing products for ${ongoing[1]} years. 如果已经结束，原过去时可能合适。`
+        : result.suggestion?.natural ||
+          '原句可能已经自然。请检查搭配、指代和信息顺序；没有依据时不强行改写。',
     context: /\b(you are wrong|stupid|guarantee everything)\b/i.test(text)
       ? '当前措辞可能损害合作或超出证据；针对具体观点说明理由，避免攻击人或保证未知结果。'
       : context
@@ -28,11 +33,13 @@ export function communicationFeedback(text: string, context = '', knowledgeIds: 
       : result.suggestion?.advanced ||
         entries[0]?.example ||
         '可用观点—理由—限制—下一步组织信息；只添加你确实知道的内容。',
-    why: ongoing
-      ? 'for 表时长，但时态由是否仍持续决定。'
-      : result.suggestion?.why ||
-        entries[0]?.contrast ||
-        '自然度与语境不能仅凭出现几个词或句子长度推断。',
+    why: attended
+      ? 'attend 强调出席活动；join 强调加入。原句不应一律被标错。'
+      : ongoing
+        ? 'for 表时长，但时态由是否仍持续决定。'
+        : result.suggestion?.why ||
+          entries[0]?.contrast ||
+          '自然度与语境不能仅凭出现几个词或句子长度推断。',
     canReflect:
       /[a-z]{2}/i.test(text) &&
       text.trim().length >= 4 &&

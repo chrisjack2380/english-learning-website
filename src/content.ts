@@ -4,6 +4,9 @@ import { taskEvidence, type TaskSpec } from './communication';
 export type SceneId = string;
 export { generateScene } from './scene-generator';
 export { knowledgeEntries } from './knowledge';
+export { coreKnowledgeEntries } from './knowledge';
+export { lifeJourneys } from './life-content';
+export { adultOutput } from './legacy-teaching';
 export { knowledgeToScene } from './knowledge-learning';
 export type Question = {
   selfReview?: boolean;
