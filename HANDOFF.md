@@ -15,9 +15,15 @@
 
 ## 当前验证状态
 
-54项单元与安全扫描通过；70项完整生产子路径浏览器套件通过（2.5分钟），最终受影响的25项词库/生活/生成/首次成绩流程复测通过（1.3分钟）。咖啡短回应修复的4项基础/引导/连续课程复测也通过。构建、格式、diff检查通过。当前进入commit/push与Pages发布；实际HTTPS尚待验收，不能将本地通过冒充线上通过。发布后更新源码提交/run/产物与实际结果。
+54项单元与安全扫描通过；本地70项完整生产子路径浏览器通过（2.5分钟），最终受影响的25项复测（1.3分钟）和咖啡修复4项复测和图片修复5项复测通过。最终GitHub生产70项（4.2分钟）与实际公开HTTPS同一70项（4.3分钟）全部通过，包含1394段音频。类型构建、格式、diff检查通过。
 
-实际本地新截图在output/playwright/journey-\*；Git只保留文档引用的精选截图，其余完整报告/三端状态保留Actions产物。截图目录忽略新生成文件，已有历史图不自动替换；新增精选图用git add -f。
+已部署源码 `1edff3901b64ee71ed76207373cea9c581a815ef`：[Pages run38409978927](https://github.com/chrisjack2380/english-learning-website/actions/runs/38409978927) build/deploy/verify-online全成功；[CI38409991470](https://github.com/chrisjack2380/english-learning-website/actions/runs/38409991470)成功。部署2026-10-13 14:07:56–14:08:02 UTC，线上验收14:08:44–14:13:01 UTC（北京时间22:08–22:13）。公开页面、index-Bt8x02ik.js、index-BO43nWgD.css、life-atlas.png及WordNet JSON均200且字节与验收构建一致。
+
+实际HTTPS证据 pages-online-evidence artifact11822155872（62114007字节，96张截图）已下载并复查；生产证据11820747976，发布产物11820707941。本轮全量语音未发生临时错误重试。上一修复run的1次HTTP503曾按现有有界重试成功，未删检查/绕过TLS。六张文档精选图已替换为该run真实线上截图，不能误标为仅本地。
+
+代码已提交并推送（9644641主重构、4d5e2db咖啡语义修复、1edff39图片优先/加载提示/完整截图修复）；最终文档/证据提交不重发应用，部署源码以以上sha为准。PR仍OPEN待用户合并。
+
+Git仅保留文档引用的六张真实线上精选图（目录output/playwright，来源为上述HTTPS run）；其余96张完整报告/三端状态保留Actions产物。新生成截图默认忽略，已有历史图不自动替换；新增精选图用git add -f。
 
 ## 操作与下一步
 
@@ -27,7 +33,7 @@ Node24/npm、现有React19/TypeScript/Vite/Vitest/Playwright/Lucide，无新增�
 
 分支feat/english-learning-mvp，PR #1 https://github.com/chrisjack2380/english-learning-website/pull/1 OPEN，等待用户合并。网站固定 https://chrisjack2380.github.io/english-learning-website/ 。仓库公开，Pages Source=Actions，github-pages允许main与feat分支，无需重问设置/Token。原生Git及无显式Authorization的受支持HTTPS使用平台注入身份；旧CLI显式凭据401不代表全部权限丢失。合并后移除临时feat部署触发。
 
-当前待办：commit/push → 更新PR → Pages build/deploy/verify-online → 更新本文件/TESTING的真实提交和run证据 → 文档commit/push。不能擅自合并PR。
+本阶段核心与线上验收已完成，后续入口是下面列出的扩展。PR由用户决定合并；不得自动合并或强推。
 
 后续：更多原创/合法领域知识、多义词中文覆盖与上下文消歧、真人多口音音频、更多动画、真实麦克风和跨浏览器、可信后端与个性化长期能力路线。当前开放全文语义、发音、模型质量与实机触屏未认证；具体限制见TESTING与AI文档。
 
