@@ -13,6 +13,20 @@ async function onboard(page: Page) {
   await page.getByRole('button', { name: '开启我的学习旅程' }).click();
 }
 async function shot(page: Page, name: string) {
+  // Full-page captures include cards below the viewport: load their shared atlas first.
+  const pictures = page.locator('.journey-world img');
+  await pictures.evaluateAll((imgs) =>
+    imgs.forEach((img) => ((img as HTMLImageElement).loading = 'eager')),
+  );
+  await expect
+    .poll(() =>
+      pictures.evaluateAll((imgs) =>
+        imgs.every(
+          (img) => (img as HTMLImageElement).complete && (img as HTMLImageElement).naturalWidth > 0,
+        ),
+      ),
+    )
+    .toBe(true);
   await page.screenshot({
     path: `output/${process.env.SITE_URL ? 'online' : 'playwright'}/journey-${name}.png`,
     fullPage: !(await page.getByRole('dialog').count()),

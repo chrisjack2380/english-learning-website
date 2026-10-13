@@ -79,7 +79,7 @@ export function HomePage({
           <p className="hero-meta">观察 · 学词 · 听懂 · 模仿 · 简单回应</p>
         </div>
         <div className="hero-art life-hero-art">
-          <JourneyWorld image={segment.image} place={segment.place} />
+          <JourneyWorld image={segment.image} place={segment.place} priority />
           <span className="floating-caption">Small steps. Real life.</span>
         </div>
       </section>

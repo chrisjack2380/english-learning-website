@@ -3994,6 +3994,15 @@ select {
   color: #fff;
   font-size: 14px;
 }
+.image-loading-note {
+  position: absolute;
+  top: 40%;
+  left: 18px;
+  right: 18px;
+  text-align: center;
+  color: #fff;
+  font-size: 13px;
+}
 .word-bank-summary {
   margin: 20px 0;
 }

@@ -25,12 +25,15 @@ export function JourneyWorld({
   image,
   place,
   children,
+  priority = false,
 }: {
   image: number;
   place: string;
   children?: React.ReactNode;
+  priority?: boolean;
 }) {
   const [failed, setFailed] = useState(false);
+  const [loaded, setLoaded] = useState(false);
   const [paused, setPaused] = useState(false);
   return (
     <div className={`journey-world ${paused ? 'still' : ''} ${failed ? 'image-fallback' : ''}`}>
@@ -38,12 +41,18 @@ export function JourneyWorld({
         <img
           src={`${import.meta.env.BASE_URL}visuals/life-atlas.png`}
           alt={`${place} · 原创合成环境图片`}
-          loading="lazy"
+          loading={priority ? 'eager' : 'lazy'}
+          onLoad={() => setLoaded(true)}
           onError={() => setFailed(true)}
           style={{ left: `-${(image % 3) * 100}%`, top: `-${Math.floor(image / 3) * 100}%` }}
         />
       )}
       <span className="journey-place">{place}</span>
+      {!failed && !loaded && (
+        <p className="image-loading-note" role="status">
+          正在加载场景图片…
+        </p>
+      )}
       <button
         className="world-pause icon-button"
         type="button"
@@ -248,7 +257,7 @@ export function JourneyPlayer({
       </ol>
       <div className="journey-layout">
         <aside className="journey-environment">
-          <JourneyWorld image={stage.image} place={stage.place}>
+          <JourneyWorld image={stage.image} place={stage.place} priority>
             <div className="world-word-elements">
               {stage.words.map(([term]) => (
                 <button
