@@ -1,0 +1,94 @@
+# 教学与工具调研记录
+
+调研日期：2026-10-08。以下区分已联网读取的证据、已有教学知识以及被网络策略阻挡的资料，避免把搜索结果描述成已阅读的文献。
+
+## 教学选择
+
+采用能力导向、任务驱动的入门路径：先听懂并完成一小段交流，再用句型和词汇支撑具体任务。示范 → 支架练习 → 应用 → 主动回忆循环覆盖词汇、语法、听说和短句阅读。用 SVG 操作呈现数量、指代和空间关系，减少抽象中文语法术语。文字输出用于检查能否产生表达，正确率只是当前练习证据。
+
+CEFR 用作能力描述参考，而非把六课或选择题分数映射成等级证书。Pre-A1 阶段以图片/中文支架下的短语和程式化问候起步，后半程引入点餐和方向。单词在词表中的 A1 标签并不意味着接触它之前必须取得 A1 等级。
+
+已通过 GitHub 实际读取：
+
+- [Open Language Profiles / CEFR-J](https://github.com/openlanguageprofiles/olp-en-cefrj)：README 以及 vocabulary v1.5、grammar 20180315 CSV。coffee/cup/dollar/name/nice/table/under 的常见用法标 A1，straight 的副词用法标 A1；基础介词和肯定祈使句列为 CEFR-J A1.1。框架间标注有差异，所以不机械按单词等级安排课序。仅用于内容交叉检查，未复制整个数据集。
+- 引用：The CEFR-J Wordlist Version 1.5, compiled by Yukio Tono, Tokyo University of Foreign Studies；The CEFR-J Grammar Profile Version 20180315。数据版权属 TUFS Tono Laboratory，仓库声明研究/商业免费使用且须正确引用。C1/C2 的 Octanove 数据采用 CC BY-SA 4.0，本项目没有使用。
+- [FSRS4Anki](https://github.com/open-spaced-repetition/fsrs4anki)：实际读取 README 与仓库元数据（MIT，2026-08-14 有更新）。了解其基于历史的调度/优化分离；MVP 没有引入优化器或声称使用 FSRS。采用可解释的固定间隔 1/3/7/14 天，错误立即/10分钟复习，未来有足够历史再评估算法。
+
+计划参考但本次请求被代理 403 阻挡，**未读取全文**：
+
+- [Council of Europe CEFR descriptors](https://www.coe.int/en/web/common-european-framework-reference-languages/cefr-descriptors)
+- [CEFR Companion Volume PDF](https://rm.coe.int/cefr-companion-volume-with-new-descriptors-2018/1680787989)
+- [British Council: A task-based approach](https://www.teachingenglish.org.uk/professional-development/teachers/knowing-subject/articles/task-based-approach)
+
+上述概念设计依据通用教学知识和已读 CEFR-J 校验；不能视为完成官方 CEFR 全文复核。所需域名已保存到环境草稿，运行时权限与保存的草稿是不同状态。
+
+## Skills 与开源工具筛选
+
+- 已安装技能仅 `cloud-environment-onboarding:setup`，实际用于环境检查和可复用安装/启动配置。没有技能委派或并行代理。
+- [OpenAI skills](https://github.com/openai/skills)：实际读取 README、Playwright SKILL.md、包装脚本和 LICENSE.txt；README 已明确废弃并指向 plugins。包装脚本会执行 `npx --yes --package @playwright/cli`。来源官方、该技能 Apache-2.0，但无需给已有浏览器再添加旧 CLI，所以没有安装或执行该包装器。
+- [OpenAI plugins](https://github.com/openai/plugins)：通过现有 GitHub 认证读取 README、仓库元数据和 build-web-apps 技能目录（2026-10-08 有更新）；阅读 `frontend-testing-debugging/SKILL.md`，参考真实启动、状态断言、控制台和截图循环。当前没有 Browser 插件，用项目自带 Playwright；没有安装该插件、复制技能文件或执行其脚本。插件仓库没有统一的 GitHub 许可证标识，因此不将其代码作为依赖分发。
+- [Microsoft Playwright](https://github.com/microsoft/playwright)：实际读取官方 README、Apache-2.0 许可证与维护元数据。选择直接使用官方测试库和已安装 Chromium，便于保留可重复的项目测试。
+- GitHub 搜索了 CEFR descriptors 和 CEFR English language。部分示例题库无许可证且不能支撑本项目完整教学闭环，未使用。没有下载来历不明的安装脚本。
+- 不引入 Three.js/大型 3D 角色包：本阶段数量、位置、指代及街区路径用原创 2D SVG 更清晰，体积小并兼容移动设备。
+
+## 实际依赖与许可
+
+安装前通过 npm metadata 检查版本、许可证及 Vite 的 Node 要求；锁文件记录实际版本和完整性哈希。保持默认 TLS 与依赖完整性校验。
+
+| 工具                      | 用途                    | 许可证                       |
+| ------------------------- | ----------------------- | ---------------------------- |
+| React / React DOM 19.3.0  | 页面及交互状态          | MIT                          |
+| Vite 8.3.4 / React plugin | 本地开发和构建          | MIT                          |
+| TypeScript 5.9 系列       | 严格类型检查            | Apache-2.0                   |
+| lucide-react 1.53.0       | 一致的线性图标          | ISC                          |
+| Vitest 4 系列             | 纯规则与内容校验        | MIT                          |
+| Playwright Test 1.64.0    | Chromium 用户流程与截图 | Apache-2.0                   |
+| Prettier 3.8 系列         | 可维护格式与检查        | MIT                          |
+| eSpeak NG 1.52.0+dfsg-5   | 开发期生成备用音频      | GPL-3.0-or-later             |
+| FFmpeg / libmp3lame       | 开发期压缩 MP3          | 取决于构建配置；未分发二进制 |
+
+eSpeak 来源 [espeak-ng/espeak-ng](https://github.com/espeak-ng/espeak-ng)（读取 README、COPYING 与源码维护状态；2026-09-22 有提交）。实际生成使用 Debian trixie 签名索引中的官方包及其依赖，解包到可写临时目录运行，无 sudo、无全局环境改动。网站只提供原创句子的音频，未捆绑上述合成/转码工具。
+
+系统字体，不请求第三方字体/CDN/图片。SVG 角色、地图、咖啡店及教学图均为本项目原创。基础学习不调用任何付费 API，不含密钥。
+
+## GitHub Pages 发布补充
+
+按用户选择改用 Pages；用户已自行公开原仓库，以使用 GitHub Free。实际阅读 GitHub 官方 Pages 文档（通过 github/docs 的公开源码）、actions/configure-pages 的 action.yml 和 API 实现，以及 actions/deploy-pages 的 README/action.yml；核对官方 release 和仓库许可证。采用 configure-pages v6、upload-pages-artifact v5、deploy-pages v5，三者均为 GitHub 官方维护、MIT，Node 24 运行环境；不安装第三方部署脚本。
+
+官方 configure-pages 对自动开通的要求是：使用 GITHUB_TOKEN 以外的凭据，App 必须具备 administration:write 和 pages:write。当前 Codex App 安装元数据无这两项权限；因此采用账号持有人一次性选择 Pages → GitHub Actions，之后通过工作流的 pages:write/id-token:write 发布。不声称 YAML 可为 Codex App 提权，不要求复制 GitHub 令牌到聊天。
+
+## 2026-10-11 中高级任务设计复核
+
+本次再次实际请求 Council of Europe level-descriptions、British Council B2 level explanation / challenging-someones-ideas；网络代理返回 403，未读取全文，不能声称完成官方资料验证。通过 GitHub 重新读取 openlanguageprofiles/olp-en-cefrj 目录确认数据来源；未复制 C1/C2 CC BY-SA 数据，不使用未经许可的例句或音频。
+
+设计依据已具备的 CEFR 能力导向及任务教学知识：B1–B2 支架下提出理由、延续互动、回应质疑和明确行动；C1 增加有保留的推断、因果/权衡、隐含意义与语域，而非要求堆砌长词。三场景为原创内容；本次没有新安装 Skills、依赖或外部素材，沿用 React/Vite/Playwright 和原创 SVG。规则反馈公开其词语检查限制，与真实 AI 分开。
+
+新增音频的 eSpeak NG 与依赖再次从 Debian trixie 官方签名索引取得，逐包核对 SHA256 后解包到 /tmp 运行；不执行远程安装脚本，不改全局依赖或证书信任。音频是原创文本的合成朗读，正常约 180 词/分钟不是“真人录音”，声音自然度需要后续改进。
+
+## 2026-10-11 第二阶段架构与模型安全研究
+
+本次实际读取 OpenAI/openai-node、anthropics/anthropic-sdk-typescript、googleapis/js-genai 的官方 GitHub README：OpenAI/Claude 默认禁用浏览器，要求显式浏览器风险选择；Google 建议生产服务端保存运营者 Key。未执行远程安装或新增 SDK。用户要求网页配置个人 Key、本地或安全后端保存，因此实现个人主动 BYOK、默认会话内存、可选 Web Crypto 保险箱、固定官方协议及明确第三方数据流；不是公开网站内置个人权限。
+
+AES-GCM/PBKDF2 使用浏览器原生 Web Crypto，无新加密依赖。浏览器直连和密文并不能消除扩展/XSS/已解锁设备风险，更高要求采用可信后端，见 docs/AI.md。协议 mock 不证明供应商可达或教学质量。
+
+场景任务采用事实—目的—行动—反馈逻辑：面试区分个人/团队贡献；汇报明确 decision ask；技术解释区分响应延迟与完成、重试与唯一投递；谈判区分 consider 与 approval；投诉承诺可控行动；跨文化不按国籍刻板推断；租房仅练沟通不提供法律结论。CEFR 标签是任务设计参考，11场景不冒充完整等级课程。沿用原工具和许可证，无新增框架或 Skills。
+
+## 2026-10-12 知识库与素材
+
+实际下载并核读 WordNet3.0 的授权与免责声明，允许保留声明后的修改分发，选取1154个英文释义词条，完整许可也嵌入数据。见 KNOWLEDGE.md 的来源、哈希及复制边界。Cambridge/IELTS/ETS/AWL/OpenStax网页请求被代理限制，未声明读过全文或获得教材许可。32个教学单元、中文说明、例句、理解题与应用任务为原创，考试方向非官方词表。
+
+使用 image_gen 生成原创照片风格环境与虚构人物素材，CSS只在原图四分区展示，没有使用真人肖像、电影、电视剧或第三方图库。提供轻量动效和示意图，并明确非真人视频。既有setup技能核对运行环境，未安装额外Skills或开发依赖。
+
+## 输入先行教学重构（2026-10-13）
+
+本阶段沿用CEFR、情境输入、支架与间隔复习方向，使用原创生活英语释义/例句/练习，不复制教材。35生活阶段和388原创单元为有限选编，不能声称完整考试词表或权威认证。名词check-in（简短沟通）和动词check in（入住）使用不同ID；join/attend不作无语境的一律纠错。
+
+新增 life-atlas.png 为本项目生成的一张原创九环境照片风格图集，未使用电影/电视剧、品牌或真实人物身份，约2.6MB。随Pages发布通过同源CDN缓存，不需外部图片账户/API；所有阶段复用，不提交大量照片。合成照片只有可暂停光线动效与词语交互，无真人视频或嘴形同步。
+
+本轮再次用Debian trixie官方InRelease签名和已安装的Debian archive keyring核验Packages.xz的SHA256，并逐包核对espeak-ng/espeak-ng-data/libespeak-ng1/libpcaudio0/libsonic0的SHA256，解包到/tmp运行。没有执行远程安装脚本、sudo、禁用TLS或更改证书信任；网站只发布原创文本的合成音频，保留旧文件URL。
+
+## 学习体验与3D实验（2026-10-13）
+
+详见 [Blender 调研与实验](BLENDER.md)。现有 cloud-environment-onboarding:setup 用于复核工具、认证、安装/启动/验证；没有安装未知插件、远程安装脚本或额外MCP。Three.js官方npm元数据和MIT LICENSE已查看，精确锁定0.186.1。官网Blender版本查询返回403，不能声称已核验最新Windows版本。
+
+学习有效性以情境回忆、理解行动、提示后巩固和后续提取区分，未进行真实学习者长期记忆实验；功能测试不等于教学效率临床或统计证明。照片风格九视角新图集为原创AI合成，没有使用电影、书籍或图库版权素材；共享同源CDN缓存，不依赖图片API密钥。
