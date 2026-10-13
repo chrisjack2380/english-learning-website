@@ -311,7 +311,7 @@ test('existing adult and beginner scenarios complete the default guided flow and
   await page.getByRole('button', { name: /Beginner · A1–A2/ }).click();
   const cafe = scenes.find((s) => s.id === 'cafe')!;
   await page.getByRole('button', { name: `进入${cafe.title}`, exact: true }).click();
-  await finishStage(page, basicJourney(cafe, 'scene-cafe').stages[0]);
+  await finishStage(page, basicJourney(cafe, 'scene-cafe').stages[0], true);
   saved = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)!), STORAGE_KEY);
   expect(saved.completed).toEqual(['meeting']);
 });

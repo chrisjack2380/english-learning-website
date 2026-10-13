@@ -75,6 +75,8 @@ describe('input-first teaching engine', () => {
     expect(parseKnowledge({ ...s, apiKey: 'test-only-secret' })).not.toHaveProperty('apiKey');
   });
   it('simple equivalent utterances are acknowledged without target vocabulary and unknown responses are not graded', () => {
+    const cafe = basicJourney(scenes.find((s) => s.id === 'cafe')!, 'scene-cafe').stages[0];
+    expect(equivalentOutput('Coffee!', cafe.output.answer, cafe.output.equivalents)).toBe(true);
     const s = lifeJourneys.find((j) => j.id === 'groceries')!.stages[4];
     expect(equivalentOutput('Yes, please.', s.output.answer, s.output.equivalents)).toBe(true);
     const q = lifeJourneys.find((j) => j.id === 'office-day')!.stages[0];

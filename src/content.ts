@@ -47,6 +47,7 @@ export type Turn = {
   accept: string;
   sample: string;
   feedback: string;
+  equivalents?: string[];
 };
 export type Scene = {
   id: SceneId;
@@ -445,12 +446,20 @@ const beginnerScenes: Scene[] = [
         line: 'Hi! What would you like?',
         zh: '你好！你想要什么？',
         task: '今天的任务：礼貌地点一杯咖啡。',
-        options: ["I'd like a coffee, please.", 'Coffee!', 'I am a coffee.'],
+        options: ["I'd like a coffee, please.", 'What time do you close?', 'I am a coffee.'],
         correct: "I'd like a coffee, please.",
         accept:
-          "(i'd|i would) like (a|one) coffee( please)?|can i (have|get) (a|one) coffee( please)?|(a|one) coffee please",
+          "(i'd|i would) like (a|one) coffee( please)?|can i (have|get) (a|one) coffee( please)?|((a|one) )?coffee( please)?",
+        equivalents: [
+          'Coffee!',
+          'A coffee.',
+          'One coffee.',
+          'Coffee, please.',
+          'Can I have a coffee?',
+        ],
         sample: "I'd like a coffee, please.",
-        feedback: 'Coffee! 能表达物品，却不够礼貌。试试 I’d like a coffee, please.',
+        feedback:
+          'Coffee! 能清楚表达点咖啡的意思；Coffee, please. 或 I’d like a coffee, please. 更礼貌。',
       },
       {
         speaker: 'Jamie · 店员',

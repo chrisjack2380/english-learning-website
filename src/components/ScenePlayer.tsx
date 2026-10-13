@@ -307,7 +307,7 @@ export function DialogueScenePlayer({
                     textMode ? { accept: turn.accept } : { answer: turn.correct },
                   );
                   setResult(correct ? 'correct' : 'wrong');
-                  if (!correct) setMistakes(mistakes + 1);
+                  if (!correct && !textMode) setMistakes(mistakes + 1);
                 }}
               >
                 {textMode ? (
@@ -361,9 +361,12 @@ export function DialogueScenePlayer({
                     <strong>
                       {result === 'correct'
                         ? '沟通成功，继续对话。'
-                        : '对方还没有理解你的任务，试着换个表达。'}
+                        : textMode
+                          ? '当前预设练习尚未覆盖这句话；未据此判定意思错误。可对照参考或切换选择回答。'
+                          : '对方还没有理解你的任务，试着换个表达。'}
                     </strong>
                     <p>{result === 'correct' ? `你说：${answer}` : turn.feedback}</p>
+                    {result === 'correct' && turn.equivalents && <p>{turn.feedback}</p>}
                     {result === 'wrong' && <small>参考：{turn.sample}</small>}
                   </div>
                 )}

@@ -157,7 +157,7 @@ export function basicJourney(scene: Scene, id: string): LearningJourney {
           zh: first.task,
           options: first.options,
           answer: first.correct,
-          equivalents: [first.sample],
+          equivalents: [...(first.equivalents || []), first.sample],
           why: first.feedback,
           reply: 'Thank you. Let us continue.',
           replyZh: '谢谢。我们继续。',
