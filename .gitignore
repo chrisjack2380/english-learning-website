@@ -1,0 +1,15 @@
+node_modules/
+dist/
+*.tsbuildinfo
+test-results/
+playwright-report/
+.vercel/
+output/online/
+output/local/
+output/playwright/
+.env*
+!.env.example
+.DS_Store
+__pycache__/
+*.pyc
+*.blend1
