@@ -3,6 +3,7 @@
 先读 REQUIREMENTS.md、RULES.md、HANDOFF.md。当前以输入先行段为准：默认先理解词汇与表达，不强制复杂自由输出。当前用户授权持续开发并在线发布，普通技术选择自主决定；不擅自合并 PR、强推、删除重要分支或覆盖用户修改。
 
 - 使用现有 checkout，无明确需要不建额外 worktree。先用 rg 查找，依赖优先已有成熟工具，不执行未知远程安装脚本。
+- 当前开发在 Windows 本机 `E:\appdevelop\english-learning-website`；不依赖原 Codex 云环境。保留 `.gitattributes` 的 LF 规则，避免 Windows Git 默认 CRLF 导致格式检查失败。
 - 成人中高级真实沟通为主。已有基础默认 B1–B2，保留入门区和全部旧进度。简单指教学方式，不能降低内容难度。
 - 场景模型在 src/scene-schema.ts，原场景数据/工厂在 src/advanced-content.ts，新场景在 src/scene-catalog.ts。新增场景只加数据，禁止在页面按 id 增加特殊判断。角色、环境、任务、C1 意图题和评价标准应完整。
 - 输出先明确沟通任务、事实和边界。动画不授予掌握；词语规则不是语义评估。自由/生成/AI 练习不得跳过系统必修课。使用支架或 AI 建议记录 revised 并安排复习。

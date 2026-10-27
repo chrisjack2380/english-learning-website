@@ -93,6 +93,31 @@ describe('context learning and reusable three dimensional assets', () => {
     for (const journey of lifeJourneys)
       for (const stage of journey.stages) expect(stageViews[stage.id]?.length).toBeGreaterThan(0);
   });
+  it('learning backups retain hint evidence and reject malformed or unrelated terms', () => {
+    const stage = lifeJourneys[0].stages[0];
+    const hinted = [stageRecallTerms(stage)[0]];
+    const parse = (value: unknown) =>
+      parseState(
+        JSON.stringify({
+          ...freshState(),
+          journeys: {
+            commute: {
+              stage: 0,
+              at: 1,
+              stages: {
+                [stage.id]: { ...freshStage(), hinted: value, apiKey: 'private-extra' },
+              },
+            },
+          },
+        }),
+      );
+    const saved = parse(hinted).journeys!.commute.stages[stage.id];
+    expect(saved.hinted).toEqual(hinted);
+    expect(saved).not.toHaveProperty('apiKey');
+    expect(parse(undefined).journeys!.commute.stages[stage.id]).not.toHaveProperty('hinted');
+    for (const invalid of ['wake up', [42], ['unknown'], [...hinted, ...hinted]])
+      expect(() => parse(invalid)).toThrow();
+  });
   it('the exported GLB has actual indexed geometry, semantic meshes, embedded animation and no remote textures', () => {
     const file = readFileSync('public/models/office.glb');
     expect(file.subarray(0, 4).toString()).toBe('glTF');

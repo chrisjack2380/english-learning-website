@@ -6,6 +6,7 @@ export type StageProgress = {
   learningVersion?: 2;
   outputMode?: 'supported' | 'reviewed' | 'self-checked';
   outputText?: string;
+  hinted?: string[];
   firstChecks?: { vocabulary: boolean; listening: boolean; output: boolean };
   phase: number;
   seen: string[];
@@ -102,6 +103,14 @@ export function parseJourneys(value: unknown, known: (id: string) => boolean): J
         (typeof p.outputText !== 'string' || p.outputText.length > 1500)
       )
         throw new Error('表达记录无效');
+      if (
+        p.hinted !== undefined &&
+        (!Array.isArray(p.hinted) ||
+          p.hinted.length > 100 ||
+          p.hinted.some((term) => typeof term !== 'string' || term.length > 200) ||
+          new Set(p.hinted).size !== p.hinted.length)
+      )
+        throw new Error('提示记录无效');
       if (definition) {
         const terms = [
           ...definition.words.map((w) => w[0]),
@@ -111,6 +120,7 @@ export function parseJourneys(value: unknown, known: (id: string) => boolean): J
           [...p.seen, ...p.recognized].some((w) => !terms.includes(w)) ||
           new Set(p.seen).size !== p.seen.length ||
           new Set(p.recognized).size !== p.recognized.length ||
+          (p.hinted || []).some((term) => !stageRecallTerms(definition).includes(term)) ||
           (p.completed &&
             (p.phase !== 6 ||
               !(p.learningVersion === 2 ? stageRecallTerms(definition) : terms).every((w) =>
@@ -124,6 +134,7 @@ export function parseJourneys(value: unknown, known: (id: string) => boolean): J
         ...(p.learningVersion === 2 ? { learningVersion: 2 as const } : {}),
         ...(p.outputMode ? { outputMode: p.outputMode } : {}),
         ...(p.outputText !== undefined ? { outputText: p.outputText } : {}),
+        ...(p.hinted !== undefined ? { hinted: [...p.hinted] } : {}),
         ...(p.firstChecks
           ? {
               firstChecks: Object.fromEntries(

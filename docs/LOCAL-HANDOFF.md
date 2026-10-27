@@ -2,6 +2,10 @@
 
 更新：2026-10-27（Asia/Shanghai）。用户选择离开当前 Codex 云开发环境；GitHub 是代码交接来源，GitHub Pages 继续托管现有网站。
 
+本机接手已建立 `E:\appdevelop\english-learning-website`，分支仍为 `feat/english-learning-mvp`，起点 `3b10287`。本机 Node 24.15.0 / npm 11.12.1 可安装并启动项目，开发地址 `http://127.0.0.1:5173/`；仓库 CI 继续使用 `.node-version` 指定的版本。本机实测与后续发布结果见 HANDOFF / TESTING 顶部，不能沿用历史云结果。
+
+仓库新增 `.gitattributes` 统一文本 LF（bat/cmd 为 CRLF），解决本机 Git `core.autocrlf=true` 检出后格式检查失败；不需要修改全局 Git 配置。浏览器安装或启动被当前执行沙箱阻止时应按本机权限机制执行并报告真实错误，不关闭网站 TLS 校验或减少测试。不要同时运行会清理共享报告目录的多套 Playwright 测试，也不要在生产测试过程中重建 dist。
+
 ## 必须选对分支
 
 - 仓库：https://github.com/chrisjack2380/english-learning-website

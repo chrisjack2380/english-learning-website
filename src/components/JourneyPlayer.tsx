@@ -217,6 +217,19 @@ export function JourneyPlayer({
     setSelfChecked(false);
     setFeedbackShown(false);
   }
+  function selectStage(nextIndex: number) {
+    const target = local[journey.stages[nextIndex].id];
+    setIndex(nextIndex);
+    setInput(target?.outputText || '');
+    setTyped(Boolean(target?.phase === 5 && target.outputText));
+    setSelected('');
+    setMessage('');
+    setChoice('');
+    setHint(false);
+    setSelfChecked(false);
+    setFeedbackShown(false);
+    commit({}, nextIndex);
+  }
   function discover(term: string) {
     setSelected(term);
     if (!p.seen.includes(term)) {
@@ -328,14 +341,7 @@ export function JourneyPlayer({
             key={s.id}
             aria-current={index === i ? 'step' : undefined}
             disabled={i > 0 && !local[journey.stages[i - 1].id]?.completed}
-            onClick={() => {
-              setIndex(i);
-              setSelected('');
-              setMessage('');
-              setChoice('');
-              setInput('');
-              commit({}, i);
-            }}
+            onClick={() => selectStage(i)}
           >
             <span>{local[s.id]?.completed ? '✓' : i + 1}</span>
             {s.title}
@@ -501,11 +507,20 @@ export function JourneyPlayer({
               <p className="english" lang="en">
                 {recall.line}
               </p>
-              <button className="text-button" onClick={() => setHint(!hint)}>
-                需要一点提示
+              <button
+                className="text-button"
+                aria-expanded={hint}
+                aria-controls="context-recall-hint"
+                onClick={() => {
+                  if (!hint && !p.hinted?.includes(nextTerm))
+                    commit({ hinted: [...(p.hinted || []), nextTerm] });
+                  setHint(!hint);
+                }}
+              >
+                {hint ? '收起提示' : '需要一点提示'}
               </button>
               {hint && (
-                <p className="note">
+                <p className="note" id="context-recall-hint">
                   {recall.hint}
                   <br />
                   {unit.translation}
@@ -530,11 +545,12 @@ export function JourneyPlayer({
                 disabled={!choice}
                 onClick={() => {
                   if (choice === recall.answer) {
+                    const usedHint = Boolean(hint || p.hinted?.includes(nextTerm));
                     const recognized = [...new Set([...p.recognized, nextTerm])];
                     commit({
                       recognized,
                       phase: items.every((term) => recognized.includes(term)) ? 3 : 2,
-                      ...(hint
+                      ...(usedHint
                         ? {
                             firstChecks: {
                               ...(p.firstChecks || {
@@ -547,7 +563,7 @@ export function JourneyPlayer({
                           }
                         : {}),
                     });
-                    k.update(recordKnowledge(k.state, unit.id, hint ? 'miss' : 'recognize'));
+                    k.update(recordKnowledge(k.state, unit.id, usedHint ? 'miss' : 'recognize'));
                     setChoice('');
                     setMessage('');
                     setHint(false);
@@ -557,7 +573,7 @@ export function JourneyPlayer({
                 理解并继续
               </button>
               <p className="muted small-text">
-                可随时查看提示。使用提示会安排短期巩固，不计为独立回忆。
+                可随时查看提示。使用提示会安排短期巩固，不计为独立回忆；收起提示或刷新后仍保留记录。
               </p>
             </>
           )}
@@ -670,7 +686,7 @@ export function JourneyPlayer({
                 className="text-button"
                 onClick={() => {
                   setTyped(!typed);
-                  setInput('');
+                  setInput(p.outputText || '');
                   setSelfChecked(false);
                   setFeedbackShown(false);
                   setChoice('');
@@ -814,19 +830,7 @@ export function JourneyPlayer({
                 </p>
               ))}
               {index < journey.stages.length - 1 ? (
-                <button
-                  className="button primary"
-                  onClick={() => {
-                    const next = index + 1;
-                    setIndex(next);
-                    commit({}, next);
-                    setMessage('');
-                    setChoice('');
-                    setInput('');
-                    setSelected('');
-                    setTyped(false);
-                  }}
-                >
+                <button className="button primary" onClick={() => selectStage(index + 1)}>
                   继续：{journey.stages[index + 1].title}
                   <ArrowRight size={17} />
                 </button>
@@ -842,6 +846,10 @@ export function JourneyPlayer({
                   setMessage('');
                   setChoice('');
                   setInput('');
+                  setTyped(false);
+                  setHint(false);
+                  setSelfChecked(false);
+                  setFeedbackShown(false);
                 }}
               >
                 再练这一阶段 <RotateCcw size={15} />

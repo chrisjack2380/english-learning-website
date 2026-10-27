@@ -5,6 +5,7 @@ test-results/
 playwright-report/
 .vercel/
 output/online/
+output/local/
 output/playwright/
 .env*
 !.env.example

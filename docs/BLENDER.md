@@ -26,7 +26,9 @@ blender -b --python scripts/build-office.py -- --render
 
 ## Windows E:\Blender
 
-当前执行机是Linux；没有挂载E盘，也没有Windows远程执行通道。**未查看本机版本、未删除旧安装、未下载到E盘**。云Blender版本不代表你的电脑版本。
+2026-10-27 已在 Windows 本机实际读取 `E:\Blender` 并运行助手的默认检查。目录有 `blender-4.0.2-windows-x64.msi`（333684736 字节）及 `4.0\python`、`4.0\scripts`，递归文件统计为 211 个 `.pyc` 和该 MSI；没有找到 `blender.exe` 或 `.blend`，PATH 也未解析到 Blender 命令。目录内不存在可运行安装，不能把 MSI 文件名当作已安装程序版本。这个结论限于已检查的目录和 PATH，不代表扫描了整台电脑。
+
+本轮只读取目录及运行默认检查，没有删除、下载、安装或更新。网站直接使用仓库的 GLB，不需要先安装 Blender。后续改动模型时再确定可用的本机程序；历史云端 4.3.2 不能作为 Windows 版本证明。
 
 提供 `scripts/windows-blender.ps1`，在你的Windows环境运行默认只检查E目录的程序版本；加 `-Download` 才从Blender官网下载页解析最新稳定Windows x64便携版，并验证官网SHA256，下载/解压到 `E:\Blender\versions`。不执行下载程序，不删除旧版本、项目、素材、插件或设置，不执行远程安装脚本。目录已经存在则不覆盖；官网格式改变或无法取校验值则停止。
 
@@ -37,4 +39,4 @@ blender -b --python scripts/build-office.py -- --render
 .\windows-blender.ps1 -Download
 ```
 
-此助手已做代码检查，云端无法执行PowerShell/Windows兼容性测试，不能冒称已更新。当前网络访问Blender官网和下载目录返回403，因此无法独立确认最新正式版；不根据候选Skill版本猜测官网下载版本，也不绕过TLS、使用未经验证镜像或盲删E目录。需要本机执行环境才能完成本机安装操作。
+助手的默认检查现已在 Windows PowerShell 实际运行，输出 `No Blender executable found in this folder.`；`-Download` 下载与解压流程仍未实测，本轮没有查询最新版本。历史云端官网请求曾返回403，不能据此推断本机网络或最新版本，不绕过TLS、使用未经验证镜像或盲删E目录。

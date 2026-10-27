@@ -28,6 +28,8 @@ Key 默认仅会话内存，可选口令加密本地保险箱，支持锁定/删
 
 ## 运行与验证
 
+本机开发交接及 Windows PowerShell 命令见 [docs/LOCAL-HANDOFF.md](docs/LOCAL-HANDOFF.md)。完整代码在 `feat/english-learning-mvp`；当前 `main` 只有初始 README。文本由 `.gitattributes` 统一 LF，兼容本机 Git 的 CRLF 默认设置。
+
 Node.js 24+：
 
 ```bash

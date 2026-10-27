@@ -2,7 +2,8 @@ import { test, expect, type Page } from '@playwright/test';
 import { officeLab } from '../src/office-lab';
 import { lifeJourneys } from '../src/life-content';
 import { stageRecallTerms } from '../src/context-practice';
-import { STORAGE_KEY } from '../src/learning';
+import { freshState, STORAGE_KEY } from '../src/learning';
+import { freshStage } from '../src/journey-learning';
 async function enter(page: Page, office = true) {
   await page.goto('./');
   await page.getByRole('button', { name: '开启我的学习旅程' }).click();
@@ -190,35 +191,86 @@ test('missing GLB and absent WebGL preserve the learning flow', async ({ page })
   await page.getByRole('button', { name: '进入 3D 办公室' }).click();
   await expect(page.locator('.office-canvas')).toHaveAttribute('data-state', 'fallback');
 });
-test('hints support context learning without being counted as independent recall', async ({
+for (const action of ['visible', 'hidden', 'reload'])
+  test(`hints retain support evidence when ${action}`, async ({ page }) => {
+    await enter(page, false);
+    const s = lifeJourneys[0].stages[0];
+    for (const [term] of s.words)
+      await page
+        .locator('.world-word-elements')
+        .getByRole('button', { name: `+ ${term}`, exact: true })
+        .click();
+    await page.getByRole('button', { name: '学习词汇与表达' }).click();
+    await page.getByRole('button', { name: '开始情境回忆' }).click();
+    await expect(page.locator('.journey-lesson')).toContainText('________');
+    await page.getByRole('button', { name: '需要一点提示' }).click();
+    if (action === 'hidden') await page.getByRole('button', { name: '收起提示' }).click();
+    if (action === 'reload') {
+      await page.reload();
+      await page.getByRole('button', { name: '开始今天的学习' }).click();
+    }
+    await page
+      .getByRole('group', { name: '情境回忆选项' })
+      .getByRole('button', { name: 'wake up', exact: true })
+      .click();
+    await page.getByRole('button', { name: '理解并继续' }).click();
+    const saved = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)!), STORAGE_KEY);
+    expect(saved.knowledge.records['wake-up'].understood).toBe(false);
+    expect(saved.knowledge.records['wake-up'].due - Date.now()).toBeGreaterThan(500000);
+    expect(saved.journeys.commute.stages['leave-home'].firstChecks.vocabulary).toBe(false);
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.screenshot({
+      path: `output/${process.env.SITE_URL ? 'online' : 'playwright'}/experience-context-recall-${action}.png`,
+      fullPage: true,
+      animations: 'disabled',
+    });
+  });
+
+test('unfinished response drafts survive stage navigation and changing answer mode', async ({
   page,
 }) => {
-  await enter(page, false);
-  const s = lifeJourneys[0].stages[0];
-  for (const [term] of s.words)
-    await page
-      .locator('.world-word-elements')
-      .getByRole('button', { name: `+ ${term}`, exact: true })
-      .click();
-  await page.getByRole('button', { name: '学习词汇与表达' }).click();
-  await page.getByRole('button', { name: '开始情境回忆' }).click();
-  await expect(page.locator('.journey-lesson')).toContainText('________');
-  await page.getByRole('button', { name: '需要一点提示' }).click();
-  await page
-    .getByRole('group', { name: '情境回忆选项' })
-    .getByRole('button', { name: 'wake up', exact: true })
-    .click();
-  await page.getByRole('button', { name: '理解并继续' }).click();
-  const saved = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)!), STORAGE_KEY);
-  expect(saved.knowledge.records['wake-up'].understood).toBe(false);
-  expect(saved.knowledge.records['wake-up'].due - Date.now()).toBeGreaterThan(500000);
-  expect(saved.journeys.commute.stages['leave-home'].firstChecks.vocabulary).toBe(false);
-  await page.evaluate(() => window.scrollTo(0, 0));
-  await page.screenshot({
-    path: `output/${process.env.SITE_URL ? 'online' : 'playwright'}/experience-context-recall.png`,
-    fullPage: true,
-    animations: 'disabled',
+  const [first, second] = lifeJourneys[0].stages;
+  const draft = 'Could you wait a moment while I check the departure board?';
+  const ready = (s: typeof first) => ({
+    ...freshStage(),
+    learningVersion: 2 as const,
+    phase: 5,
+    seen: s.words.map((w) => w[0]),
+    recognized: stageRecallTerms(s),
+    listening: true,
+    cloze: true,
+    imitated: true,
   });
+  const state = {
+    ...freshState(),
+    profile: { level: 'basics' as const, minutes: 10 as const, createdAt: Date.now() },
+    journeys: {
+      commute: {
+        stage: 1,
+        at: Date.now(),
+        stages: {
+          [first.id]: { ...ready(first), phase: 6, output: true, completed: true },
+          [second.id]: { ...ready(second), outputText: draft },
+        },
+      },
+    },
+  };
+  await page.addInitScript(({ key, state }) => localStorage.setItem(key, JSON.stringify(state)), {
+    key: STORAGE_KEY,
+    state,
+  });
+  await page.goto('./');
+  await page.getByRole('button', { name: '开始今天的学习' }).click();
+  await expect(page.getByLabel('我的简单回应')).toHaveValue(draft);
+  const stages = page.getByLabel('生活过程阶段');
+  await stages.getByRole('button', { name: new RegExp(first.title) }).click();
+  await stages.getByRole('button', { name: new RegExp(second.title) }).click();
+  await expect(page.getByLabel('我的简单回应')).toHaveValue(draft);
+  await expect(page.getByRole('button', { name: '完成简单回应' })).toBeDisabled();
+  await page.getByRole('button', { name: '使用有支架的选择回答' }).click();
+  await page.getByRole('button', { name: '可选：自己输入 / 用语音试一试' }).click();
+  await expect(page.getByLabel('我的简单回应')).toHaveValue(draft);
+  await expect(page.getByRole('button', { name: '完成简单回应' })).toBeDisabled();
 });
 test('reduced motion stops exported character animation while preserving discovery', async ({
   page,
