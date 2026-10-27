@@ -3977,6 +3977,12 @@ select {
 .life-hero-art {
   padding: 0 !important;
 }
+.life-hero {
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr);
+}
+.life-hero > div {
+  min-width: 0;
+}
 .life-hero .hero-copy > .text-button {
   display: flex;
   margin-top: 12px;
@@ -3987,7 +3993,20 @@ select {
 .life-hero-art .journey-world {
   height: 100%;
   min-height: 340px;
+  aspect-ratio: auto;
   border-radius: 0;
+}
+@media (max-width: 1000px) {
+  .life-hero {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .life-hero .hero-copy {
+    padding: 24px;
+  }
+  .life-hero-art .journey-world {
+    height: 260px;
+    min-height: 0;
+  }
 }
 .image-fallback-note {
   padding: 75px 20px;

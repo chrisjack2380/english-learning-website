@@ -251,6 +251,11 @@ for (const device of [
     const errors: string[] = [];
     page.on('pageerror', (e) => errors.push(e.message));
     await onboard(page);
+    const copy = await page.locator('.life-hero .hero-copy').boundingBox();
+    const start = await page.getByRole('button', { name: '开始今天的学习' }).boundingBox();
+    // A grid can fit the viewport while still crushing text into a vertical strip.
+    expect(copy!.width).toBeGreaterThan(250);
+    expect(start!.height).toBeLessThan(70);
     await shot(page, `${device.name}-home`);
     await page.getByRole('button', { name: '开始今天的学习' }).click();
     await shot(page, `${device.name}-discovery`);

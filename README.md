@@ -18,7 +18,7 @@
 
 开放表达提供正确性、自然度、语境与升级四层建议。已审核完整同义简单回应可被认可，不要求目标术语；未知说法不自动判错，可对照参考或回到选择回答。Make My English Natural与可选模型分析保留；不以关键词、词数或长度评估自由语义。私人TXT/Markdown≤200KB仅页面内存处理，不必上传资料才能学习，不支持PDF教材解析。
 
-角色输入/回应自动播音，支持关闭、重播、0.7×与查看中文；设备TTS同步句子边界，1394段备用合成MP3按整句提示，非真人录音。原创AI九环境图集由Pages同源CDN缓存，七个过程共用一张约2.6MB图片，支持加载失败、暂停和减少动画。照片轻动效不是真人视频、嘴形同步或3D。
+角色输入/回应自动播音，支持关闭、重播、0.7×与查看中文；设备TTS同步句子边界，1480段备用合成MP3按整句提示，非真人录音。原创AI九环境图集由Pages同源CDN缓存，七个过程共用一张约2.6MB图片，支持加载失败、暂停和减少动画。照片轻动效不是真人视频、嘴形同步或3D。
 
 ## 可选个人 AI
 
@@ -72,14 +72,14 @@ src/components/AutoDialogue.tsx        # 自动语音和字幕状态
 src/pages/Knowledge.tsx                # 知识路线与私人阅读入口
 public/dictionary/                    # WordNet子集与完整许可证
 public/visuals/                        # 原创虚拟角色/环境素材
-public/audio/                         # 1394段备用合成音频，保留旧URL
+public/audio/                         # 1480段备用合成音频，保留旧URL
 src/*.test.ts / tests/*.e2e.ts          # 单元及真实浏览器流程
 output/playwright/                    # 本机实际截图；mock文件明确标记
 ```
 
 教学引擎与生活过程见 [docs/TEACHING-ENGINE.md](docs/TEACHING-ENGINE.md)。扩展知识见 [docs/KNOWLEDGE.md](docs/KNOWLEDGE.md)，场景/课程见 [docs/EXTENDING.md](docs/EXTENDING.md)。长期维护入口：[REQUIREMENTS](REQUIREMENTS.md)、[RULES](RULES.md)、[AGENTS](AGENTS.md)、[HANDOFF](HANDOFF.md)。
 
-实际采用 React19、TypeScript、Vite、Lucide、SVG/CSS、Web Crypto、浏览器语音与备用 MP3，Vitest/Playwright/Prettier。无新框架、供应商 SDK 或付费依赖。应用 cloud-environment-onboarding:setup 核对环境；未新增其他 Skills。研究、授权数据与素材出处见 [docs/RESEARCH.md](docs/RESEARCH.md)。
+实际采用 React19、TypeScript、Vite、Lucide、SVG/CSS、Web Crypto、浏览器语音与备用 MP3，Vitest/Playwright/Prettier。无新框架、供应商 SDK 或付费依赖。当前在 Windows 本机安装依赖、启动及测试，不依赖原云开发环境或额外 Skills。研究、授权数据与素材出处见 [docs/RESEARCH.md](docs/RESEARCH.md)。
 
 ## 当前边界
 
